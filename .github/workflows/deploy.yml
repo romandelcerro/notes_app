@@ -32,7 +32,7 @@ jobs:
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
 
       - name: Build
-        run: pnpm build
+        run: pnpm exec ng build
 
       - name: Deploy to Firebase Hosting
         run: pnpm firebase deploy --only hosting --token "$FIREBASE_TOKEN" --project notes-ecec3
