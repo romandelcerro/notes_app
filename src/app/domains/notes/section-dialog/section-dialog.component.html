@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>{{ (editMode ? 'section.dialogTitleEdit' : 'section.dialogTitleNew') | translate }}</h2>
+
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'section.nameLabel' | translate }}</mat-label>
+    <input
+      matInput
+      [value]="name()"
+      (input)="name.set($any($event.target).value)"
+      (keyup.enter)="save()"
+      [placeholder]="'section.namePlaceholder' | translate"
+    />
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>{{ 'note.cancel' | translate }}</button>
+  <button mat-flat-button (click)="save()" [disabled]="saving() || !name().trim()">
+    {{ saving() ? ((editMode ? 'section.saving' : 'section.creating') | translate) : ((editMode ? 'section.save' : 'section.create') | translate) }}
+  </button>
+</mat-dialog-actions>
+

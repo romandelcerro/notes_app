@@ -1,0 +1,28 @@
+.login-container {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+
+  mat-card-actions {
+    padding: 16px;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+.login-description {
+  margin: 16px 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.login-error {
+  color: var(--mat-sys-error);
+  font-size: 0.875rem;
+}

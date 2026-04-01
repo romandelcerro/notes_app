@@ -1,0 +1,63 @@
+<h2 mat-dialog-title>{{ 'profile.title' | translate }}</h2>
+
+<mat-dialog-content>
+  <div class="avatar-section">
+    @if (user()?.photoURL) {
+      <img class="avatar-large" [src]="user()!.photoURL!" [alt]="user()!.displayName ?? 'Avatar'" />
+    } @else {
+      <div class="avatar-initial">{{ avatarInitial() }}</div>
+    }
+    <div class="avatar-actions">
+      <label>
+        <input type="file" accept="image/*" (change)="uploadAvatar($event)" hidden />
+        <button mat-stroked-button type="button" onclick="this.previousElementSibling.click()">
+          <mat-icon>photo_camera</mat-icon>
+          {{ user()?.photoURL ? ('profile.changePhoto' | translate) : ('profile.uploadPhoto' | translate) }}
+        </button>
+      </label>
+      @if (user()?.photoURL) {
+        <button mat-icon-button (click)="removeAvatar()" [matTooltip]="'profile.removePhotoTooltip' | translate" [attr.aria-label]="'profile.removePhotoAriaLabel' | translate">
+          <mat-icon>delete</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  <p class="user-email">{{ user()?.email }}</p>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'profile.nameLabel' | translate }}</mat-label>
+    <input matInput [value]="displayName()" (input)="displayName.set($any($event.target).value)" />
+  </mat-form-field>
+
+  <button mat-flat-button (click)="saveName()" [disabled]="saving() || !displayName().trim()">
+    {{ saving() ? ('profile.savingName' | translate) : ('profile.saveName' | translate) }}
+  </button>
+
+  <mat-divider class="backup-divider" />
+
+  <p class="backup-title">{{ 'profile.backup' | translate }}</p>
+  <div class="backup-actions">
+    <button mat-stroked-button (click)="exportBackup()" [disabled]="exporting() || importing()">
+      <mat-icon>download</mat-icon>
+      {{ exporting() ? ('profile.exporting' | translate) : ('profile.export' | translate) }}
+    </button>
+    <label>
+      <input type="file" accept=".json,application/json" (change)="importBackup($event)" [disabled]="importing() || exporting()" hidden />
+      <button mat-stroked-button type="button" [disabled]="importing() || exporting()" onclick="this.previousElementSibling.click()">
+        <mat-icon>upload</mat-icon>
+        {{ importing() ? ('profile.importing' | translate) : ('profile.import' | translate) }}
+      </button>
+    </label>
+  </div>
+</mat-dialog-content>
+
+<mat-divider />
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>{{ 'profile.close' | translate }}</button>
+  <button mat-button class="signout-btn" (click)="signOut()">
+    <mat-icon>logout</mat-icon>
+    {{ 'profile.signOut' | translate }}
+  </button>
+</mat-dialog-actions>

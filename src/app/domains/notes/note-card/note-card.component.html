@@ -1,0 +1,56 @@
+<mat-card
+  class="note-card"
+  [style.border-left-color]="note().color"
+  (click)="onPreview()"
+>
+  <mat-card-header>
+    @if (note().title) {
+      <mat-card-title>{{ note().title }}</mat-card-title>
+    }
+    <span class="card-spacer"></span>
+    <button
+      mat-icon-button
+      class="action-btn"
+      [matMenuTriggerFor]="cardMenu"
+      (click)="$event.stopPropagation()"
+      [attr.aria-label]="'note.moreOptions' | translate"
+    >
+      <mat-icon>more_vert</mat-icon>
+    </button>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="content-row">
+      <div class="content-text">
+        @if (isLink()) {
+          <a [href]="note().content" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">
+            {{ note().content }}
+          </a>
+        } @else {
+          <p class="note-content" [innerHTML]="contentHtml()" (click)="onContentClick($event)"></p>
+        }
+      </div>
+      @if (thumbUrl()) {
+        <img class="note-thumb" [src]="thumbUrl()!" alt="" />
+      }
+    </div>
+  </mat-card-content>
+
+  <mat-card-footer>
+    <span class="note-date">{{ note().updatedAt | date: 'd MMM, HH:mm' }}</span>
+    @if (hasFileAttachments()) {
+      <mat-icon class="att-indicator" title="Adjuntos">attach_file</mat-icon>
+    }
+  </mat-card-footer>
+</mat-card>
+
+<mat-menu #cardMenu="matMenu">
+  <button mat-menu-item (click)="onEdit()">
+    <mat-icon>edit</mat-icon>
+    {{ 'note.edit' | translate }}
+  </button>
+  <button mat-menu-item class="menu-item-danger" (click)="deleteNote()">
+    <mat-icon>delete</mat-icon>
+    {{ 'note.delete' | translate }}
+  </button>
+</mat-menu>

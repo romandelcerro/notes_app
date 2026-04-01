@@ -1,0 +1,61 @@
+<mat-toolbar>
+  @if (!sidenavOpen()) {
+    <button mat-icon-button (click)="onMenuClick()" [attr.aria-label]="'toolbar.menuAriaLabel' | translate">
+      <mat-icon>menu</mat-icon>
+    </button>
+  }
+
+  <div class="search-wrapper">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      class="search-input"
+      type="text"
+      [placeholder]="'toolbar.search' | translate"
+      [value]="searchQuery()"
+      (input)="onSearchInput($any($event.target).value)"
+      [attr.aria-label]="'toolbar.searchAriaLabel' | translate"
+    />
+  </div>
+
+  <span class="spacer"></span>
+
+  <div class="clock">
+    <span class="clock-day">{{ clockDay() }}</span>
+    <span class="clock-date">{{ clockDate() }}</span>
+    <span class="clock-time">{{ clockTime() }}</span>
+  </div>
+
+  <span class="spacer"></span>
+
+  <button
+    mat-icon-button
+    (click)="toggleTheme()"
+    [matTooltip]="isDark() ? 'Light mode' : 'Dark mode'"
+    [attr.aria-label]="isDark() ? 'Light mode' : 'Dark mode'"
+  >
+    <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
+
+  <button
+    mat-icon-button
+    (click)="toggleLanguage()"
+    [matTooltip]="'toolbar.toggleLanguage' | translate"
+    [attr.aria-label]="'toolbar.toggleLanguage' | translate"
+  >
+    <span class="lang-flag">{{ _translateService.lang() === 'es' ? 'EN' : 'ES' }}</span>
+  </button>
+
+  <button
+    mat-icon-button
+    class="avatar-icon-btn"
+    (click)="onProfileClick()"
+    [attr.aria-label]="user()?.displayName ?? ('toolbar.profileAriaLabel' | translate)"
+  >
+    @if (user()?.photoURL) {
+      <img class="avatar" [src]="user()!.photoURL!" [alt]="user()!.displayName ?? 'Avatar'" />
+    } @else {
+      <span class="avatar-initial">{{ avatarInitial() }}</span>
+    }
+  </button>
+
+</mat-toolbar>
