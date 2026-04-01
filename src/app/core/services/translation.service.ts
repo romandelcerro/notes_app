@@ -9,10 +9,10 @@ export class TranslationService {
 
   readonly lang = this._lang.asReadonly();
 
-  constructor() {
+  async init() {
     const stored = localStorage.getItem('notes_lang') as Language | null;
     const initial: Language = stored === 'en' ? 'en' : 'es';
-    this._load(initial);
+    await this._load(initial);
   }
 
   async setLanguage(lang: Language) {
