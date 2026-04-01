@@ -1,4 +1,4 @@
-import { writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync } from 'fs';
 
 const required = [
   'FIREBASE_API_KEY',
@@ -32,6 +32,7 @@ export const environment = {
 };
 `;
 
+mkdirSync('src/environments', { recursive: true });
 writeFileSync('src/environments/environment.ts', template(false));
 writeFileSync('src/environments/environment.prod.ts', template(true));
 
