@@ -1,7 +1,7 @@
 <mat-card class="note-card" [style.border-left-color]="note().color" (click)="onPreview()">
   <mat-card-header>
     @if (note().title) {
-      <mat-card-title>{{ note().title }}</mat-card-title>
+      <mat-card-title [title]="note().title">{{ note().title }}</mat-card-title>
     }
     <span class="card-spacer"></span>
     <button mat-icon-button class="drag-handle" cdkDragHandle (click)="$event.stopPropagation()" [attr.aria-label]="'note.drag' | translate" [matTooltip]="'note.drag' | translate">
