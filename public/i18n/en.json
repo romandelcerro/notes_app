@@ -16,6 +16,9 @@
   "sidenav.closeMenuAriaLabel": "Close menu",
   "sidenav.sections": "Sections",
   "sidenav.sectionOptionsAriaLabel": "Options for",
+  "sidenav.settings": "Settings",
+  "sidenav.lightMode": "Light mode",
+  "sidenav.darkMode": "Dark mode",
 
   "section.edit": "Edit",
   "section.delete": "Delete",
