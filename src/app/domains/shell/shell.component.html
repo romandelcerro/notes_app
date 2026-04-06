@@ -8,18 +8,15 @@
       (newSectionClick)="openNewSection()"
       (editSectionClick)="editSection($event)"
       (deleteSectionClick)="deleteSection($event)"
-      (signOutClick)="signOut()"
-    />
+      (signOutClick)="signOut()" />
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <app-toolbar
-      (filterChange)="onFilterChange($event)"
-      (profileClick)="openProfile()"
-      (menuClick)="toggleSidenav()"
-      [sidenavOpen]="sidenavOpen()"
-    />
-    <router-outlet />
+    <div class="content-layout">
+      <app-toolbar (filterChange)="onFilterChange($event)" (profileClick)="openProfile()" (menuClick)="toggleSidenav()" [sidenavOpen]="sidenavOpen()" />
+      <div class="content-scroll">
+        <router-outlet />
+      </div>
+    </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
-

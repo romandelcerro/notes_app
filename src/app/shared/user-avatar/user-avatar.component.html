@@ -1,4 +1,4 @@
-<button class="avatar-btn" (click)="avatarClick.emit()" [attr.aria-label]="user()?.displayName ?? ('toolbar.profileAriaLabel' | translate)">
+<button class="avatar-btn" (click)="avatarClick.emit()" [attr.aria-label]="user()?.displayName ?? ('toolbar.profileAriaLabel' | translate)" [matTooltip]="'toolbar.profileAriaLabel' | translate">
   @if (user()?.photoURL) {
     <img class="avatar" [src]="user()!.photoURL!" [alt]="user()!.displayName ?? 'Avatar'" />
   } @else {

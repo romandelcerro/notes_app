@@ -1,20 +1,19 @@
-<mat-card
-  class="note-card"
-  [style.border-left-color]="note().color"
-  (click)="onPreview()"
->
+<mat-card class="note-card" [style.border-left-color]="note().color" (click)="onPreview()">
   <mat-card-header>
     @if (note().title) {
       <mat-card-title>{{ note().title }}</mat-card-title>
     }
     <span class="card-spacer"></span>
+    <button mat-icon-button class="drag-handle" cdkDragHandle (click)="$event.stopPropagation()" [attr.aria-label]="'note.drag' | translate" [matTooltip]="'note.drag' | translate">
+      <mat-icon>drag_indicator</mat-icon>
+    </button>
     <button
       mat-icon-button
       class="action-btn"
       [matMenuTriggerFor]="cardMenu"
       (click)="$event.stopPropagation()"
       [attr.aria-label]="'note.moreOptions' | translate"
-    >
+      [matTooltip]="'note.moreOptions' | translate">
       <mat-icon>more_vert</mat-icon>
     </button>
   </mat-card-header>

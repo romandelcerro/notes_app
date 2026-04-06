@@ -1,83 +1,25 @@
 <div class="sidenav-header">
-  <div class="header-settings">
-    <button
-      mat-icon-button
-      (click)="settingsOpen.set(!settingsOpen())"
-      [matTooltip]="'sidenav.settings' | translate"
-      [attr.aria-label]="'sidenav.settings' | translate"
-    >
-      <mat-icon>settings</mat-icon>
-    </button>
-    @if (settingsOpen()) {
-      <div class="settings-bubble" role="dialog" [attr.aria-label]="'sidenav.settings' | translate">
-        <button
-          mat-icon-button
-          (click)="toggleTheme()"
-          [matTooltip]="(isDark() ? 'sidenav.lightMode' : 'sidenav.darkMode') | translate"
-          [attr.aria-label]="(isDark() ? 'sidenav.lightMode' : 'sidenav.darkMode') | translate"
-        >
-          <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          (click)="toggleLanguage()"
-          [matTooltip]="'toolbar.toggleLanguage' | translate"
-          [attr.aria-label]="'toolbar.toggleLanguage' | translate"
-        >
-          <span class="lang-flag">{{ _translateService.lang() === 'es' ? 'EN' : 'ES' }}</span>
-        </button>
-      </div>
-    }
-  </div>
+  <app-settings />
   <button mat-icon-button (click)="closeClick.emit()" [attr.aria-label]="'sidenav.closeMenuAriaLabel' | translate" [matTooltip]="'sidenav.closeMenuAriaLabel' | translate">
     <mat-icon>keyboard_double_arrow_left</mat-icon>
   </button>
 </div>
 
 <nav class="sidenav-nav" [attr.aria-label]="'sidenav.sections' | translate">
-  <button
-    class="sidenav-item"
-    [class.active]="selectedSectionId() === null"
-    (click)="sectionSelect.emit(null)"
-  >
-    <mat-icon>notes</mat-icon>
-    <span>{{ 'sidenav.allNotes' | translate }}</span>
-  </button>
+  <app-section-item icon="notes" [label]="'sidenav.allNotes' | translate" [active]="selectedSectionId() === null" (selectClick)="sectionSelect.emit(null)" />
 
   @for (sec of sections(); track sec.id) {
-    <button
-      class="sidenav-item"
-      [class.active]="selectedSectionId() === sec.id"
-      (click)="sectionSelect.emit(sec.id!)"
-    >
-      <mat-icon>folder_open</mat-icon>
-      <span>{{ sec.name }}</span>
-      <button
-        class="sidenav-section-menu-btn"
-        mat-icon-button
-        [matMenuTriggerFor]="sectionMenu"
-        [attr.aria-label]="('sidenav.sectionOptionsAriaLabel' | translate) + ' ' + sec.name"
-        (click)="$event.stopPropagation()"
-      >
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <mat-menu #sectionMenu="matMenu">
-        <button mat-menu-item (click)="editSectionClick.emit(sec)">
-          <mat-icon>edit</mat-icon>
-          <span>{{ 'section.edit' | translate }}</span>
-        </button>
-        <button mat-menu-item class="menu-item-danger" (click)="deleteSectionClick.emit(sec)">
-          <mat-icon>delete</mat-icon>
-          <span>{{ 'section.delete' | translate }}</span>
-        </button>
-      </mat-menu>
-    </button>
+    <app-section-item
+      icon="folder_open"
+      [label]="sec.name"
+      [section]="sec"
+      [active]="selectedSectionId() === sec.id"
+      (selectClick)="sectionSelect.emit(sec.id!)"
+      (editClick)="editSectionClick.emit($event)"
+      (deleteClick)="deleteSectionClick.emit($event)" />
   }
 
-  <button class="sidenav-item sidenav-add" (click)="newSectionClick.emit()">
-    <mat-icon>add</mat-icon>
-    <span>{{ 'sidenav.newSection' | translate }}</span>
-  </button>
+  <app-section-item icon="add" [label]="'sidenav.newSection' | translate" [primary]="true" (selectClick)="newSectionClick.emit()" />
 </nav>
 
 <div class="sidenav-footer">

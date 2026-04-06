@@ -1,3 +1,4 @@
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -5,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import type { Note } from '../../../core/models/note.model';
 import { FilesService } from '../../../core/services/files.service';
 import { NotesService } from '../../../core/services/notes.service';
@@ -12,9 +14,9 @@ import { TranslatePipe } from '../../../shared/translate.pipe';
 
 @Component({
   selector: 'app-note-card',
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatChipsModule, MatMenuModule, DatePipe, TranslatePipe],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, MatChipsModule, MatMenuModule, MatTooltipModule, DatePipe, TranslatePipe, CdkDragHandle],
   templateUrl: './note-card.component.html',
-  styleUrl: './note-card.component.scss',
+  styleUrl: './note-card.component.scss'
 })
 export class NoteCardComponent {
   private readonly _notesService = inject(NotesService);
@@ -32,8 +34,8 @@ export class NoteCardComponent {
     const id = this.note().id;
     if (!id) return;
     const atts = await this._notesService.getAttachments(id);
-    const img = atts.find((a) => a.mimeType.startsWith('image/'));
-    this.hasFileAttachments.set(atts.some((a) => !a.mimeType.startsWith('image/')));
+    const img = atts.find(a => a.mimeType.startsWith('image/'));
+    this.hasFileAttachments.set(atts.some(a => !a.mimeType.startsWith('image/')));
     if (!img) return;
     const prev = this.thumbUrl();
     if (prev) this._filesService.revokeObjectURL(prev);
@@ -78,15 +80,8 @@ export class NoteCardComponent {
 
   protected readonly contentHtml = computed(() => {
     const raw = this.contentPreview();
-    const escaped = raw
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-    return escaped.replace(
-      /https?:\/\/[^\s]+/g,
-      (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`,
-    );
+    const escaped = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return escaped.replace(/https?:\/\/[^\s]+/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
   });
 
   protected readonly isLink = computed(() => this.note().type === 'link');

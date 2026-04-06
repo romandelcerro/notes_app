@@ -62,6 +62,7 @@
   "note.pinAriaLabel": "Pin",
   "note.unpinAriaLabel": "Unpin",
   "note.moreOptions": "More options",
+  "note.drag": "Drag to reorder",
 
   "profile.title": "Profile",
   "profile.changePhoto": "Change photo",

@@ -1,5 +1,5 @@
 .notes-main {
-  padding: 24px 16px 120px;
+  padding: 18px 16px 32px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -11,6 +11,10 @@
   text-transform: uppercase;
   color: var(--mat-sys-on-surface-variant);
   margin: 16px 0 8px;
+}
+
+section:first-child .section-label {
+  margin-top: 0;
 }
 
 .notes-grid {
@@ -51,7 +55,10 @@
   color: var(--mat-sys-on-surface-variant);
   cursor: pointer;
   font-size: 0.875rem;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
 
   mat-icon {
     opacity: 0.6;
