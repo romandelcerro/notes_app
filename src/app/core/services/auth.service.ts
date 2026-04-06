@@ -1,4 +1,4 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   GoogleAuthProvider,
@@ -30,12 +30,6 @@ export class AuthService {
   readonly user = this._user.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly isAuthenticated = computed(() => !!this._user());
-
-  private readonly _redirectOnAuth = effect(() => {
-    if (!this._loading()) {
-      this._router.navigate(this._user() ? ['/'] : ['/login']);
-    }
-  });
 
   constructor() {
     this._listenToAuthState();
@@ -75,13 +69,22 @@ export class AuthService {
   }
 
   private _listenToAuthState() {
+    let isInitialLoad = true;
+
     onAuthStateChanged(this._auth, async (firebaseUser) => {
       if (firebaseUser) {
         await this._initUserSession(firebaseUser);
+        if (!isInitialLoad) {
+          this._router.navigate(['/']);
+        }
       } else {
         this._user.set(null);
+        if (!isInitialLoad) {
+          this._router.navigate(['/login']);
+        }
       }
       this._loading.set(false);
+      isInitialLoad = false;
     });
   }
 
