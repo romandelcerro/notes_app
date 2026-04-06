@@ -5,31 +5,12 @@
         <mat-icon>menu</mat-icon>
       </button>
     }
-    <div class="search-wrapper">
-      <mat-icon class="search-icon">search</mat-icon>
-      <input
-        class="search-input"
-        type="text"
-        [placeholder]="'toolbar.search' | translate"
-        [value]="searchQuery()"
-        (input)="onSearchInput($any($event.target).value)"
-        [attr.aria-label]="'toolbar.searchAriaLabel' | translate" />
-    </div>
+    <app-search-input (queryChange)="onSearchInput($event)" />
   </div>
 
-  <div class="clock">
-    <span class="clock-day">{{ clockDay() }}</span>
-    <span class="clock-date">{{ clockDate() }}</span>
-    <span class="clock-time">{{ clockTime() }}</span>
-  </div>
+  <app-clock />
 
   <div class="toolbar-right">
-    <button mat-icon-button class="avatar-icon-btn" (click)="onProfileClick()" [attr.aria-label]="user()?.displayName ?? ('toolbar.profileAriaLabel' | translate)">
-      @if (user()?.photoURL) {
-        <img class="avatar" [src]="user()!.photoURL!" [alt]="user()!.displayName ?? 'Avatar'" />
-      } @else {
-        <span class="avatar-initial">{{ avatarInitial() }}</span>
-      }
-    </button>
+    <app-user-avatar (avatarClick)="onProfileClick()" />
   </div>
 </mat-toolbar>

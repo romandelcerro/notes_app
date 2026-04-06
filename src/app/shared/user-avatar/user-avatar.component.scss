@@ -1,0 +1,43 @@
+:host {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-btn {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent);
+  }
+
+  &:active {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--mat-sys-on-surface) 20%, transparent);
+  }
+}
+
+.avatar,
+.avatar-initial {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: block;
+}
+
+.avatar {
+  object-fit: cover;
+}
+
+.avatar-initial {
+  display: grid;
+  place-items: center;
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 50%;
+}

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -7,11 +7,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import type { NoteFilter } from '../../core/models/note-filter.model';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslationService } from '../../core/services/translation.service';
+import { ClockComponent } from '../clock/clock.component';
+import { SearchInputComponent } from '../search-input/search-input.component';
 import { TranslatePipe } from '../translate.pipe';
+import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 
 @Component({
   selector: 'app-toolbar',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, TranslatePipe],
+  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, TranslatePipe, SearchInputComponent, UserAvatarComponent, ClockComponent],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss'
 })
@@ -20,27 +23,10 @@ export class ToolbarComponent {
   private readonly _destroyRef = inject(DestroyRef);
   protected readonly _translateService = inject(TranslationService);
 
-  protected readonly searchQuery = signal('');
   protected readonly dateFrom = signal('');
   protected readonly dateTo = signal('');
 
-  private readonly _now = signal(new Date());
-  private readonly _locale = computed(() => (this._translateService.lang() === 'es' ? 'es-ES' : 'en-US'));
-  protected readonly clockDay = computed(() => this._now().toLocaleDateString(this._locale(), { weekday: 'long' }));
-  protected readonly clockDate = computed(() => this._now().toLocaleDateString(this._locale(), { day: 'numeric', month: 'long', year: 'numeric' }));
-  protected readonly clockTime = computed(() => this._now().toLocaleTimeString(this._locale(), { hour: '2-digit', minute: '2-digit' }));
-
-  constructor() {
-    const id = setInterval(() => this._now.set(new Date()), 1000);
-    this._destroyRef.onDestroy(() => clearInterval(id));
-  }
-  protected readonly user = this._authService.user;
-  protected readonly hasDateFilter = computed(() => !!this.dateFrom() || !!this.dateTo());
-  protected readonly avatarInitial = computed(() => {
-    const name = this._authService.user()?.displayName ?? this._authService.user()?.email ?? '?';
-    return name.charAt(0).toUpperCase();
-  });
-
+  constructor() {}
   readonly sidenavOpen = input(false);
 
   readonly filterChange = output<NoteFilter>();
@@ -52,8 +38,7 @@ export class ToolbarComponent {
   }
 
   protected onSearchInput(value: string) {
-    this.searchQuery.set(value);
-    this._emitFilter();
+    this._emitFilter(value);
   }
 
   protected onDateFromChange(value: string) {
@@ -80,9 +65,9 @@ export class ToolbarComponent {
     this.menuClick.emit();
   }
 
-  private _emitFilter() {
+  private _emitFilter(query = '') {
     this.filterChange.emit({
-      query: this.searchQuery(),
+      query,
       dateFrom: this.dateFrom() ? new Date(this.dateFrom()) : null,
       dateTo: this.dateTo() ? new Date(this.dateTo()) : null
     });
