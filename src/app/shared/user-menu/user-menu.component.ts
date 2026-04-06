@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -19,19 +19,10 @@ import { TranslatePipe } from '../translate.pipe';
 
 @Component({
   selector: 'app-user-menu',
-  imports: [
-    MatDialogModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatDividerModule,
-    MatTooltipModule,
-    FormsModule,
-    TranslatePipe,
-  ],
+  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatDividerModule, MatTooltipModule, FormsModule, TranslatePipe],
   templateUrl: './user-menu.component.html',
   styleUrl: './user-menu.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserMenuComponent {
   private readonly _auth = inject(AuthService);
@@ -39,8 +30,8 @@ export class UserMenuComponent {
   private readonly _notesService = inject(NotesService);
   private readonly _sectionsService = inject(SectionsService);
   private readonly _snackBar = inject(MatSnackBar);
-  private readonly _dialogRef = inject(MatDialogRef<UserMenuComponent>);
   private readonly _dialog = inject(MatDialog);
+  private readonly _dialogRef = inject(MatDialogRef<UserMenuComponent>);
   private readonly _translateService = inject(TranslationService);
 
   protected readonly user = this._auth.user;
@@ -89,11 +80,15 @@ export class UserMenuComponent {
     const confirmed = await firstValueFrom(
       this._dialog
         .open(ConfirmDialogComponent, {
-          data: { message: this._translateService.t('profile.clearDataConfirm') },
-          width: '360px',
-          maxWidth: '95vw',
+          data: {
+            title: this._translateService.t('confirm.title'),
+            message: this._translateService.t('profile.clearDataConfirm'),
+            cancelLabel: this._translateService.t('confirm.cancel'),
+            confirmLabel: this._translateService.t('confirm.delete'),
+            confirmVariant: 'warn'
+          }
         })
-        .afterClosed(),
+        .afterClosed()
     );
     if (!confirmed) return;
     this.clearing.set(true);

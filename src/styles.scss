@@ -11,10 +11,10 @@ html {
     (
       color: (
         primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        tertiary: mat.$blue-palette
       ),
       typography: Roboto,
-      density: 0,
+      density: 0
     )
   );
 }
@@ -43,10 +43,10 @@ html.dark-theme {
       color: (
         primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
-        theme-type: dark,
+        theme-type: dark
       ),
       typography: Roboto,
-      density: 0,
+      density: 0
     )
   );
 
@@ -57,5 +57,5 @@ html.dark-theme {
 /* You can add global styles to this file, and also import other style files */
 
 .mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content {
-  padding-top: 6px !important;
+  padding-top: 0.375rem !important;
 }

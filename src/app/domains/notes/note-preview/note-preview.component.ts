@@ -58,74 +58,83 @@ import { TranslatePipe } from '../../../shared/translate.pipe';
       </button>
     </mat-dialog-actions>
   `,
-  styles: [`
-    .preview-content {
-      white-space: pre-wrap;
-      word-break: break-word;
-      line-height: 1.6;
-      margin: 0;
-    }
-    .preview-link {
-      word-break: break-all;
-    }
-    .preview-images {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 16px;
-    }
-    .preview-img-wrap {
-      position: relative;
-      display: inline-flex;
-    }
-    .preview-img-wrap:hover .img-download-btn {
-      opacity: 1;
-    }
-    .img-download-btn {
-      position: absolute;
-      bottom: 4px;
-      right: 4px;
-      opacity: 0;
-      transition: opacity 0.2s;
-      background: rgba(0,0,0,0.45);
-      color: #fff;
-    }
-    .preview-img {
-      max-width: 100%;
-      max-height: 300px;
-      border-radius: 8px;
-      object-fit: contain;
-    }
-    .preview-files {
-      list-style: none;
-      padding: 0;
-      margin: 16px 0 0;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .preview-files li {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: var(--mat-sys-surface-variant);
-    }
-    .file-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      flex-shrink: 0;
-      color: var(--mat-sys-on-surface-variant);
-    }
-    .file-size {
-      margin-left: auto;
-      font-size: 0.75rem;
-      color: var(--mat-sys-on-surface-variant);
-      margin-right: 4px;
-    }
-  `],
+  styles: [
+    `
+      :host {
+        display: block;
+        width: min(90vw, 37.5rem);
+      }
+      mat-dialog-content {
+        overflow-y: auto;
+      }
+      .preview-content {
+        white-space: pre-wrap;
+        word-break: break-word;
+        line-height: 1.6;
+        margin: 0;
+      }
+      .preview-link {
+        word-break: break-all;
+      }
+      .preview-images {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .preview-img-wrap {
+        position: relative;
+        display: inline-flex;
+      }
+      .preview-img-wrap:hover .img-download-btn {
+        opacity: 1;
+      }
+      .img-download-btn {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        background: rgba(0, 0, 0, 0.45);
+        color: #fff;
+      }
+      .preview-img {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 8px;
+        object-fit: contain;
+      }
+      .preview-files {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .preview-files li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        border-radius: 8px;
+        background: var(--mat-sys-surface-variant);
+      }
+      .file-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        color: var(--mat-sys-on-surface-variant);
+      }
+      .file-size {
+        margin-left: auto;
+        font-size: 0.75rem;
+        color: var(--mat-sys-on-surface-variant);
+        margin-right: 4px;
+      }
+    `
+  ]
 })
 export class NotePreviewComponent {
   private readonly _notesService = inject(NotesService);
@@ -140,7 +149,7 @@ export class NotePreviewComponent {
 
   constructor() {
     this._destroyRef.onDestroy(() => {
-      this.imageUrls().forEach((img) => this._filesService.revokeObjectURL(img.url));
+      this.imageUrls().forEach(img => this._filesService.revokeObjectURL(img.url));
     });
     this._loadImages();
   }
@@ -165,27 +174,20 @@ export class NotePreviewComponent {
 
   protected readonly contentHtml = computed(() => {
     // Escape HTML special chars first to prevent injection, then linkify URLs
-    const escaped = this.note.content
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-    return escaped.replace(
-      /https?:\/\/[^\s]+/g,
-      (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`,
-    );
+    const escaped = this.note.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return escaped.replace(/https?:\/\/[^\s]+/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
   });
 
   private async _loadImages() {
     if (!this.note.id) return;
     const attachments: Attachment[] = await this._notesService.getAttachments(this.note.id);
-    const images = attachments.filter((a) => a.mimeType.startsWith('image/'));
-    const files = attachments.filter((a) => !a.mimeType.startsWith('image/'));
+    const images = attachments.filter(a => a.mimeType.startsWith('image/'));
+    const files = attachments.filter(a => !a.mimeType.startsWith('image/'));
     const loaded = await Promise.all(
-      images.map(async (a) => {
+      images.map(async a => {
         const buffer = await this._notesService.decryptAttachment(a);
         return { url: this._filesService.bufferToObjectURL(buffer, a.mimeType), attachment: a };
-      }),
+      })
     );
     this.imageUrls.set(loaded);
     this.fileAttachments.set(files);

@@ -6,7 +6,7 @@
 </div>
 
 <nav class="sidenav-nav" [attr.aria-label]="'sidenav.sections' | translate">
-  <app-section-item icon="notes" [label]="'sidenav.allNotes' | translate" [active]="selectedSectionId() === null" (selectClick)="sectionSelect.emit(null)" />
+  <app-section-item icon="notes" [label]="'sidenav.allNotes' | translate" [active]="selectedSectionId() === null" (selectClick)="selectSection(null)" />
 
   @for (sec of sections(); track sec.id) {
     <app-section-item
@@ -14,16 +14,16 @@
       [label]="sec.name"
       [section]="sec"
       [active]="selectedSectionId() === sec.id"
-      (selectClick)="sectionSelect.emit(sec.id!)"
-      (editClick)="editSectionClick.emit($event)"
-      (deleteClick)="deleteSectionClick.emit($event)" />
+      (selectClick)="selectSection(sec.id!)"
+      (editClick)="editSection($event)"
+      (deleteClick)="deleteSection($event)" />
   }
 
-  <app-section-item icon="add" [label]="'sidenav.newSection' | translate" [primary]="true" (selectClick)="newSectionClick.emit()" />
+  <app-section-item icon="add" [label]="'sidenav.newSection' | translate" [primary]="true" (selectClick)="openNewSection()" />
 </nav>
 
 <div class="sidenav-footer">
-  <button class="sidenav-signout" mat-button (click)="signOutClick.emit()">
+  <button class="sidenav-signout" mat-button (click)="signOut()">
     <mat-icon>logout</mat-icon>
     <span>{{ 'sidenav.signOut' | translate }}</span>
   </button>

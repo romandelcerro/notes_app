@@ -70,7 +70,7 @@ import { SectionDialogComponent } from '../notes/section-dialog/section-dialog.c
       flex-wrap: wrap;
       justify-content: center;
     }
-  `,
+  `
 })
 export class EmptyStateComponent {
   private readonly _notesService = inject(NotesService);
@@ -85,7 +85,7 @@ export class EmptyStateComponent {
       .open(SectionDialogComponent, { width: '400px', maxWidth: '95vw' })
       .afterClosed()
       .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe((created) => {
+      .subscribe(created => {
         if (!created) return;
         const sections = this._sectionsService.sections();
         const newSection = sections[sections.length - 1];
@@ -103,6 +103,7 @@ export class EmptyStateComponent {
         data: { sectionId: section.id },
         width: '600px',
         maxWidth: '95vw',
+        maxHeight: '90dvh'
       })
       .afterClosed()
       .pipe(takeUntilDestroyed(this._destroyRef))

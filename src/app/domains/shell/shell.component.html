@@ -1,19 +1,11 @@
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav class="sidenav" [opened]="sidenavOpen()" mode="side">
-    <app-sidenav
-      [selectedSectionId]="selectedSectionId()"
-      [sections]="sections()"
-      (closeClick)="toggleSidenav()"
-      (sectionSelect)="selectSection($event)"
-      (newSectionClick)="openNewSection()"
-      (editSectionClick)="editSection($event)"
-      (deleteSectionClick)="deleteSection($event)"
-      (signOutClick)="signOut()" />
+    <app-sidenav (closeClick)="toggleSidenav()" />
   </mat-sidenav>
 
   <mat-sidenav-content>
     <div class="content-layout">
-      <app-toolbar (filterChange)="onFilterChange($event)" (profileClick)="openProfile()" (menuClick)="toggleSidenav()" [sidenavOpen]="sidenavOpen()" />
+      <app-toolbar (menuClick)="toggleSidenav()" [sidenavOpen]="sidenavOpen()" />
       <div class="content-scroll">
         <router-outlet />
       </div>

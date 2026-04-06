@@ -30,7 +30,7 @@
     <input matInput [value]="displayName()" (input)="displayName.set($any($event.target).value)" />
   </mat-form-field>
 
-  <button mat-flat-button (click)="saveName()" [disabled]="saving() || !displayName().trim()">
+  <button mat-flat-button class="save-name-btn" (click)="saveName()" [disabled]="saving() || !displayName().trim()">
     {{ saving() ? ('profile.savingName' | translate) : ('profile.saveName' | translate) }}
   </button>
 
