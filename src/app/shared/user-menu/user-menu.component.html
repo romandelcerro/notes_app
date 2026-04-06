@@ -50,6 +50,13 @@
       </button>
     </label>
   </div>
+
+  <mat-divider class="backup-divider" />
+
+  <button mat-stroked-button class="clear-data-btn" (click)="clearAllData()" [disabled]="clearing()">
+    <mat-icon>delete_sweep</mat-icon>
+    {{ clearing() ? ('profile.clearingData' | translate) : ('profile.clearData' | translate) }}
+  </button>
 </mat-dialog-content>
 
 <mat-divider />

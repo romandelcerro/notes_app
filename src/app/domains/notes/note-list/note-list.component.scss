@@ -1,24 +1,3 @@
-.sidenav-container {
-  height: 100vh;
-}
-
-.sidenav {
-  width: 240px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--mat-sys-outline-variant);
-  background-color: var(--mat-sys-surface-container-low);
-  border-radius: 0 !important;
-
-  ::ng-deep .mat-drawer-inner-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-  }
-}
-
 .notes-main {
   padding: 24px 16px 120px;
   max-width: 1400px;
@@ -56,15 +35,6 @@
 
 .notes-grid.cdk-drop-list-dragging app-note-card:not(.cdk-drag-placeholder) {
   transition: transform 250ms ease;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 16px;
-  color: var(--mat-sys-on-surface-variant);
 }
 
 .add-note-card {
