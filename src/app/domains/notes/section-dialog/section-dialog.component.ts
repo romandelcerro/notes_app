@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +12,7 @@ import { TranslatePipe } from '../../../shared/translate.pipe';
   imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, TranslatePipe],
   templateUrl: './section-dialog.component.html',
   styleUrl: './section-dialog.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SectionDialogComponent {
   private readonly _sectionsService = inject(SectionsService);

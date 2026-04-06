@@ -8,13 +8,7 @@
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>{{ 'note.contentLabel' | translate }}</mat-label>
-    <textarea
-      matInput
-      rows="8"
-      [value]="content()"
-      (input)="content.set($any($event.target).value)"
-      [placeholder]="'note.contentPlaceholder' | translate"
-    ></textarea>
+    <textarea matInput rows="8" [value]="content()" (input)="content.set($any($event.target).value)" [placeholder]="'note.contentPlaceholder' | translate"></textarea>
   </mat-form-field>
 
   <div class="color-row">
@@ -26,8 +20,7 @@
         [style.background-color]="color || 'var(--mat-sys-surface-variant)'"
         [class.selected]="selectedColor() === color"
         (click)="selectedColor.set(color)"
-        [attr.aria-label]="color || ('note.noColor' | translate)"
-      >
+        [attr.aria-label]="color || ('note.noColor' | translate)">
         @if (selectedColor() === color) {
           <mat-icon>check</mat-icon>
         }
@@ -35,19 +28,19 @@
     }
   </div>
 
-  @if (isEditing) {
-    <div class="attachments-section">
-      <div class="attachments-header">
-        <span>{{ 'note.attachments' | translate }}</span>
-        <label>
-          <input type="file" multiple (change)="onFileSelected($event)" hidden />
-          <button mat-stroked-button type="button" onclick="this.previousElementSibling.click()">
-            <mat-icon>attach_file</mat-icon>
-            {{ 'note.addFile' | translate }}
-          </button>
-        </label>
-      </div>
+  <div class="attachments-section">
+    <div class="attachments-header">
+      <span>{{ 'note.attachments' | translate }}</span>
+      <label>
+        <input type="file" multiple (change)="onFileSelected($event)" hidden />
+        <button mat-stroked-button type="button" onclick="this.previousElementSibling.click()">
+          <mat-icon>attach_file</mat-icon>
+          {{ 'note.addFile' | translate }}
+        </button>
+      </label>
+    </div>
 
+    @if (isEditing) {
       @if (attachments().length > 0) {
         <ul class="att-list">
           @for (att of attachments(); track att.id) {
@@ -67,8 +60,25 @@
       } @else {
         <p class="no-attachments">{{ 'note.noAttachments' | translate }}</p>
       }
-    </div>
-  }
+    } @else {
+      @if (pendingFiles().length > 0) {
+        <ul class="att-list">
+          @for (file of pendingFiles(); track file.name) {
+            <li>
+              <mat-icon>{{ file.type.startsWith('image/') ? 'image' : 'insert_drive_file' }}</mat-icon>
+              <span class="att-name">{{ file.name }}</span>
+              <span class="att-meta">{{ formatSize(file.size) }}</span>
+              <button mat-icon-button (click)="removePendingFile(file)" aria-label="Eliminar">
+                <mat-icon class="danger-icon">delete</mat-icon>
+              </button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="no-attachments">{{ 'note.noAttachments' | translate }}</p>
+      }
+    }
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions>

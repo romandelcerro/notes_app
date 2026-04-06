@@ -23,19 +23,9 @@ const NOTE_COLORS = ['', '#F28B82', '#FBBC04', '#FFF475', '#CCFF90', '#A8D5F7', 
 
 @Component({
   selector: 'app-note-editor',
-  imports: [
-    MatDialogModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatChipsModule,
-    FormsModule,
-    DatePipe,
-    TranslatePipe,
-  ],
+  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatChipsModule, FormsModule, DatePipe, TranslatePipe],
   templateUrl: './note-editor.component.html',
-  styleUrl: './note-editor.component.scss',
+  styleUrl: './note-editor.component.scss'
 })
 export class NoteEditorComponent {
   private readonly _notesService = inject(NotesService);
@@ -54,6 +44,7 @@ export class NoteEditorComponent {
   protected readonly selectedColor = signal(this._data.note?.color ?? '');
   protected readonly saving = signal(false);
   protected readonly attachments = signal<Attachment[]>([]);
+  protected readonly pendingFiles = signal<File[]>([]);
   protected readonly objectURLs = signal<string[]>([]);
 
   protected readonly colors = NOTE_COLORS;
@@ -69,7 +60,7 @@ export class NoteEditorComponent {
 
   constructor() {
     this._destroyRef.onDestroy(() => {
-      this.objectURLs().forEach((url) => this._filesService.revokeObjectURL(url));
+      this.objectURLs().forEach(url => this._filesService.revokeObjectURL(url));
     });
   }
 
@@ -84,17 +75,20 @@ export class NoteEditorComponent {
         await this._notesService.updateNote(this._data.note.id, {
           title,
           content,
-          color: this.selectedColor(),
+          color: this.selectedColor()
         });
       } else {
-        await this._notesService.createNote({
+        const note = await this._notesService.createNote({
           title,
           content,
           type: this.noteType(),
           color: this.selectedColor(),
           pinned: false,
-          sectionId: this._data.sectionId,
+          sectionId: this._data.sectionId
         });
+        for (const file of this.pendingFiles()) {
+          await this._notesService.addAttachment(note.id!, file);
+        }
       }
       this._dialogRef.close(true);
     } finally {
@@ -122,17 +116,20 @@ export class NoteEditorComponent {
     if (!items) return;
 
     const imageFile = await this._filesService.resolveImageFromClipboard(items);
-    if (imageFile && this._data.note?.id) {
+    if (!imageFile) return;
+    if (this._data.note?.id) {
       await this._notesService.addAttachment(this._data.note.id, imageFile);
       const refreshed = await this._notesService.getAttachments(this._data.note.id);
       this.attachments.set(refreshed);
+    } else {
+      this.pendingFiles.update(files => [...files, imageFile]);
     }
   }
 
   protected async viewAttachment(attachment: Attachment) {
     const buffer = await this._notesService.decryptAttachment(attachment);
     const url = this._filesService.bufferToObjectURL(buffer, attachment.mimeType);
-    this.objectURLs.update((urls) => [...urls, url]);
+    this.objectURLs.update(urls => [...urls, url]);
     window.open(url, '_blank');
   }
 
@@ -146,10 +143,14 @@ export class NoteEditorComponent {
     this._filesService.revokeObjectURL(url);
   }
 
+  protected removePendingFile(file: File) {
+    this.pendingFiles.update(files => files.filter(f => f !== file));
+  }
+
   protected async deleteAttachment(attachment: Attachment) {
     if (!attachment.id) return;
     await this._notesService.deleteAttachment(attachment.id);
-    this.attachments.update((list) => list.filter((a) => a.id !== attachment.id));
+    this.attachments.update(list => list.filter(a => a.id !== attachment.id));
   }
 
   protected formatSize(bytes: number) {
@@ -157,15 +158,21 @@ export class NoteEditorComponent {
   }
 
   private async _uploadFiles(files: FileList) {
-    if (!this._data.note?.id) return;
+    if (!this._data.note?.id) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size > NoteEditorComponent.MAX_FILE_SIZE) {
+          this._snackBar.open(this._translateService.t('note.fileTooLarge', { name: file.name, max: '100 MB' }), this._translateService.t('note.cancel'), { duration: 4000 });
+          continue;
+        }
+        this.pendingFiles.update(pending => [...pending, file]);
+      }
+      return;
+    }
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file.size > NoteEditorComponent.MAX_FILE_SIZE) {
-        this._snackBar.open(
-          this._translateService.t('note.fileTooLarge', { name: file.name, max: '100 MB' }),
-          this._translateService.t('note.cancel'),
-          { duration: 4000 },
-        );
+        this._snackBar.open(this._translateService.t('note.fileTooLarge', { name: file.name, max: '100 MB' }), this._translateService.t('note.cancel'), { duration: 4000 });
         continue;
       }
       await this._notesService.addAttachment(this._data.note.id, file);
