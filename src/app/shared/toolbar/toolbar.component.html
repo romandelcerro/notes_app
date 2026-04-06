@@ -1,7 +1,7 @@
 <mat-toolbar>
   <div class="toolbar-left">
     @if (!sidenavOpen()) {
-      <button mat-icon-button (click)="onMenuClick()" [attr.aria-label]="'toolbar.menuAriaLabel' | translate">
+      <button mat-icon-button (click)="onMenuClick()" [attr.aria-label]="'toolbar.menuAriaLabel' | translate" [matTooltip]="'toolbar.menuAriaLabel' | translate">
         <mat-icon>menu</mat-icon>
       </button>
     }

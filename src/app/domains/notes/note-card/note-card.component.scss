@@ -52,14 +52,22 @@ mat-card-header {
   flex: 1;
 }
 
-.action-btn {
+.action-btn,
+.drag-handle {
   opacity: 0;
   transition: opacity 0.2s;
 }
 
 .note-card:hover .action-btn,
-.action-btn[aria-expanded='true'] {
+.action-btn[aria-expanded='true'],
+.note-card:hover .drag-handle {
   opacity: 1;
+}
+
+@media (pointer: coarse) {
+  .drag-handle {
+    opacity: 1;
+  }
 }
 
 .note-content {
@@ -103,4 +111,3 @@ mat-card-footer {
     color: var(--mat-sys-error);
   }
 }
-
