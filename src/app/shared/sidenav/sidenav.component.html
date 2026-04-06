@@ -1,4 +1,34 @@
 <div class="sidenav-header">
+  <div class="header-settings">
+    <button
+      mat-icon-button
+      (click)="settingsOpen.set(!settingsOpen())"
+      [matTooltip]="'sidenav.settings' | translate"
+      [attr.aria-label]="'sidenav.settings' | translate"
+    >
+      <mat-icon>settings</mat-icon>
+    </button>
+    @if (settingsOpen()) {
+      <div class="settings-bubble" role="dialog" [attr.aria-label]="'sidenav.settings' | translate">
+        <button
+          mat-icon-button
+          (click)="toggleTheme()"
+          [matTooltip]="(isDark() ? 'sidenav.lightMode' : 'sidenav.darkMode') | translate"
+          [attr.aria-label]="(isDark() ? 'sidenav.lightMode' : 'sidenav.darkMode') | translate"
+        >
+          <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          (click)="toggleLanguage()"
+          [matTooltip]="'toolbar.toggleLanguage' | translate"
+          [attr.aria-label]="'toolbar.toggleLanguage' | translate"
+        >
+          <span class="lang-flag">{{ _translateService.lang() === 'es' ? 'EN' : 'ES' }}</span>
+        </button>
+      </div>
+    }
+  </div>
   <button mat-icon-button (click)="closeClick.emit()" [attr.aria-label]="'sidenav.closeMenuAriaLabel' | translate" [matTooltip]="'sidenav.closeMenuAriaLabel' | translate">
     <mat-icon>keyboard_double_arrow_left</mat-icon>
   </button>
