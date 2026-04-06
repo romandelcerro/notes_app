@@ -1,16 +1,20 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { BackupService } from '../../core/services/backup.service';
+import { NotesService } from '../../core/services/notes.service';
+import { SectionsService } from '../../core/services/sections.service';
 import { TranslationService } from '../../core/services/translation.service';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { TranslatePipe } from '../translate.pipe';
 
 @Component({
@@ -32,8 +36,11 @@ import { TranslatePipe } from '../translate.pipe';
 export class UserMenuComponent {
   private readonly _auth = inject(AuthService);
   private readonly _backup = inject(BackupService);
+  private readonly _notesService = inject(NotesService);
+  private readonly _sectionsService = inject(SectionsService);
   private readonly _snackBar = inject(MatSnackBar);
   private readonly _dialogRef = inject(MatDialogRef<UserMenuComponent>);
+  private readonly _dialog = inject(MatDialog);
   private readonly _translateService = inject(TranslationService);
 
   protected readonly user = this._auth.user;
@@ -41,6 +48,7 @@ export class UserMenuComponent {
   protected readonly saving = signal(false);
   protected readonly exporting = signal(false);
   protected readonly importing = signal(false);
+  protected readonly clearing = signal(false);
 
   protected readonly avatarInitial = computed(() => {
     const name = this.user()?.displayName ?? this.user()?.email ?? '?';
@@ -73,6 +81,29 @@ export class UserMenuComponent {
   protected async signOut() {
     this._dialogRef.close();
     await this._auth.signOut();
+  }
+
+  protected async clearAllData() {
+    const userId = this.user()?.uid;
+    if (!userId) return;
+    const confirmed = await firstValueFrom(
+      this._dialog
+        .open(ConfirmDialogComponent, {
+          data: { message: this._translateService.t('profile.clearDataConfirm') },
+          width: '360px',
+          maxWidth: '95vw',
+        })
+        .afterClosed(),
+    );
+    if (!confirmed) return;
+    this.clearing.set(true);
+    try {
+      await this._notesService.clearAllData(userId);
+      await this._sectionsService.clearAllData(userId);
+      window.location.reload();
+    } finally {
+      this.clearing.set(false);
+    }
   }
 
   protected async exportBackup() {

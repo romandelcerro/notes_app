@@ -88,6 +88,17 @@ export class NotesService {
     this._currentUserId = '';
   }
 
+  removeNotesForSection(sectionId: number) {
+    this._notes.update((notes) => notes.filter((n) => n.sectionId !== sectionId));
+  }
+
+  async clearAllData(userId: string) {
+    await db.notes.where('userId').equals(userId).delete();
+    const noteIds = (await db.notes.where('userId').equals(userId).toArray()).map((n) => n.id!);
+    await db.attachments.where('noteId').anyOf(noteIds).delete();
+    this._notes.set([]);
+  }
+
   private async _encryptNote(note: NewNote): Promise<NewNote> {
     return {
       ...note,

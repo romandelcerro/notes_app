@@ -35,6 +35,9 @@ export class SectionsService {
   }
 
   async deleteSection(id: number) {
+    const noteIds = (await db.notes.where('sectionId').equals(id).toArray()).map((n) => n.id!);
+    await db.attachments.where('noteId').anyOf(noteIds).delete();
+    await db.notes.where('sectionId').equals(id).delete();
     await db.sections.delete(id);
     this._sections.update((s) => s.filter((sec) => sec.id !== id));
   }
@@ -42,5 +45,10 @@ export class SectionsService {
   clearSections() {
     this._sections.set([]);
     this._currentUserId = '';
+  }
+
+  async clearAllData(userId: string) {
+    await db.sections.where('userId').equals(userId).delete();
+    this._sections.set([]);
   }
 }

@@ -32,6 +32,11 @@
   "home.pinned": "Pinned",
   "home.others": "Others",
   "home.addNote": "Add note",
+  "home.welcomeTitle": "Welcome to Notes",
+  "home.welcomeSubtitle": "Start by creating a section or your first note",
+  "home.createSection": "Create section",
+  "home.createNote": "Create note",
+  "home.defaultSectionName": "My notes",
 
   "note.editTitle": "Edit note",
   "note.newTitle": "New note",
@@ -70,6 +75,10 @@
   "profile.importing": "Importing…",
   "profile.close": "Close",
   "profile.signOut": "Sign out",
+
+  "profile.clearData": "Clear all data",
+  "profile.clearingData": "Clearing…",
+  "profile.clearDataConfirm": "This will permanently delete all your notes and sections from this device. Are you sure?",
 
   "confirm.title": "Confirm",
   "confirm.cancel": "Cancel",

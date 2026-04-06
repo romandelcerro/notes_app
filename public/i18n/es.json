@@ -32,6 +32,11 @@
   "home.pinned": "Fijadas",
   "home.others": "Otras",
   "home.addNote": "Añadir nota",
+  "home.welcomeTitle": "Bienvenido a Notes",
+  "home.welcomeSubtitle": "Empieza creando una sección o tu primera nota",
+  "home.createSection": "Crear sección",
+  "home.createNote": "Crear nota",
+  "home.defaultSectionName": "Mis notas",
 
   "note.editTitle": "Editar nota",
   "note.newTitle": "Nueva nota",
@@ -70,6 +75,10 @@
   "profile.importing": "Importando…",
   "profile.close": "Cerrar",
   "profile.signOut": "Cerrar sesión",
+
+  "profile.clearData": "Borrar todos los datos",
+  "profile.clearingData": "Borrando…",
+  "profile.clearDataConfirm": "Esto eliminará permanentemente todas tus notas y secciones de este dispositivo. ¿Estás seguro?",
 
   "confirm.title": "Confirmar",
   "confirm.cancel": "Cancelar",
