@@ -27,10 +27,10 @@
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>{{ 'profile.nameLabel' | translate }}</mat-label>
-    <input matInput [value]="displayName()" (input)="displayName.set($any($event.target).value)" />
+    <input matInput [formControl]="displayNameControl" />
   </mat-form-field>
 
-  <button mat-flat-button class="save-name-btn" (click)="saveName()" [disabled]="saving() || !displayName().trim()">
+  <button mat-flat-button class="save-name-btn" (click)="saveName()" [disabled]="saving() || !displayNameControl.value.trim()">
     {{ saving() ? ('profile.savingName' | translate) : ('profile.saveName' | translate) }}
   </button>
 

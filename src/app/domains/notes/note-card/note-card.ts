@@ -1,6 +1,6 @@
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { DatePipe } from '@angular/common';
-import { Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -17,7 +17,8 @@ import { NotesService } from '../../../core/services/notes.service';
   selector: 'app-note-card',
   imports: [MatCardModule, MatButtonModule, MatIconModule, MatChipsModule, MatMenuModule, MatTooltipModule, DatePipe, TranslatePipe, CdkDragHandle],
   templateUrl: './note-card.html',
-  styleUrl: './note-card.scss'
+  styleUrl: './note-card.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NoteCard {
   private readonly _notesService = inject(NotesService);

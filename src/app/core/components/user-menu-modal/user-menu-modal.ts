@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -19,7 +19,7 @@ import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-user-menu-modal',
-  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatDividerModule, MatTooltipModule, FormsModule, TranslatePipe],
+  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatDividerModule, MatTooltipModule, ReactiveFormsModule, TranslatePipe],
   templateUrl: './user-menu-modal.html',
   styleUrl: './user-menu-modal.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -37,7 +37,7 @@ export class UserMenuModal {
   private readonly _dialogRef = inject(MatDialogRef<UserMenuModal>);
 
   protected readonly user = this._userService.user;
-  protected readonly displayName = signal(this._userService.user()?.displayName ?? '');
+  protected readonly displayNameControl = new FormControl(this._userService.user()?.displayName ?? '', { nonNullable: true });
   protected readonly saving = signal(false);
   protected readonly exporting = signal(false);
   protected readonly importing = signal(false);
@@ -49,7 +49,7 @@ export class UserMenuModal {
   });
 
   protected async saveName() {
-    const name = this.displayName().trim();
+    const name = this.displayNameControl.value.trim();
     if (!name) return;
     this.saving.set(true);
     try {

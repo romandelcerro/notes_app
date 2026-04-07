@@ -4,7 +4,7 @@ import { Attachment } from '../models/attachment.model';
 import type { Note } from '../models/note.model';
 import type { Section } from '../models/section.model';
 import { CryptoService } from './crypto.service';
-import { db } from './database.service';
+import { DatabaseService } from './database.service';
 import { NotesService } from './notes.service';
 import { SectionsService } from './sections.service';
 
@@ -20,6 +20,7 @@ interface BackupData {
 @Injectable({ providedIn: 'root' })
 export class BackupService {
   private readonly _cryptoService = inject(CryptoService);
+  private readonly _databaseService = inject(DatabaseService);
   private readonly _notesService = inject(NotesService);
   private readonly _sectionsService = inject(SectionsService);
 
@@ -51,10 +52,10 @@ export class BackupService {
     if (!saltJson) throw new Error('backup.noSalt');
 
     const salt = JSON.parse(saltJson) as number[];
-    const notes = await db.notes.where('userId').equals(userId).toArray();
-    const sections = await db.sections.where('userId').equals(userId).toArray();
+    const notes = await this._databaseService.notes.where('userId').equals(userId).toArray();
+    const sections = await this._databaseService.sections.where('userId').equals(userId).toArray();
     const noteIds = notes.map(n => n.id!).filter(Boolean);
-    const attachments = noteIds.length ? await db.attachments.where('noteId').anyOf(noteIds).toArray() : [];
+    const attachments = noteIds.length ? await this._databaseService.attachments.where('noteId').anyOf(noteIds).toArray() : [];
 
     return { version: 1, userId, salt, notes, sections, attachments };
   }
@@ -62,20 +63,20 @@ export class BackupService {
   private async _restoreBackupData(backup: BackupData, userId: string) {
     localStorage.setItem(`notes_salt_${userId}`, JSON.stringify(backup.salt));
 
-    const existingNotes = await db.notes.where('userId').equals(userId).toArray();
+    const existingNotes = await this._databaseService.notes.where('userId').equals(userId).toArray();
     const existingNoteIds = existingNotes.map(n => n.id!).filter(Boolean);
-    await db.notes.where('userId').equals(userId).delete();
-    await db.sections.where('userId').equals(userId).delete();
+    await this._databaseService.notes.where('userId').equals(userId).delete();
+    await this._databaseService.sections.where('userId').equals(userId).delete();
     if (existingNoteIds.length) {
-      await db.attachments.where('noteId').anyOf(existingNoteIds).delete();
+      await this._databaseService.attachments.where('noteId').anyOf(existingNoteIds).delete();
     }
 
     const notes = backup.notes.map(mapBackupNote);
     const sections = backup.sections.map(mapBackupSection);
     const attachments = backup.attachments.map(mapBackupAttachment);
 
-    await db.notes.bulkAdd(notes);
-    await db.sections.bulkAdd(sections);
-    if (attachments.length) await db.attachments.bulkAdd(attachments);
+    await this._databaseService.notes.bulkAdd(notes);
+    await this._databaseService.sections.bulkAdd(sections);
+    if (attachments.length) await this._databaseService.attachments.bulkAdd(attachments);
   }
 }
