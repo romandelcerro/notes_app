@@ -43,14 +43,8 @@ export class FilesService {
     }
   }
 
-  async resolveImageFromClipboard(items: DataTransferItemList) {
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type.startsWith('image/')) {
-        const file = item.getAsFile();
-        if (file) return file;
-      }
-    }
-    return null;
+  resolveImageFromClipboard(items: DataTransferItemList) {
+    const imageItem = Array.from(items).find(item => item.type.startsWith('image/'));
+    return Promise.resolve(imageItem?.getAsFile() ?? null);
   }
 }

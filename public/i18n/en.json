@@ -3,6 +3,7 @@
   "login.subtitle": "Your personal notes space",
   "login.description": "Save ideas, links, images and files. Everything encrypted and synced with your Google account.",
   "login.continueWithGoogle": "Continue with Google",
+  "login.error": "Could not sign in. Please try again.",
 
   "toolbar.search": "Search notes...",
   "toolbar.searchAriaLabel": "Search notes",
@@ -51,7 +52,7 @@
   "note.attachments": "Attachments",
   "note.addFile": "Add file",
   "note.noAttachments": "Drag files or paste images here",
-  "note.fileTooLarge": "\"{name}\" exceeds the {max} limit and cannot be attached",
+  "note.fileTooLarge": "\"{{name}}\" exceeds the {{max}} limit and cannot be attached",
   "note.cancel": "Cancel",
   "note.save": "Save",
   "note.saving": "Saving…",
@@ -88,7 +89,7 @@
   "confirm.cancel": "Cancel",
   "confirm.delete": "Delete",
 
-  "confirm.deleteSection": "Do you want to delete the section \"{name}\"?",
+  "confirm.deleteSection": "Do you want to delete the section \"{{name}}\"?",
 
   "backup.exportSuccess": "Backup exported successfully",
   "backup.exportError": "Error exporting backup",

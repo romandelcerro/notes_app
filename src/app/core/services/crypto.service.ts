@@ -4,25 +4,15 @@ type TypedIV = Uint8Array<ArrayBuffer>;
 
 @Injectable({ providedIn: 'root' })
 export class CryptoService {
-  private _key = signal<CryptoKey | null>(null);
+  readonly key = signal<CryptoKey | null>(null);
 
-  readonly hasKey = computed(() => this._key() !== null);
+  readonly hasKey = computed(() => this.key() !== null);
 
   async initKey(userId: string) {
     const salt = await this._getOrCreateSalt(userId);
     const rawKeyMaterial = await this._deriveRawKey(userId);
-    const derivedKey = await crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt, iterations: 310_000, hash: 'SHA-256' },
-      rawKeyMaterial,
-      { name: 'AES-GCM', length: 256 },
-      false,
-      ['encrypt', 'decrypt'],
-    );
-    this._key.set(derivedKey);
-  }
-
-  clearKey() {
-    this._key.set(null);
+    const derivedKey = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 310_000, hash: 'SHA-256' }, rawKeyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    this.key.set(derivedKey);
   }
 
   async encrypt(plaintext: string) {
@@ -54,7 +44,7 @@ export class CryptoService {
   }
 
   private _requireKey() {
-    const key = this._key();
+    const key = this.key();
     if (!key) throw new Error('Crypto key not initialized');
     return key;
   }
@@ -83,15 +73,11 @@ export class CryptoService {
     const combined = new Uint8Array(iv.length + data.length);
     combined.set(iv);
     combined.set(data, iv.length);
-    return btoa(Array.from(combined, (b) => String.fromCharCode(b)).join(''));
+    return btoa(Array.from(combined, b => String.fromCharCode(b)).join(''));
   }
 
   private _unpack(packed: string): [TypedIV, TypedIV] {
-    const bytes = Uint8Array.from(atob(packed), (c) => c.charCodeAt(0));
-    return [
-      new Uint8Array(bytes.buffer, 0, 12) as TypedIV,
-      new Uint8Array(bytes.buffer, 12) as TypedIV,
-    ];
+    const bytes = Uint8Array.from(atob(packed), c => c.charCodeAt(0));
+    return [new Uint8Array(bytes.buffer, 0, 12) as TypedIV, new Uint8Array(bytes.buffer, 12) as TypedIV];
   }
 }
-
