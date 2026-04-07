@@ -3,6 +3,7 @@
   "login.subtitle": "Tu espacio personal de notas",
   "login.description": "Guarda ideas, enlaces, imágenes y archivos. Todo cifrado y sincronizado con tu cuenta de Google.",
   "login.continueWithGoogle": "Continuar con Google",
+  "login.error": "No se pudo iniciar sesión. Inténtalo de nuevo.",
 
   "toolbar.search": "Buscar notas...",
   "toolbar.searchAriaLabel": "Buscar notas",
@@ -51,7 +52,7 @@
   "note.attachments": "Archivos adjuntos",
   "note.addFile": "Añadir archivo",
   "note.noAttachments": "Arrastra archivos o pega imágenes aquí",
-  "note.fileTooLarge": "\"{name}\" supera el límite de {max} y no se puede adjuntar",
+  "note.fileTooLarge": "\"{{name}}\" supera el límite de {{max}} y no se puede adjuntar",
   "note.cancel": "Cancelar",
   "note.save": "Guardar",
   "note.saving": "Guardando…",
@@ -88,7 +89,7 @@
   "confirm.cancel": "Cancelar",
   "confirm.delete": "Eliminar",
 
-  "confirm.deleteSection": "¿Quieres borrar la sección \"{name}\"?",
+  "confirm.deleteSection": "¿Quieres borrar la sección \"{{name}}\"?",
 
   "backup.exportSuccess": "Backup exportado correctamente",
   "backup.exportError": "Error al exportar el backup",

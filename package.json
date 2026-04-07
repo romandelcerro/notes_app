@@ -22,6 +22,8 @@
     "@angular/material": "^21.2.4",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "dexie": "^4.4.2",
     "firebase": "^12.11.0",
     "rxjs": "~7.8.0",
