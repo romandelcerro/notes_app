@@ -1,5 +1,5 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,7 +11,6 @@ import type { Note } from '../../../core/models/note.model';
 import type { Section } from '../../../core/models/section.model';
 import { NotesService } from '../../../core/services/notes.service';
 import { SectionsService } from '../../../core/services/sections.service';
-import { UserService } from '../../../core/services/user.service';
 import { NoteCard } from '../note-card/note-card';
 import { NoteCreateEditModal } from '../note-create-edit-modal/note-create-edit-modal';
 import { NotePreviewModal } from '../note-preview/note-preview-modal';
@@ -27,7 +26,6 @@ export class NoteListComponent {
   private readonly _route = inject(ActivatedRoute);
   private readonly _notesService = inject(NotesService);
   private readonly _sectionsService = inject(SectionsService);
-  private readonly _userService = inject(UserService);
 
   private readonly _dialog = inject(MatDialog);
   private readonly _destroyRef = inject(DestroyRef);
@@ -39,10 +37,6 @@ export class NoteListComponent {
     if (!name) return null;
     return this._sectionsService.sections().find(s => s.name === name) ?? null;
   });
-
-  private readonly _orderKey = computed(() => `notes_order_${this._userService.user()?.uid ?? 'anon'}`);
-
-  private readonly _orderMap = signal<Record<string, number[]>>(JSON.parse(localStorage.getItem(`notes_order_${this._userService.user()?.uid ?? 'anon'}`) ?? '{}') as Record<string, number[]>);
 
   private readonly _filtered = computed(() => {
     const { query, dateFrom, dateTo } = this._notesService.filter();
@@ -70,20 +64,13 @@ export class NoteListComponent {
   }
 
   protected ordered(notes: Note[], key: string): Note[] {
-    const order = this._orderMap()[key];
-    if (!order) return notes;
-    const byId = new Map(notes.map(n => [n.id!, n]));
-    return [...order.filter(id => byId.has(id)).map(id => byId.get(id)!), ...notes.filter(n => !order.includes(n.id!))];
+    return this._notesService.ordered(notes, key);
   }
 
   protected onNoteDrop(event: CdkDragDrop<Note[]>, key: string) {
     const ids = event.container.data.map(n => n.id!);
     moveItemInArray(ids, event.previousIndex, event.currentIndex);
-    this._orderMap.update(m => {
-      const updated = { ...m, [key]: ids };
-      localStorage.setItem(this._orderKey(), JSON.stringify(updated));
-      return updated;
-    });
+    this._notesService.saveOrder(key, ids);
   }
 
   protected openNewNoteModal(sectionId?: number) {

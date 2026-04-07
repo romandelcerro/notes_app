@@ -1,8 +1,10 @@
+import { Injectable } from '@angular/core';
 import Dexie, { type Table } from 'dexie';
 import { Attachment } from '../models/attachment.model';
 import type { Note } from '../models/note.model';
 import type { Section } from '../models/section.model';
 
+@Injectable({ providedIn: 'root' })
 export class DatabaseService extends Dexie {
   notes!: Table<Note>;
   attachments!: Table<Attachment>;
@@ -17,5 +19,3 @@ export class DatabaseService extends Dexie {
     });
   }
 }
-
-export const db = new DatabaseService();
