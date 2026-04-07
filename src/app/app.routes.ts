@@ -5,7 +5,7 @@ import { hasDataGuard, noDataGuard } from './core/guards/data.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./core/components/shell/shell').then(m => m.Shell),
+    loadComponent: () => import('./layout/shell/shell').then(m => m.Shell),
     canActivate: [authGuard],
     children: [
       {

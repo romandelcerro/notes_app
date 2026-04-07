@@ -7,12 +7,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Clock } from '../../../shared/clock/clock';
-import { SearchInput } from '../../../shared/search-input/search-input';
-import { UserAvatar } from '../../../shared/user-avatar/user-avatar';
-import { AuthService } from '../../services/auth.service';
-import { NotesService } from '../../services/notes.service';
-import { UserMenuModal } from '../user-menu-modal/user-menu-modal';
+import { UserMenuModal } from '../../core/components/user-menu-modal/user-menu-modal';
+import { AuthService } from '../../core/services/auth.service';
+import { NotesService } from '../../core/services/notes.service';
+import { Clock } from '../../shared/clock/clock';
+import { SearchInput } from '../../shared/search-input/search-input';
+import { UserAvatar } from '../../shared/user-avatar/user-avatar';
 
 @Component({
   selector: 'app-toolbar',

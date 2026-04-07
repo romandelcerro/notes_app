@@ -3,9 +3,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SectionList } from '../../../domains/sections/section-list/section-list';
-import { AuthService } from '../../services/auth.service';
-import { SettingsModal } from '../settings-modal/settings-modal';
+import { SettingsModal } from '../../core/components/settings-modal/settings-modal';
+import { AuthService } from '../../core/services/auth.service';
+import { SectionList } from '../../domains/sections/section-list/section-list';
 
 @Component({
   selector: 'app-sidenav',
