@@ -1,0 +1,49 @@
+<div class="attachments-header">
+  <span>{{ 'note.attachments' | translate }}</span>
+  <label>
+    <input type="file" multiple (change)="onFileSelected($event)" hidden />
+    <button mat-stroked-button type="button" onclick="this.previousElementSibling.click()">
+      <mat-icon>attach_file</mat-icon>
+      {{ 'note.addFile' | translate }}
+    </button>
+  </label>
+</div>
+
+@if (noteId()) {
+  @if (attachments().length > 0) {
+    <ul class="att-list">
+      @for (att of attachments(); track att.id) {
+        <li>
+          <mat-icon>{{ att.mimeType.startsWith('image/') ? 'image' : 'insert_drive_file' }}</mat-icon>
+          <span class="att-name">{{ att.name }}</span>
+          <span class="att-meta">{{ formatSize(att.size) }} · {{ att.createdAt | date: 'd MMM' }}</span>
+          <button mat-icon-button (click)="deleteAttachment(att)" [attr.aria-label]="'note.deleteAttachment' | translate">
+            <mat-icon class="danger-icon">delete</mat-icon>
+          </button>
+          <button mat-icon-button (click)="downloadAttachment(att)" [attr.aria-label]="'note.downloadAttachment' | translate">
+            <mat-icon>download</mat-icon>
+          </button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="no-attachments">{{ 'note.noAttachments' | translate }}</p>
+  }
+} @else {
+  @if (pendingFiles().length > 0) {
+    <ul class="att-list">
+      @for (file of pendingFiles(); track file.name) {
+        <li>
+          <mat-icon>{{ file.type.startsWith('image/') ? 'image' : 'insert_drive_file' }}</mat-icon>
+          <span class="att-name">{{ file.name }}</span>
+          <span class="att-meta">{{ formatSize(file.size) }}</span>
+          <button mat-icon-button (click)="removePendingFile(file)" [attr.aria-label]="'note.deleteAttachment' | translate">
+            <mat-icon class="danger-icon">delete</mat-icon>
+          </button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="no-attachments">{{ 'note.noAttachments' | translate }}</p>
+  }
+}

@@ -1,0 +1,21 @@
+<button class="section-btn" [class.active]="active()" [class.primary]="primary()" (click)="selectClick.emit()">
+  <mat-icon>{{ icon() }}</mat-icon>
+  <span>{{ label() }}</span>
+</button>
+
+@if (section(); as sec) {
+  <button class="section-menu-btn" mat-icon-button [matMenuTriggerFor]="sectionMenu" [attr.aria-label]="('sidenav.sectionOptionsAriaLabel' | translate) + ' ' + label()">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+
+  <mat-menu #sectionMenu="matMenu">
+    <button mat-menu-item (click)="editClick.emit(sec)">
+      <mat-icon>edit</mat-icon>
+      <span>{{ 'section.edit' | translate }}</span>
+    </button>
+    <button mat-menu-item class="menu-item-danger" (click)="deleteClick.emit(sec)">
+      <mat-icon>delete</mat-icon>
+      <span>{{ 'section.delete' | translate }}</span>
+    </button>
+  </mat-menu>
+}

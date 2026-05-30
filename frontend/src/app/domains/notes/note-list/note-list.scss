@@ -1,0 +1,79 @@
+.notes-main {
+  padding: 1.125rem 1rem 2rem;
+  max-width: 87.5rem;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 1rem 0 0.5rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+section:first-child .section-label {
+  margin-top: 0;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+
+.cdk-drag-preview {
+  opacity: 0.85;
+  box-shadow: var(--mat-sys-level3);
+  border-radius: 0.75rem;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms ease;
+}
+
+.notes-grid.cdk-drop-list-dragging app-note-card:not(.cdk-drag-placeholder) {
+  transition: transform 250ms ease;
+}
+
+.add-note-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 9.375rem;
+  box-sizing: border-box;
+  border: 0.125rem dashed var(--mat-sys-outline-variant);
+  border-radius: 0.75rem;
+  background: transparent;
+  color: var(--mat-sys-on-surface-variant);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
+
+  mat-icon {
+    opacity: 0.6;
+  }
+
+  &:hover {
+    border-color: var(--mat-sys-primary);
+    color: var(--mat-sys-primary);
+    background: color-mix(in srgb, var(--mat-sys-primary) 6%, transparent);
+
+    mat-icon {
+      opacity: 1;
+    }
+  }
+}

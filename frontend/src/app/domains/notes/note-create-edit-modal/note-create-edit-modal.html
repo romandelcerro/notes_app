@@ -1,0 +1,39 @@
+<h2 mat-dialog-title>{{ (isEditing ? 'note.editTitle' : 'note.newTitle') | translate }}</h2>
+
+<mat-dialog-content (paste)="onPaste($event)" (dragover)="onDragOver($event)" (drop)="onFileDrop($event)">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'note.titleLabel' | translate }}</mat-label>
+    <input matInput [value]="title()" (input)="title.set($any($event.target).value)" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'note.contentLabel' | translate }}</mat-label>
+    <textarea matInput rows="8" [value]="content()" (input)="content.set($any($event.target).value)" [placeholder]="'note.contentPlaceholder' | translate"></textarea>
+  </mat-form-field>
+
+  <div class="color-row">
+    <span class="color-label">{{ 'note.colorLabel' | translate }}</span>
+    @for (color of colors; track color) {
+      <button
+        mat-mini-fab
+        class="color-dot"
+        [style.background-color]="color || 'var(--mat-sys-surface-variant)'"
+        [class.selected]="selectedColor() === color"
+        (click)="selectedColor.set(color)"
+        [attr.aria-label]="color || ('note.noColor' | translate)">
+        @if (selectedColor() === color) {
+          <mat-icon>check</mat-icon>
+        }
+      </button>
+    }
+  </div>
+
+  <app-attachment-section [noteId]="_data.note?.id" />
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>{{ 'note.cancel' | translate }}</button>
+  <button mat-flat-button (click)="save()" [disabled]="saving() || (!content().trim() && !title().trim())">
+    {{ saving() ? ('note.saving' | translate) : ('note.save' | translate) }}
+  </button>
+</mat-dialog-actions>

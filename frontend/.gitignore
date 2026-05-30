@@ -1,0 +1,20 @@
+# Build output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Angular cache & styles cache
+/.angular/cache
+.sass-cache/
+
+# Angular tooling
+/connect.lock
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/
+
+# Generated environment files
+src/environments/environment.ts
+src/environments/environment.prod.ts

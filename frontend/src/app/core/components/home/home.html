@@ -1,0 +1,15 @@
+<div class="home-container">
+  <mat-icon class="home-icon">note_stack</mat-icon>
+  <h1 class="home-title">{{ 'home.welcomeTitle' | translate }}</h1>
+  <p class="home-subtitle">{{ 'home.welcomeSubtitle' | translate }}</p>
+  <div class="home-actions">
+    <button mat-flat-button (click)="createSection()">
+      <mat-icon>create_new_folder</mat-icon>
+      {{ 'home.createSection' | translate }}
+    </button>
+    <button mat-stroked-button (click)="createNote()">
+      <mat-icon>add</mat-icon>
+      {{ 'home.createNote' | translate }}
+    </button>
+  </div>
+</div>

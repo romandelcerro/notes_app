@@ -1,0 +1,77 @@
+$ease: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+:host {
+  flex: 1;
+  min-width: 0;
+  display: block;
+}
+
+.search-wrapper {
+  flex: 1;
+  min-width: 0;
+  max-width: 2.5rem;
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
+  border-radius: 1.25rem;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-radius 0.2s,
+    max-width $ease;
+
+  @media (min-width: 601px) {
+    &:hover,
+    &:focus-within,
+    &:has(input:not(:placeholder-shown)) {
+      max-width: min(18.75rem, 100%);
+      border-radius: 1.5rem;
+      background-color: var(--mat-sys-surface-variant);
+      .search-input {
+        max-width: min(16.25rem, 100%);
+        padding: 0.125rem 0.5rem 0.125rem 0;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    height: 2rem;
+    max-width: 100%;
+    border-radius: 1rem;
+    background-color: var(--mat-sys-surface-variant);
+    .search-input {
+      padding: 0.125rem 0.5rem 0.125rem 0;
+    }
+  }
+}
+
+.search-icon {
+  flex-shrink: 0;
+  margin: 0 0.5rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+  max-width: 0;
+  overflow: hidden;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface);
+  transition:
+    max-width $ease,
+    padding 0.2s;
+
+  &::placeholder {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  @media (max-width: 600px) {
+    max-width: 100%;
+    overflow: visible;
+    transition: none;
+  }
+}

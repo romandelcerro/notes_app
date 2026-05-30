@@ -1,0 +1,19 @@
+<nav [attr.aria-label]="'sidenav.sections' | translate">
+  <app-section-card icon="notes" [label]="'sidenav.allNotes' | translate" [active]="selectedSectionId() === null" (selectClick)="selectSection(null)" />
+
+  @for (sec of sections(); track sec.id) {
+    <app-section-card
+      icon="folder_open"
+      [label]="sec.name"
+      [section]="sec"
+      [active]="selectedSectionId() === sec.id"
+      (selectClick)="selectSection(sec.id!)"
+      (editClick)="editSection($event)"
+      (deleteClick)="deleteSection($event)" />
+  }
+
+  <button mat-button class="new-section-btn" (click)="openNewSection()" [attr.aria-label]="'sidenav.newSection' | translate">
+    <mat-icon>add</mat-icon>
+    {{ 'sidenav.newSection' | translate }}
+  </button>
+</nav>

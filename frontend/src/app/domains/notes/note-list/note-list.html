@@ -1,0 +1,51 @@
+<main class="notes-main">
+  @if (selectedSection()) {
+    <section>
+      <h2 class="section-label" [title]="selectedSection()!.name">{{ selectedSection()!.name }}</h2>
+      <div
+        class="notes-grid"
+        cdkDropList
+        cdkDropListOrientation="mixed"
+        [cdkDropListData]="ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id)"
+        (cdkDropListDropped)="onNoteDrop($event, 'sec-' + selectedSection()!.id)">
+        @for (note of ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id); track note.id) {
+          <app-note-card cdkDrag [note]="note" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
+        }
+        <button class="add-note-card" (click)="openNewNoteModal()" [attr.aria-label]="'home.addNote' | translate">
+          <mat-icon>add</mat-icon>
+          <span>{{ 'home.addNote' | translate }}</span>
+        </button>
+      </div>
+    </section>
+  } @else {
+    @for (sec of sections(); track sec.id) {
+      <section>
+        <h3 class="section-label" [title]="sec.name">{{ sec.name }}</h3>
+        <div
+          class="notes-grid"
+          cdkDropList
+          cdkDropListOrientation="mixed"
+          [cdkDropListData]="ordered(notesForSection(sec), 'sec-' + sec.id)"
+          (cdkDropListDropped)="onNoteDrop($event, 'sec-' + sec.id)">
+          @for (note of ordered(notesForSection(sec), 'sec-' + sec.id); track note.id) {
+            <app-note-card cdkDrag [note]="note" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
+          }
+          <button class="add-note-card" (click)="openNewNoteModal(sec.id)" [attr.aria-label]="'home.addNote' | translate">
+            <mat-icon>add</mat-icon>
+            <span>{{ 'home.addNote' | translate }}</span>
+          </button>
+        </div>
+      </section>
+    }
+
+    @if (unsectionedNotes().length > 0) {
+      <section>
+        <div class="notes-grid" cdkDropList cdkDropListOrientation="mixed" [cdkDropListData]="ordered(unsectionedNotes(), 'unsectioned')" (cdkDropListDropped)="onNoteDrop($event, 'unsectioned')">
+          @for (note of ordered(unsectionedNotes(), 'unsectioned'); track note.id) {
+            <app-note-card cdkDrag [note]="note" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
+          }
+        </div>
+      </section>
+    }
+  }
+</main>

@@ -1,0 +1,45 @@
+@if (note.title) {
+  <h2 mat-dialog-title>{{ note.title }}</h2>
+}
+<mat-dialog-content>
+  @if (note.type === 'link') {
+    <a [href]="note.content" target="_blank" rel="noopener noreferrer" class="preview-link">
+      {{ note.content }}
+    </a>
+  } @else {
+    <p class="preview-content" [innerHTML]="contentHtml()"></p>
+  }
+  @if (imageUrls().length > 0) {
+    <div class="preview-images">
+      @for (img of imageUrls(); track img.url) {
+        <div class="preview-img-wrap">
+          <img [src]="img.url" [alt]="img.attachment.name" class="preview-img" />
+          <button mat-icon-button class="img-download-btn" (click)="downloadAttachment(img.attachment)" [attr.aria-label]="'note.downloadAttachment' | translate">
+            <mat-icon>download</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  }
+  @if (attachments().length > 0) {
+    <ul class="preview-files">
+      @for (file of attachments(); track file.name) {
+        <li>
+          <mat-icon class="file-icon">insert_drive_file</mat-icon>
+          <span>{{ file.name }}</span>
+          <span class="file-size">{{ formatSize(file.size) }}</span>
+          <button mat-icon-button (click)="downloadAttachment(file)" [attr.aria-label]="'note.downloadAttachment' | translate">
+            <mat-icon>download</mat-icon>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>{{ 'note.cancel' | translate }}</button>
+  <button mat-flat-button (click)="edit()">
+    <mat-icon>edit</mat-icon>
+    {{ 'note.edit' | translate }}
+  </button>
+</mat-dialog-actions>
