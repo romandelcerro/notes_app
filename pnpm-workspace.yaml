@@ -1,0 +1,8 @@
+packages:
+  - frontend
+  - backend
+  - packages/*
+
+allowBuilds:
+  '0': '@nestjs/core'
+  '1': unrs-resolver
