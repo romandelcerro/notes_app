@@ -1,86 +1,116 @@
-# Notes App
+# notes-app
 
-Aplicación web personal de notas construida con **Angular 21**, **Angular Material**, **Firebase Auth** e **IndexedDB** (Dexie.js). Todo el contenido de las notas se cifra en el navegador usando AES-GCM antes de guardarse localmente.
+Multi-package monorepo for the Notes app, managed with **pnpm workspaces**.
 
-## Características
+## Structure
 
-- Login con Google (Firebase Auth)
-- Notas con texto, enlaces y archivos adjuntos
-- Arrastrar y soltar archivos, pegar imágenes desde el portapapeles
-- Cifrado AES-GCM local (clave derivada con PBKDF2 desde tu UID)
-- Almacenamiento 100% local en IndexedDB (no sale de tu dispositivo)
-- Busca, fija y colorea notas
-- Perfil de usuario editable
-
-## Configuración inicial (obligatoria)
-
-### 1. Crear proyecto Firebase
-
-1. Ve a [console.firebase.google.com](https://console.firebase.google.com)
-2. Crea un nuevo proyecto
-3. En **Authentication → Sign-in method**, habilita **Google**
-4. En **Project settings → General**, copia la configuración de tu app web
-
-### 2. Configurar las credenciales
-
-Edita `src/environments/environment.ts` y `src/environments/environment.prod.ts`:
-
-```ts
-export const environment = {
-  production: false,
-  firebase: {
-    apiKey: 'TU_API_KEY',
-    authDomain: 'TU_PROJECT_ID.firebaseapp.com',
-    projectId: 'TU_PROJECT_ID',
-    storageBucket: 'TU_PROJECT_ID.appspot.com',
-    messagingSenderId: 'TU_SENDER_ID',
-    appId: 'TU_APP_ID',
-  },
-};
+```
+notes_app/
+├── package.json              # Workspace root (aggregated scripts)
+├── pnpm-workspace.yaml       # Workspace definition
+├── pnpm-lock.yaml            # Single lockfile for the whole repo
+├── frontend/                 # @notes-app/frontend  — Angular 21
+├── backend/                  # @notes-app/backend   — NestJS 11
+└── packages/
+    └── shared/               # @notes-app/shared    — code shared between front and back
 ```
 
-### 3. Añadir dominio autorizado en Firebase
+Each workspace package has its own `package.json` and is identified by a scoped name (`@notes-app/<name>`) so it can be referenced with `pnpm --filter`.
 
-En **Authentication → Settings → Authorized domains**, añade `localhost` y el dominio de producción.
+## How pnpm workspaces work here
 
-## Desarrollo
+- `pnpm-workspace.yaml` declares which folders are workspace packages (`frontend`, `backend`, `packages/*`).
+- Running `pnpm install` from the root installs dependencies for **every** package and creates a single `pnpm-lock.yaml`. There are no per-package lockfiles.
+- Dependencies shared between packages live in a single `node_modules` store at the root; per-package `node_modules` only contain symlinks.
+- To depend on a workspace package from another, add it as a regular dependency using the `workspace:*` protocol:
+
+  ```json
+  {
+    "dependencies": {
+      "@notes-app/shared": "workspace:*"
+    }
+  }
+  ```
+
+  Then run `pnpm install` and import it normally (e.g. `import { Note } from '@notes-app/shared'`).
+
+## Requirements
+
+- Node.js `>= 20`
+- pnpm `10.33.1` (pinned via `packageManager` at the root)
+
+## Install
 
 ```bash
 pnpm install
-pnpm start
 ```
 
-Abre http://localhost:4200
+Always run install from the **root**, not from inside a subpackage.
 
-## Build producción
+## Common scripts (from the root)
+
+| Script                    | What it does                                              |
+| ------------------------- | --------------------------------------------------------- |
+| `pnpm dev:frontend`       | Start the Angular dev server                              |
+| `pnpm dev:backend`        | Start NestJS in watch mode                                |
+| `pnpm build`              | Build every `@notes-app/*` package                        |
+| `pnpm build:frontend`     | Build only the frontend                                   |
+| `pnpm build:backend`      | Build only the backend                                    |
+| `pnpm test`               | Run tests in every package that defines a `test` script   |
+| `pnpm lint`               | Run lint in every package that defines a `lint` script    |
+| `pnpm format`             | Run format in every package that defines a `format` script |
+| `pnpm clean`              | Remove all `node_modules`, `dist`, and `.angular` folders |
+
+### Running a single package's scripts
+
+Use `pnpm --filter` (or the shortcut scripts in the root `package.json`):
 
 ```bash
-pnpm run build
+# Run any script of a single package
+pnpm --filter @notes-app/frontend <script>
+pnpm --filter @notes-app/backend <script>
+
+# Or use the shortcuts
+pnpm frontend <script>
+pnpm backend <script>
+pnpm shared <script>
 ```
 
-## Estructura del proyecto
+Examples:
 
-```
-src/app/
-  core/
-    guards/      # authGuard
-    models/      # Note, AppUser
-    services/    # AuthService, CryptoService, DatabaseService, NotesService, FilesService
-  features/
-    auth/        # LoginComponent
-    home/        # HomeComponent
-    notes/
-      note-card/    # NoteCardComponent
-      note-editor/  # NoteEditorComponent (dialog)
-  shared/
-    toolbar/        # ToolbarComponent
-    user-menu/      # UserMenuComponent (dialog)
+```bash
+pnpm frontend test
+pnpm backend start:dev
+pnpm --filter @notes-app/backend add @nestjs/config
 ```
 
-## Seguridad
+### Adding a dependency
 
-- Las notas se cifran con **AES-GCM 256-bit** antes de escribirse en IndexedDB
-- La clave se deriva de tu UID usando **PBKDF2** con 310 000 iteraciones y SHA-256
-- La sal PBKDF2 se guarda en `localStorage` por usuario
-- La clave de cifrado nunca se persiste; se regenera en cada sesión
-- Los archivos adjuntos también se cifran individualmente
+- To a specific package:
+
+  ```bash
+  pnpm --filter @notes-app/backend add <pkg>
+  pnpm --filter @notes-app/frontend add -D <pkg>
+  ```
+
+- To the workspace root (tooling shared across packages, like Prettier or a TypeScript version pin):
+
+  ```bash
+  pnpm add -Dw <pkg>
+  ```
+
+## The `packages/shared` package
+
+Reserved for code that needs to be shared between the frontend and the backend (e.g. DTOs, contract types, validation schemas, constants). It is currently empty by design — add files only when there is a real need.
+
+## Adding a new package
+
+1. Create a folder under `packages/<name>` (or at the root if it's an app).
+2. Add a `package.json` with a scoped name: `@notes-app/<name>`.
+3. If the path isn't already covered by `packages/*`, add it to `pnpm-workspace.yaml`.
+4. Run `pnpm install` from the root.
+
+## Per-package documentation
+
+- Frontend (Angular): [`frontend/README.md`](./frontend/README.md)
+- Backend (NestJS): [`backend/README.md`](./backend/README.md)
