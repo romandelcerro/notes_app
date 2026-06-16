@@ -38,7 +38,7 @@
       </section>
     }
 
-    @if (unsectionedNotes().length > 0) {
+    @if (unsectionedNotes().length) {
       <section>
         <div class="notes-grid" cdkDropList cdkDropListOrientation="mixed" [cdkDropListData]="ordered(unsectionedNotes(), 'unsectioned')" (cdkDropListDropped)="onNoteDrop($event, 'unsectioned')">
           @for (note of ordered(unsectionedNotes(), 'unsectioned'); track note.id) {
