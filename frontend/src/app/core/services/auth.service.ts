@@ -1,11 +1,12 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithPopup, signOut, type User as FirebaseUser } from 'firebase/auth';
-import { mapFirebaseUser } from '../mappers/user.mapper';
 import { CryptoService } from './crypto.service';
 import { NotesService } from './notes.service';
 import { SectionsService } from './sections.service';
 import { UserService } from './user.service';
+import type { User } from '../models/user.model';
+
+const STORAGE_KEY = 'notes_local_user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -15,49 +16,50 @@ export class AuthService {
   private readonly _sectionsService = inject(SectionsService);
   private readonly _userService = inject(UserService);
 
-  private readonly _auth = getAuth();
-  private readonly _provider = new GoogleAuthProvider();
-
   readonly loading = signal(true);
   readonly isAuthenticated = computed(() => !!this._userService.user());
 
   constructor() {
-    this._listenToAuthState();
+    this._tryRestoreSession();
   }
 
-  async signInWithGoogle() {
-    await signInWithPopup(this._auth, this._provider);
+  async signIn(name: string, email?: string) {
+    const uid = crypto.randomUUID();
+    const user: User = { uid, displayName: name, email: email ?? null, photoURL: null };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ uid, displayName: name, email: email ?? '' }));
+    await this._initUserSession(user);
+    this.loading.set(false);
+    this._router.navigate(['/']);
   }
 
   async signOut() {
-    await signOut(this._auth);
     this._clearAppData();
+    localStorage.removeItem(STORAGE_KEY);
+    this._userService.user.set(null);
+    this._router.navigate(['/login']);
   }
 
-  private _listenToAuthState() {
-    let isInitialLoad = true;
-    onAuthStateChanged(this._auth, async firebaseUser => {
-      await this._handleAuthChange(firebaseUser, isInitialLoad);
-      this.loading.set(false);
-      isInitialLoad = false;
-    });
-  }
-
-  private async _handleAuthChange(firebaseUser: FirebaseUser | null, isInitialLoad: boolean) {
-    if (firebaseUser) {
-      await this._initUserSession(firebaseUser);
-      if (!isInitialLoad) this._router.navigate(['/']);
-    } else {
-      this._userService.user.set(null);
-      if (!isInitialLoad) this._router.navigate(['/login']);
+  private async _tryRestoreSession() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const data = JSON.parse(stored) as { uid: string; displayName: string; email?: string };
+        const user: User = { uid: data.uid, displayName: data.displayName, email: data.email ?? null, photoURL: null };
+        const localAvatar = localStorage.getItem(`notes_avatar_${data.uid}`);
+        if (localAvatar) user.photoURL = localAvatar;
+        await this._initUserSession(user);
+        this._router.navigate(['/']);
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
+      }
     }
+    this.loading.set(false);
   }
 
-  private async _initUserSession(firebaseUser: FirebaseUser) {
-    await this._cryptoService.initKey(firebaseUser.uid);
-    await Promise.all([this._notesService.loadNotes(firebaseUser.uid), this._sectionsService.loadSections(firebaseUser.uid)]);
-    const localAvatar = localStorage.getItem(`notes_avatar_${firebaseUser.uid}`);
-    this._userService.user.set(mapFirebaseUser(firebaseUser, localAvatar));
+  private async _initUserSession(user: User) {
+    await this._cryptoService.initKey(user.uid);
+    await Promise.all([this._notesService.loadNotes(user.uid), this._sectionsService.loadSections(user.uid)]);
+    this._userService.user.set(user);
   }
 
   private _clearAppData() {

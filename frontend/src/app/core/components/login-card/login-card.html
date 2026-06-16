@@ -8,13 +8,23 @@
     <mat-card-content>
       <p class="login-description">{{ 'login.description' | translate }}</p>
 
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'login.nameLabel' | translate }}</mat-label>
+        <input matInput [(ngModel)]="name" [disabled]="loading()" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'login.emailLabel' | translate }}</mat-label>
+        <input matInput type="email" [(ngModel)]="email" [disabled]="loading()" />
+      </mat-form-field>
+
       @if (errorText()) {
         <p class="login-error">{{ errorText() }}</p>
       }
     </mat-card-content>
 
     <mat-card-actions>
-      <button mat-flat-button (click)="signInWithGoogle()" [disabled]="loading()">
+      <button mat-flat-button (click)="signIn()" [disabled]="loading() || !name.trim()">
         @if (loading()) {
           <mat-spinner diameter="20" />
         }
@@ -22,7 +32,7 @@
           <mat-icon>login</mat-icon>
         }
         @if (!loading()) {
-          {{ 'login.continueWithGoogle' | translate }}
+          {{ 'login.continue' | translate }}
         }
       </button>
     </mat-card-actions>

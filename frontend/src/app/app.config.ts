@@ -4,12 +4,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideRouter } from '@angular/router';
 import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { initializeApp } from 'firebase/app';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '../environments/environment';
 import { routes } from './app.routes';
-
-initializeApp(environment.firebase);
 
 function initTranslate(translate: TranslateService) {
   return () => {

@@ -1,16 +1,14 @@
 {
   "login.title": "Notes",
   "login.subtitle": "Your personal notes space",
-  "login.description": "Save ideas, links, images and files. Everything encrypted and synced with your Google account.",
-  "login.continueWithGoogle": "Continue with Google",
+  "login.description": "Save ideas, links, images and files. Everything encrypted and stored locally.",
+  "login.continueWithGoogle": "Continue",
   "login.error": "Could not sign in. Please try again.",
-
   "toolbar.search": "Search notes...",
   "toolbar.searchAriaLabel": "Search notes",
   "toolbar.menuAriaLabel": "Open sections menu",
   "toolbar.profileAriaLabel": "Profile",
   "toolbar.toggleLanguage": "Cambiar a Español",
-
   "sidenav.allNotes": "All notes",
   "sidenav.newSection": "New section",
   "sidenav.signOut": "Sign out",
@@ -20,7 +18,6 @@
   "sidenav.settings": "Settings",
   "sidenav.lightMode": "Light mode",
   "sidenav.darkMode": "Dark mode",
-
   "section.edit": "Edit",
   "section.delete": "Delete",
   "section.dialogTitleNew": "New section",
@@ -31,7 +28,6 @@
   "section.creating": "Creating…",
   "section.save": "Save",
   "section.saving": "Saving…",
-
   "home.empty": "No notes yet. Create the first one!",
   "home.pinned": "Pinned",
   "home.others": "Others",
@@ -41,7 +37,6 @@
   "home.createSection": "Create section",
   "home.createNote": "Create note",
   "home.defaultSectionName": "My notes",
-
   "note.editTitle": "Edit note",
   "note.newTitle": "New note",
   "note.titleLabel": "Title (optional)",
@@ -64,7 +59,6 @@
   "note.unpinAriaLabel": "Unpin",
   "note.moreOptions": "More options",
   "note.drag": "Drag to reorder",
-
   "profile.title": "Profile",
   "profile.changePhoto": "Change photo",
   "profile.uploadPhoto": "Upload photo",
@@ -80,17 +74,13 @@
   "profile.importing": "Importing…",
   "profile.close": "Close",
   "profile.signOut": "Sign out",
-
   "profile.clearData": "Clear all data",
   "profile.clearingData": "Clearing…",
   "profile.clearDataConfirm": "This will permanently delete all your notes and sections from this device. Are you sure?",
-
   "confirm.title": "Confirm",
   "confirm.cancel": "Cancel",
   "confirm.delete": "Delete",
-
   "confirm.deleteSection": "Do you want to delete the section \"{{name}}\"?",
-
   "backup.exportSuccess": "Backup exported successfully",
   "backup.exportError": "Error exporting backup",
   "backup.importSuccess": "Backup imported successfully",
@@ -98,6 +88,8 @@
   "backup.noSalt": "Encryption key not found. Create at least one note first.",
   "backup.unsupportedVersion": "Backup version not supported.",
   "backup.wrongAccount": "This backup belongs to a different account.",
-
-  "common.close": "Close"
+  "common.close": "Close",
+  "login.continue": "Continue",
+  "login.nameLabel": "Your name",
+  "login.emailLabel": "Email (optional)"
 }

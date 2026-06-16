@@ -1,16 +1,14 @@
 {
   "login.title": "Notes",
   "login.subtitle": "Tu espacio personal de notas",
-  "login.description": "Guarda ideas, enlaces, imágenes y archivos. Todo cifrado y sincronizado con tu cuenta de Google.",
-  "login.continueWithGoogle": "Continuar con Google",
+  "login.description": "Guarda ideas, enlaces, imágenes y archivos. Todo cifrado y almacenado localmente.",
+  "login.continueWithGoogle": "Continuar",
   "login.error": "No se pudo iniciar sesión. Inténtalo de nuevo.",
-
   "toolbar.search": "Buscar notas...",
   "toolbar.searchAriaLabel": "Buscar notas",
   "toolbar.menuAriaLabel": "Abrir menú de secciones",
   "toolbar.profileAriaLabel": "Perfil",
   "toolbar.toggleLanguage": "Switch to English",
-
   "sidenav.allNotes": "Todas las notas",
   "sidenav.newSection": "Nueva sección",
   "sidenav.signOut": "Cerrar sesión",
@@ -20,7 +18,6 @@
   "sidenav.settings": "Ajustes",
   "sidenav.lightMode": "Modo claro",
   "sidenav.darkMode": "Modo oscuro",
-
   "section.edit": "Editar sección",
   "section.delete": "Eliminar sección",
   "section.dialogTitleNew": "Nueva sección",
@@ -31,7 +28,6 @@
   "section.creating": "Creando…",
   "section.save": "Guardar",
   "section.saving": "Guardando…",
-
   "home.empty": "No tienes notas aún. ¡Crea la primera!",
   "home.pinned": "Fijadas",
   "home.others": "Otras",
@@ -41,7 +37,6 @@
   "home.createSection": "Crear sección",
   "home.createNote": "Crear nota",
   "home.defaultSectionName": "Mis notas",
-
   "note.editTitle": "Editar nota",
   "note.newTitle": "Nueva nota",
   "note.titleLabel": "Título (opcional)",
@@ -64,7 +59,6 @@
   "note.unpinAriaLabel": "Desfijar",
   "note.moreOptions": "Más opciones",
   "note.drag": "Arrastrar para reordenar",
-
   "profile.title": "Perfil",
   "profile.changePhoto": "Cambiar foto",
   "profile.uploadPhoto": "Subir foto",
@@ -80,17 +74,13 @@
   "profile.importing": "Importando…",
   "profile.close": "Cerrar",
   "profile.signOut": "Cerrar sesión",
-
   "profile.clearData": "Borrar todos los datos",
   "profile.clearingData": "Borrando…",
   "profile.clearDataConfirm": "Esto eliminará permanentemente todas tus notas y secciones de este dispositivo. ¿Estás seguro?",
-
   "confirm.title": "Confirmar",
   "confirm.cancel": "Cancelar",
   "confirm.delete": "Eliminar",
-
   "confirm.deleteSection": "¿Quieres borrar la sección \"{{name}}\"?",
-
   "backup.exportSuccess": "Backup exportado correctamente",
   "backup.exportError": "Error al exportar el backup",
   "backup.importSuccess": "Backup importado correctamente",
@@ -98,6 +88,8 @@
   "backup.noSalt": "No se encontró la clave de cifrado. Crea al menos una nota primero.",
   "backup.unsupportedVersion": "Versión de backup no soportada.",
   "backup.wrongAccount": "Este backup pertenece a una cuenta diferente.",
-
-  "common.close": "Cerrar"
+  "common.close": "Cerrar",
+  "login.continue": "Continuar",
+  "login.nameLabel": "Tu nombre",
+  "login.emailLabel": "Email (opcional)"
 }

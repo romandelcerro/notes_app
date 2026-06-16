@@ -1,11 +1,10 @@
-import type { User as FirebaseUser } from 'firebase/auth';
 import type { User } from '../models/user.model';
 
-export function mapFirebaseUser(firebaseUser: FirebaseUser, localAvatar: string | null): User {
+export function mapLocalUser(data: { uid: string; displayName: string | null; email: string | null }, localAvatar: string | null): User {
   return {
-    uid: firebaseUser.uid,
-    displayName: firebaseUser.displayName,
-    email: firebaseUser.email,
-    photoURL: localAvatar ?? firebaseUser.photoURL
+    uid: data.uid,
+    displayName: data.displayName,
+    email: data.email,
+    photoURL: localAvatar
   };
 }
