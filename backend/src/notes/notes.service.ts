@@ -5,6 +5,7 @@ import { NoteEntity } from '../entities/note.entity.js';
 import { CreateNoteDto } from './dto/create-note.dto.js';
 import { UpdateNoteDto } from './dto/update-note.dto.js';
 import { NoteQueryDto } from './dto/note-query.dto.js';
+import { CacheService, CACHE_TTL } from '../common/cache.service.js';
 
 @Injectable()
 export class NotesService {
@@ -13,9 +14,14 @@ export class NotesService {
   constructor(
     @InjectRepository(NoteEntity)
     private readonly noteRepo: Repository<NoteEntity>,
+    private readonly cache: CacheService,
   ) {}
 
   async findAll(userId: string, query?: NoteQueryDto) {
+    const cacheKey = `notes:${userId}:findAll:${JSON.stringify(query ?? {})}`;
+    const cached = await this.cache.get<NoteEntity[]>(cacheKey);
+    if (cached) return cached;
+
     const qb = this.noteRepo
       .createQueryBuilder('note')
       .where('note.userId = :userId', { userId });
@@ -46,18 +52,26 @@ export class NotesService {
 
     qb.orderBy('note.pinned', 'DESC').addOrderBy('note.updatedAt', 'DESC');
 
-    return qb.getMany();
+    const result = await qb.getMany();
+    await this.cache.set(cacheKey, result, CACHE_TTL.LIST);
+    return result;
   }
 
   async findOne(id: number, userId: string) {
+    const cacheKey = `notes:${userId}:findOne:${id}`;
+    const cached = await this.cache.get<NoteEntity>(cacheKey);
+    if (cached) return cached;
+
     const note = await this.noteRepo.findOne({ where: { id, userId } });
     if (!note) throw new NotFoundException('exception.note.notFound');
+    await this.cache.set(cacheKey, note);
     return note;
   }
 
   async create(userId: string, dto: CreateNoteDto) {
     const note = this.noteRepo.create({ ...dto, userId });
     const saved = await this.noteRepo.save(note);
+    await this.cache.delByPrefix(`notes:${userId}:`);
     this._logger.log(`Note created: ${saved.id} by user ${userId}`);
     return saved;
   }
@@ -66,6 +80,8 @@ export class NotesService {
     const note = await this.findOne(id, userId);
     Object.assign(note, dto);
     const saved = await this.noteRepo.save(note);
+    await this.cache.set(`notes:${userId}:findOne:${id}`, saved);
+    await this.cache.delByPrefix(`notes:${userId}:findAll:`);
     this._logger.log(`Note updated: ${saved.id}`);
     return saved;
   }
@@ -73,6 +89,8 @@ export class NotesService {
   async remove(id: number, userId: string) {
     const note = await this.findOne(id, userId);
     await this.noteRepo.remove(note);
+    await this.cache.del(`notes:${userId}:findOne:${id}`);
+    await this.cache.delByPrefix(`notes:${userId}:findAll:`);
     this._logger.log(`Note removed: ${id}`);
   }
 
@@ -92,6 +110,7 @@ export class NotesService {
         await this.noteRepo.save(note);
       }
     }
+    await this.cache.delByPrefix(`notes:${userId}:findAll:`);
     this._logger.log(`Notes reordered in group ${groupKey}`);
   }
 }

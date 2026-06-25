@@ -17,6 +17,10 @@ export interface NoteEditModalData {
   sectionId?: number;
 }
 
+export interface NoteCreateEditResult {
+  noteId: number;
+}
+
 const NOTE_COLORS = ['', '#F28B82', '#FBBC04', '#FFF475', '#CCFF90', '#A8D5F7', '#D7AEFB'];
 
 @Component({
@@ -30,7 +34,7 @@ export class NoteCreateEditModal {
   private readonly _notesService = inject(NotesService);
   private readonly _userService = inject(UserService);
   private readonly _filesService = inject(FilesService);
-  private readonly _dialogRef = inject(MatDialogRef<NoteCreateEditModal>);
+  private readonly _dialogRef = inject(MatDialogRef<NoteCreateEditModal, NoteCreateEditResult>);
   private readonly _attachmentSection = viewChild.required(AttachmentSection);
 
   protected readonly _data: NoteEditModalData = inject(MAT_DIALOG_DATA);
@@ -54,13 +58,17 @@ export class NoteCreateEditModal {
       if (this.isEditing && this._data.note?.id) {
         const updatedNote = buildUpdatedNote(this._data.note, { ...this._data.note, title, content, color: this.selectedColor() });
         await this._notesService.updateNote(this._data.note.id, updatedNote);
+        this._dialogRef.close({ noteId: this._data.note.id });
       } else {
         const userId = this._userService.user()?.uid ?? '';
-        const noteTmp: Note = { title, content, type: this.noteType(), color: this.selectedColor(), pinned: false, userId, sectionId: this._data.sectionId };
+        const noteTmp: Note = { title, content, type: this.noteType(), color: this.selectedColor(), pinned: false, hasAttachments: false, userId, sectionId: this._data.sectionId };
         const newNote = await this._notesService.createNote(buildNewNote(noteTmp, userId));
-        await this._attachmentSection().uploadPendingTo(newNote.id!);
+        const pending = this._attachmentSection().pendingFiles();
+        if (pending.length) {
+          await this._attachmentSection().uploadPendingTo(newNote.id!);
+        }
+        this._dialogRef.close({ noteId: newNote.id! });
       }
-      this._dialogRef.close(true);
     } finally {
       this.saving.set(false);
     }

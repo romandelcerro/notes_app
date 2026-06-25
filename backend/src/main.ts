@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module.js';
 import { HttpExceptionFilter } from './common/http-exception.filter.js';
 import { I18nService } from './common/i18n/i18n.service.js';
@@ -8,9 +9,13 @@ async function bootstrap() {
   const isLocal =
     !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: isLocal ? ['log', 'warn', 'error'] : ['error'],
+    bodyParser: false,
   });
+
+  app.useBodyParser('json', { limit: '5mb' });
+  app.useBodyParser('urlencoded', { extended: true });
 
   const i18n = app.get(I18nService);
   app.useGlobalFilters(new HttpExceptionFilter(i18n));

@@ -30,6 +30,9 @@ export class NoteEntity {
   @Column({ default: false })
   pinned: boolean;
 
+  @Column({ default: false })
+  hasAttachments: boolean;
+
   @Column()
   userId: string;
 

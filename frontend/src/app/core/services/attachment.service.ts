@@ -20,6 +20,7 @@ interface AttachmentResponse {
 export class AttachmentService {
   private readonly _http = inject(HttpClient);
   private readonly _cryptoService = inject(CryptoService);
+  private readonly _batchCache = new Map<string, Map<number, Attachment[]>>();
 
   async addAttachment(noteId: number, file: File): Promise<Attachment> {
     const buffer = await file.arrayBuffer();
@@ -32,16 +33,38 @@ export class AttachmentService {
       encryptedData: attachment.encryptedData,
       size: attachment.size,
     }));
+    this._batchCache.clear();
     return { ...created, createdAt: new Date(created.createdAt) };
   }
 
+  async getAttachmentsByNoteIds(noteIds: number[]): Promise<Map<number, Attachment[]>> {
+    if (noteIds.length === 0) return new Map();
+    const key = [...noteIds].sort().join(',');
+    const cached = this._batchCache.get(key);
+    if (cached) return cached;
+    const ids = noteIds.join(',');
+    const raw = await firstValueFrom(
+      this._http.get<AttachmentResponse[]>(`${environment.apiUrl}/attachments/batch?noteIds=${ids}`)
+    );
+    const attachments = raw.map(r => ({ ...r, createdAt: new Date(r.createdAt) }));
+    const map = new Map<number, Attachment[]>();
+    for (const att of attachments) {
+      const existing = map.get(att.noteId) ?? [];
+      existing.push(att);
+      map.set(att.noteId, existing);
+    }
+    this._batchCache.set(key, map);
+    return map;
+  }
+
   async getAttachments(noteId: number): Promise<Attachment[]> {
-    const raw = await firstValueFrom(this._http.get<AttachmentResponse[]>(`${environment.apiUrl}/attachments/note/${noteId}`));
-    return raw.map(r => ({ ...r, createdAt: new Date(r.createdAt) }));
+    const map = await this.getAttachmentsByNoteIds([noteId]);
+    return map.get(noteId) ?? [];
   }
 
   async deleteAttachment(attachmentId: number) {
     await firstValueFrom(this._http.delete(`${environment.apiUrl}/attachments/${attachmentId}`));
+    this._batchCache.clear();
   }
 
   async decryptAttachment(attachment: Attachment) {

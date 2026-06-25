@@ -7,6 +7,7 @@ export interface Note {
   type: NoteType;
   color: string;
   pinned: boolean;
+  hasAttachments: boolean;
   userId: string;
   sectionId?: number;
   createdAt?: Date;

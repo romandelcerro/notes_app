@@ -5,6 +5,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
@@ -32,6 +33,15 @@ export class AttachmentsController {
     @Body() dto: CreateAttachmentDto,
   ) {
     return this.attachmentsService.create(user.uid, dto);
+  }
+
+  @Get('batch')
+  findByNoteIds(
+    @CurrentUser() user: { uid: string },
+    @Query('noteIds') noteIds: string,
+  ) {
+    const ids = noteIds.split(',').map(Number);
+    return this.attachmentsService.findByNoteIds(ids, user.uid);
   }
 
   @Get(':id')

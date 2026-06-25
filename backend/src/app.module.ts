@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity.js';
@@ -15,9 +16,11 @@ import { BackupModule } from './backup/backup.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { I18nService } from './common/i18n/i18n.service.js';
+import { CommonModule } from './common/common.module.js';
 
 @Module({
   imports: [
+    CacheModule.register({ isGlobal: true, ttl: 60_000 }),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -29,6 +32,7 @@ import { I18nService } from './common/i18n/i18n.service.js';
         synchronize: true,
       }),
     }),
+    CommonModule,
     AuthModule,
     UsersModule,
     NotesModule,

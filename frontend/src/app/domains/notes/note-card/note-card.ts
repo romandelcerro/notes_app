@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
+import type { Attachment } from '../../../core/models/attachment.model';
 import type { Note } from '../../../core/models/note.model';
 import { AttachmentService } from '../../../core/services/attachment.service';
 import { FilesService } from '../../../core/services/files.service';
@@ -24,34 +25,41 @@ export class NoteCard {
   private readonly _notesService = inject(NotesService);
   private readonly _attachmentService = inject(AttachmentService);
   private readonly _filesService = inject(FilesService);
-  private readonly _destroyRef = inject(DestroyRef);
 
   readonly note = input.required<Note>();
+  readonly attachments = input<Attachment[]>([]);
   readonly editRequest = output<Note>();
   readonly previewRequest = output<Note>();
 
   protected readonly thumbUrl = signal<string | null>(null);
   protected readonly hasFileAttachments = signal(false);
+  private _prevAttIds = '';
 
-  private readonly _loadThumb = effect(async () => {
-    const id = this.note().id;
-    if (!id) return;
-    const atts = await this._attachmentService.getAttachments(id);
+  private readonly _loadThumb = effect(async (onCleanup) => {
+    const atts = this.attachments();
+    const attIds = atts.map(a => a.id).sort().join(',');
+    if (attIds === this._prevAttIds && attIds !== '') return;
+    this._prevAttIds = attIds;
+
     const img = atts.find(a => a.mimeType.startsWith('image/'));
     this.hasFileAttachments.set(atts.some(a => !a.mimeType.startsWith('image/')));
-    if (!img) return;
+
     const prev = this.thumbUrl();
     if (prev) this._filesService.revokeObjectURL(prev);
+
+    if (!img) {
+      this.thumbUrl.set(null);
+      return;
+    }
+
     const buf = await this._attachmentService.decryptAttachment(img);
     this.thumbUrl.set(this._filesService.bufferToObjectURL(buf, img.mimeType));
-  });
 
-  constructor() {
-    this._destroyRef.onDestroy(() => {
+    onCleanup(() => {
       const url = this.thumbUrl();
       if (url) this._filesService.revokeObjectURL(url);
     });
-  }
+  });
 
   protected async deleteNote() {
     await this._notesService.deleteNote(this.note().id!);

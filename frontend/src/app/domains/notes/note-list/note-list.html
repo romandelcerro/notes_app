@@ -9,7 +9,7 @@
         [cdkDropListData]="ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id)"
         (cdkDropListDropped)="onNoteDrop($event, 'sec-' + selectedSection()!.id)">
         @for (note of ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id); track note.id) {
-          <app-note-card cdkDrag [note]="note" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
+          <app-note-card cdkDrag [note]="note" [attachments]="attachmentsForNote(note.id)" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
         }
         <button class="add-note-card" (click)="openNewNoteModal()" [attr.aria-label]="'home.addNote' | translate">
           <mat-icon>add</mat-icon>
@@ -28,7 +28,7 @@
           [cdkDropListData]="ordered(notesForSection(sec), 'sec-' + sec.id)"
           (cdkDropListDropped)="onNoteDrop($event, 'sec-' + sec.id)">
           @for (note of ordered(notesForSection(sec), 'sec-' + sec.id); track note.id) {
-            <app-note-card cdkDrag [note]="note" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
+            <app-note-card cdkDrag [note]="note" [attachments]="attachmentsForNote(note.id)" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
           }
           <button class="add-note-card" (click)="openNewNoteModal(sec.id)" [attr.aria-label]="'home.addNote' | translate">
             <mat-icon>add</mat-icon>
@@ -42,7 +42,7 @@
       <section>
         <div class="notes-grid" cdkDropList cdkDropListOrientation="mixed" [cdkDropListData]="ordered(unsectionedNotes(), 'unsectioned')" (cdkDropListDropped)="onNoteDrop($event, 'unsectioned')">
           @for (note of ordered(unsectionedNotes(), 'unsectioned'); track note.id) {
-            <app-note-card cdkDrag [note]="note" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
+            <app-note-card cdkDrag [note]="note" [attachments]="attachmentsForNote(note.id)" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
           }
         </div>
       </section>

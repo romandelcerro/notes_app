@@ -11,6 +11,7 @@ import { Repository, LessThan } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UserEntity } from '../entities/user.entity.js';
+import { CacheService, CACHE_TTL } from '../common/cache.service.js';
 import { SignUpDto } from './dto/sign-up.dto.js';
 import { SignInDto } from './dto/sign-in.dto.js';
 import { GuestDto } from './dto/guest.dto.js';
@@ -26,6 +27,7 @@ export class AuthService {
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
     private readonly jwtService: JwtService,
+    private readonly cache: CacheService,
   ) {}
 
   async signup(dto: SignUpDto) {
@@ -106,12 +108,17 @@ export class AuthService {
     user.isGuest = false;
     user.guestExpiresAt = null;
     await this.userRepo.save(user);
+    await this.cache.del(`auth:profile:${uid}`);
 
     this._logger.log(`Guest converted: ${user.email} (${user.uid})`);
     return this._buildResponse(user);
   }
 
   async getProfile(uid: string) {
+    const cacheKey = `auth:profile:${uid}`;
+    const cached = await this.cache.get<any>(cacheKey);
+    if (cached) return cached;
+
     const user = await this.userRepo.findOneOrFail({ where: { uid } });
     if (
       user.isGuest &&
@@ -120,7 +127,9 @@ export class AuthService {
     ) {
       throw new GoneException('exception.auth.guestExpired');
     }
-    return this._toUserResponse(user);
+    const response = this._toUserResponse(user);
+    await this.cache.set(cacheKey, response, CACHE_TTL.ITEM);
+    return response;
   }
 
   private async _cleanupExpiredGuests() {

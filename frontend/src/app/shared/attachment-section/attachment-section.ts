@@ -24,7 +24,7 @@ export class AttachmentSection {
   private readonly _destroyRef = inject(DestroyRef);
 
   readonly noteId = input<number | undefined>(undefined);
-  readonly maxFileSizeBytes = input(100 * 1024 * 1024);
+  readonly maxFileSizeBytes = input(5 * 1024 * 1024);
 
   readonly attachments = signal<Attachment[]>([]);
   readonly pendingFiles = signal<File[]>([]);
@@ -48,25 +48,23 @@ export class AttachmentSection {
     const noteId = this.noteId();
     for (const file of Array.from(files)) {
       if (file.size > this.maxFileSizeBytes()) {
-        this._snackBar.open(this._translateService.instant('note.fileTooLarge', { name: file.name, max: '100 MB' }), this._translateService.instant('note.cancel'), { duration: 4000 });
+        this._snackBar.open(this._translateService.instant('note.fileTooLarge', { name: file.name, max: '5 MB' }), this._translateService.instant('note.cancel'), { duration: 4000 });
         continue;
       }
       if (noteId) {
-        await this._attachmentService.addAttachment(noteId, file);
+        const created = await this._attachmentService.addAttachment(noteId, file);
+        this.attachments.update(list => [...list, created]);
       } else {
         this.pendingFiles.update(pending => [...pending, file]);
       }
-    }
-    if (noteId) {
-      this.attachments.set(await this._attachmentService.getAttachments(noteId));
     }
   }
 
   async addImageFile(file: File) {
     const noteId = this.noteId();
     if (noteId) {
-      await this._attachmentService.addAttachment(noteId, file);
-      this.attachments.set(await this._attachmentService.getAttachments(noteId));
+      const created = await this._attachmentService.addAttachment(noteId, file);
+      this.attachments.update(list => [...list, created]);
     } else {
       this.pendingFiles.update(files => [...files, file]);
     }

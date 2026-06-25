@@ -24,6 +24,7 @@ export interface NoteResponse {
   type: NoteType;
   color: string;
   pinned: boolean;
+  hasAttachments: boolean;
   userId: string;
   sectionId: number | null;
   createdAt: string;

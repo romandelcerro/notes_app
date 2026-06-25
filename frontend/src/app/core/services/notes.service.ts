@@ -13,6 +13,7 @@ interface NoteResponse {
   type: string;
   color: string;
   pinned: boolean;
+  hasAttachments: boolean;
   userId: string;
   sectionId: number | null;
   createdAt: string;
@@ -37,6 +38,7 @@ export class NotesService {
       type: r.type as Note['type'],
       color: r.color,
       pinned: r.pinned,
+      hasAttachments: r.hasAttachments,
       userId: r.userId,
       sectionId: r.sectionId ?? undefined,
       createdAt: new Date(r.createdAt),

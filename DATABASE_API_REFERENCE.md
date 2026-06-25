@@ -33,6 +33,7 @@ Relations: `1:N → notes`, `1:N → sections`
 | `type` | VARCHAR | `text\|link\|image\|file` |
 | `color` | VARCHAR | Hex color |
 | `pinned` | BOOLEAN | Default false |
+| `hasAttachments` | BOOLEAN | Default false |
 | `userId` | UUID | FK → users.uid, CASCADE |
 | `sectionId` | INTEGER | FK → sections.id, SET NULL |
 | `createdAt` | DATETIME | Auto-set |
@@ -132,12 +133,13 @@ Section fields: `id`, `name`, `userId`, `order`, `createdAt`
 | Method | Path | Body | Response |
 |--------|------|------|----------|
 | `GET` | `/attachments/note/:noteId` | — | `Attachment[]` |
+| `GET` | `/attachments/batch?noteIds=1,2,3` | — | `Attachment[]` |
 | `POST` | `/attachments` | `{ noteId, name, mimeType, encryptedData, size }` | `Attachment` |
 | `GET` | `/attachments/:id` | — | `Attachment` |
 | `DELETE` | `/attachments/:id` | — | `void` |
 
 Attachment fields: `id`, `noteId`, `name`, `mimeType`, `size`, `createdAt`  
-Note: `encryptedData` is returned only in `GET /attachments/:id`
+Note: `encryptedData` is returned only in `GET /attachments/:id` and `GET /attachments/batch`
 
 ### Backup (JWT required)
 
@@ -173,7 +175,7 @@ Frontend (Angular 21) communicates with backend via HTTP for all data operations
 | `AuthService` | `POST /auth/signup`, `POST /auth/signin`, `POST /auth/guest`, `POST /auth/convert-guest`, `GET /auth/me` |
 | `NotesService` | `GET /notes`, `POST /notes`, `PATCH /notes/:id`, `DELETE /notes/:id` |
 | `SectionsService` | `GET /sections`, `POST /sections`, `PATCH /sections/:id`, `DELETE /sections/:id` |
-| `AttachmentService` | `GET /attachments/note/:noteId`, `POST /attachments`, `DELETE /attachments/:id` |
+| `AttachmentService` | `GET /attachments/note/:noteId`, `GET /attachments/batch?noteIds=`, `POST /attachments`, `DELETE /attachments/:id` |
 | `UserService` | `GET /users/me`, `PATCH /users/me` |
 | `BackupService` | `GET /backup/export`, `POST /backup/import` |
 | `CryptoService` | Client-side only (Web Crypto API, no server key) |
