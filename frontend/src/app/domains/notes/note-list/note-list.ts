@@ -30,6 +30,12 @@ export class NoteListComponent {
   private readonly _dialog = inject(MatDialog);
   private readonly _destroyRef = inject(DestroyRef);
 
+  protected readonly sections = this._sectionsService.sections;
+
+  protected getDisplayName(section: { name: string; isDefault: boolean }): string {
+    return this._sectionsService.getDisplayName(section);
+  }
+
   private readonly _sectionName = toSignal(this._route.paramMap.pipe(map(p => p.get('section'))), { initialValue: null });
 
   protected readonly selectedSection = computed(() => {
@@ -48,8 +54,6 @@ export class NoteListComponent {
       return matchesQuery && matchesFrom && matchesTo;
     });
   });
-
-  protected readonly sections = this._sectionsService.sections;
 
   protected readonly unsectionedNotes = computed(() => (this.selectedSection() ? [] : this._filtered().filter(n => !n.pinned && !n.sectionId)));
 

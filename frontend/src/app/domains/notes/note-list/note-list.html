@@ -1,7 +1,7 @@
 <main class="notes-main">
   @if (selectedSection()) {
     <section>
-      <h2 class="section-label" [title]="selectedSection()!.name">{{ selectedSection()!.name }}</h2>
+      <h2 class="section-label" [title]="getDisplayName(selectedSection()!)">{{ getDisplayName(selectedSection()!) }}</h2>
       <div
         class="notes-grid"
         cdkDropList
@@ -20,7 +20,7 @@
   } @else {
     @for (sec of sections(); track sec.id) {
       <section>
-        <h3 class="section-label" [title]="sec.name">{{ sec.name }}</h3>
+        <h3 class="section-label" [title]="getDisplayName(sec)">{{ getDisplayName(sec) }}</h3>
         <div
           class="notes-grid"
           cdkDropList

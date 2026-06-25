@@ -1,0 +1,97 @@
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, IsNull } from 'typeorm';
+import { NoteEntity } from '../entities/note.entity.js';
+import { CreateNoteDto } from './dto/create-note.dto.js';
+import { UpdateNoteDto } from './dto/update-note.dto.js';
+import { NoteQueryDto } from './dto/note-query.dto.js';
+
+@Injectable()
+export class NotesService {
+  private readonly _logger = new Logger(NotesService.name);
+
+  constructor(
+    @InjectRepository(NoteEntity)
+    private readonly noteRepo: Repository<NoteEntity>,
+  ) {}
+
+  async findAll(userId: string, query?: NoteQueryDto) {
+    const qb = this.noteRepo
+      .createQueryBuilder('note')
+      .where('note.userId = :userId', { userId });
+
+    if (query?.sectionId) {
+      qb.andWhere('note.sectionId = :sectionId', {
+        sectionId: Number(query.sectionId),
+      });
+    }
+    if (query?.pinned !== undefined) {
+      qb.andWhere('note.pinned = :pinned', { pinned: query.pinned === 'true' });
+    }
+    if (query?.query) {
+      qb.andWhere('(note.title LIKE :q OR note.content LIKE :q)', {
+        q: `%${query.query}%`,
+      });
+    }
+    if (query?.dateFrom) {
+      qb.andWhere('note.createdAt >= :dateFrom', {
+        dateFrom: new Date(query.dateFrom),
+      });
+    }
+    if (query?.dateTo) {
+      qb.andWhere('note.createdAt <= :dateTo', {
+        dateTo: new Date(query.dateTo),
+      });
+    }
+
+    qb.orderBy('note.pinned', 'DESC').addOrderBy('note.updatedAt', 'DESC');
+
+    return qb.getMany();
+  }
+
+  async findOne(id: number, userId: string) {
+    const note = await this.noteRepo.findOne({ where: { id, userId } });
+    if (!note) throw new NotFoundException('exception.note.notFound');
+    return note;
+  }
+
+  async create(userId: string, dto: CreateNoteDto) {
+    const note = this.noteRepo.create({ ...dto, userId });
+    const saved = await this.noteRepo.save(note);
+    this._logger.log(`Note created: ${saved.id} by user ${userId}`);
+    return saved;
+  }
+
+  async update(id: number, userId: string, dto: UpdateNoteDto) {
+    const note = await this.findOne(id, userId);
+    Object.assign(note, dto);
+    const saved = await this.noteRepo.save(note);
+    this._logger.log(`Note updated: ${saved.id}`);
+    return saved;
+  }
+
+  async remove(id: number, userId: string) {
+    const note = await this.findOne(id, userId);
+    await this.noteRepo.remove(note);
+    this._logger.log(`Note removed: ${id}`);
+  }
+
+  async reorder(userId: string, groupKey: string, noteIds: number[]) {
+    const notes = await this.noteRepo.find({
+      where:
+        groupKey === '__default'
+          ? { userId, sectionId: IsNull() }
+          : { userId, sectionId: Number(groupKey) },
+    });
+    const noteMap = new Map(notes.map((n) => [n.id, n]));
+    const ordered = noteIds.filter((id) => noteMap.has(id));
+    for (let i = 0; i < ordered.length; i++) {
+      const note = noteMap.get(ordered[i]);
+      if (note) {
+        note.pinned = i < ordered.length ? note.pinned : false;
+        await this.noteRepo.save(note);
+      }
+    }
+    this._logger.log(`Notes reordered in group ${groupKey}`);
+  }
+}

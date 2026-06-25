@@ -4,7 +4,7 @@
   @for (sec of sections(); track sec.id) {
     <app-section-card
       icon="folder_open"
-      [label]="sec.name"
+      [label]="getDisplayName(sec)"
       [section]="sec"
       [active]="selectedSectionId() === sec.id"
       (selectClick)="selectSection(sec.id!)"

@@ -99,6 +99,11 @@ pnpm --filter @notes-app/backend add @nestjs/config
   pnpm add -Dw <pkg>
   ```
 
+## Auth
+
+- **Registered users**: JWT valid 7 days.
+- **Guest users**: JWT valid 24 hours. Expired guest sessions auto-cleaned on next guest sign-in.
+
 ## The `packages/shared` package
 
 Reserved for code that needs to be shared between the frontend and the backend (e.g. DTOs, contract types, validation schemas, constants). It is currently empty by design — add files only when there is a real need.

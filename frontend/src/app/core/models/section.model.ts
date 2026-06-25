@@ -3,5 +3,6 @@ export interface Section {
   name: string;
   userId: string;
   order: number;
+  isDefault: boolean;
   createdAt: Date;
 }

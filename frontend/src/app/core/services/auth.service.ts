@@ -1,15 +1,18 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { CryptoService } from './crypto.service';
 import { NotesService } from './notes.service';
 import { SectionsService } from './sections.service';
 import { UserService } from './user.service';
+import { getToken, setToken, clearToken } from '../interceptors/auth.interceptor';
 import type { User } from '../models/user.model';
-
-const STORAGE_KEY = 'notes_local_user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly _http = inject(HttpClient);
   private readonly _router = inject(Router);
   private readonly _cryptoService = inject(CryptoService);
   private readonly _notesService = inject(NotesService);
@@ -23,43 +26,78 @@ export class AuthService {
     this._tryRestoreSession();
   }
 
-  async signIn(name: string, email?: string) {
-    const uid = crypto.randomUUID();
-    const user: User = { uid, displayName: name, email: email ?? null, photoURL: null };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ uid, displayName: name, email: email ?? '' }));
-    await this._initUserSession(user);
+  async signIn(email: string, password: string) {
+    const res = await firstValueFrom(this._http.post<AuthResponse>(`${environment.apiUrl}/auth/signin`, { email, password }));
+    setToken(res.accessToken);
+    await this._initUserSession(res.user);
     this.loading.set(false);
     this._router.navigate(['/']);
   }
 
+  async signUp(email: string, password: string, displayName: string) {
+    const res = await firstValueFrom(this._http.post<AuthResponse>(`${environment.apiUrl}/auth/signup`, { email, password, displayName }));
+    setToken(res.accessToken);
+    await this._initUserSession(res.user);
+    this.loading.set(false);
+    this._router.navigate(['/']);
+  }
+
+  async signInGuest(displayName: string, email?: string) {
+    const res = await firstValueFrom(this._http.post<AuthResponse>(`${environment.apiUrl}/auth/guest`, { displayName, email }));
+    setToken(res.accessToken);
+    await this._initUserSession(res.user);
+    this.loading.set(false);
+    this._router.navigate(['/']);
+  }
+
+  async convertGuest(email: string, password: string) {
+    const res = await firstValueFrom(this._http.post<AuthResponse>(`${environment.apiUrl}/auth/convert-guest`, { email, password }));
+    setToken(res.accessToken);
+    const user = this._userService.user();
+    this._userService.user.set({
+      uid: res.user.uid,
+      displayName: res.user.displayName,
+      email: res.user.email,
+      photoURL: res.user.photoURL ?? user?.photoURL ?? null,
+      isGuest: res.user.isGuest,
+      guestExpiresAt: res.user.guestExpiresAt,
+    });
+  }
+
   async signOut() {
     this._clearAppData();
-    localStorage.removeItem(STORAGE_KEY);
+    clearToken();
     this._userService.user.set(null);
+    this.loading.set(false);
     this._router.navigate(['/login']);
   }
 
   private async _tryRestoreSession() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
+    const token = getToken();
+    if (token) {
       try {
-        const data = JSON.parse(stored) as { uid: string; displayName: string; email?: string };
-        const user: User = { uid: data.uid, displayName: data.displayName, email: data.email ?? null, photoURL: null };
-        const localAvatar = localStorage.getItem(`notes_avatar_${data.uid}`);
-        if (localAvatar) user.photoURL = localAvatar;
+        const user = await firstValueFrom(this._http.get<UserResponse>(`${environment.apiUrl}/auth/me`));
         await this._initUserSession(user);
         this._router.navigate(['/']);
       } catch {
-        localStorage.removeItem(STORAGE_KEY);
+        clearToken();
       }
     }
     this.loading.set(false);
   }
 
-  private async _initUserSession(user: User) {
+  private async _initUserSession(user: UserResponse) {
+    const mapped: User = {
+      uid: user.uid,
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      isGuest: user.isGuest,
+      guestExpiresAt: user.guestExpiresAt,
+    };
     await this._cryptoService.initKey(user.uid);
-    await Promise.all([this._notesService.loadNotes(user.uid), this._sectionsService.loadSections(user.uid)]);
-    this._userService.user.set(user);
+    await Promise.all([this._notesService.loadNotes(), this._sectionsService.loadSections()]);
+    this._userService.user.set(mapped);
   }
 
   private _clearAppData() {
@@ -67,4 +105,19 @@ export class AuthService {
     this._notesService.clearNotes();
     this._sectionsService.clearSections();
   }
+}
+
+interface AuthResponse {
+  accessToken: string;
+  user: UserResponse;
+}
+
+interface UserResponse {
+  uid: string;
+  email: string;
+  displayName: string | null;
+  photoURL: string | null;
+  isGuest: boolean;
+  guestExpiresAt: string | null;
+  createdAt: string;
 }

@@ -34,22 +34,26 @@
     {{ saving() ? ('profile.savingName' | translate) : ('profile.saveName' | translate) }}
   </button>
 
-  <mat-divider class="backup-divider" />
+  @if (user()?.isGuest) {
+    <div class="guest-conversion-section">
+      <p class="backup-title"><span class="inline-badge">!</span>{{ 'profile.guestConversionTitle' | translate }}</p>
+      <p class="guest-conversion-desc">{{ 'profile.guestConversionDesc' | translate }}</p>
 
-  <p class="backup-title">{{ 'profile.backup' | translate }}</p>
-  <div class="backup-actions">
-    <button mat-stroked-button (click)="exportBackup()" [disabled]="exporting() || importing()">
-      <mat-icon>download</mat-icon>
-      {{ exporting() ? ('profile.exporting' | translate) : ('profile.export' | translate) }}
-    </button>
-    <label>
-      <input type="file" accept=".json,application/json" (change)="importBackup($event)" [disabled]="importing() || exporting()" hidden />
-      <button mat-stroked-button type="button" [disabled]="importing() || exporting()" onclick="this.previousElementSibling.click()">
-        <mat-icon>upload</mat-icon>
-        {{ importing() ? ('profile.importing' | translate) : ('profile.import' | translate) }}
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'login.emailLabel' | translate }}</mat-label>
+        <input matInput type="email" [ngModel]="convertEmail()" (ngModelChange)="convertEmail.set($event)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'login.passwordLabel' | translate }}</mat-label>
+        <input matInput type="password" [ngModel]="convertPassword()" (ngModelChange)="convertPassword.set($event)" />
+      </mat-form-field>
+
+      <button mat-flat-button class="convert-btn" (click)="convertAccount()" [disabled]="converting() || !convertEmail().trim() || !convertPassword()">
+        {{ converting() ? ('profile.converting' | translate) : ('profile.convertAccount' | translate) }}
       </button>
-    </label>
-  </div>
+    </div>
+  }
 
   <mat-divider class="backup-divider" />
 

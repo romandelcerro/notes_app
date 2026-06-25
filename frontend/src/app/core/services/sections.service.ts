@@ -1,51 +1,69 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { mapNewSection } from '../mappers/section.mapper';
+import { HttpClient } from '@angular/common/http';
+import { TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import type { Section } from '../models/section.model';
-import { DatabaseService } from './database.service';
+
+interface SectionResponse {
+  id: number;
+  name: string;
+  userId: string;
+  order: number;
+  isDefault: boolean;
+  createdAt: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class SectionsService {
-  private readonly _databaseService = inject(DatabaseService);
+  private readonly _http = inject(HttpClient);
+  private readonly _translateService = inject(TranslateService);
 
   readonly sections = signal<Section[]>([]);
 
-  private _currentUserId = '';
-
-  async loadSections(userId: string) {
-    this._currentUserId = userId;
-    const loaded = await this._databaseService.sections.where('userId').equals(userId).sortBy('order');
-    this.sections.set(loaded);
+  async loadSections() {
+    const raw = await firstValueFrom(this._http.get<SectionResponse[]>(`${environment.apiUrl}/sections`));
+    this.sections.set(raw.map(r => ({ ...r, createdAt: new Date(r.createdAt) })));
   }
 
-  async createSection(name: string): Promise<Section> {
-    const order = this.sections().length;
-    const section = mapNewSection(name, this._currentUserId, order);
-    const id = await this._databaseService.sections.add(section);
-    const newSection = { ...section, id };
+  async createSection(name: string, isDefault = false): Promise<Section> {
+    const created = await firstValueFrom(this._http.post<SectionResponse>(`${environment.apiUrl}/sections`, { name, isDefault }));
+    const newSection: Section = { ...created, createdAt: new Date(created.createdAt) };
     this.sections.update(s => [...s, newSection]);
     return newSection;
   }
 
+  getDisplayName(section: { name: string; isDefault: boolean }): string {
+    if (section.isDefault) {
+      return this._translateService.instant('home.defaultSectionName');
+    }
+    return section.name;
+  }
+
   async renameSection(id: number, name: string) {
-    await this._databaseService.sections.update(id, { name });
-    this.sections.update(s => s.map(sec => (sec.id === id ? { ...sec, name } : sec)));
+    const section = this.sections().find(s => s.id === id);
+    const payload: Record<string, unknown> = { name };
+    if (section?.isDefault) {
+      payload['isDefault'] = false;
+    }
+    await firstValueFrom(this._http.patch<SectionResponse>(`${environment.apiUrl}/sections/${id}`, payload));
+    this.sections.update(s => s.map(sec => (sec.id === id ? { ...sec, name, isDefault: sec.isDefault ? false : sec.isDefault } : sec)));
   }
 
   async deleteSection(id: number) {
-    const noteIds = (await this._databaseService.notes.where('sectionId').equals(id).toArray()).map(n => n.id!);
-    await this._databaseService.attachments.where('noteId').anyOf(noteIds).delete();
-    await this._databaseService.notes.where('sectionId').equals(id).delete();
-    await this._databaseService.sections.delete(id);
+    await firstValueFrom(this._http.delete(`${environment.apiUrl}/sections/${id}`));
     this.sections.update(s => s.filter(sec => sec.id !== id));
   }
 
   clearSections() {
     this.sections.set([]);
-    this._currentUserId = '';
   }
 
-  async clearAllData(userId: string) {
-    await this._databaseService.sections.where('userId').equals(userId).delete();
+  async clearAllData() {
+    const all = this.sections();
+    for (const section of all) {
+      if (section.id) await firstValueFrom(this._http.delete(`${environment.apiUrl}/sections/${section.id}`));
+    }
     this.sections.set([]);
   }
 }

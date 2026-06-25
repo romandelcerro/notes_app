@@ -20,6 +20,7 @@
     "test": "pnpm -r --filter=\"@notes-app/*\" run test",
     "lint": "pnpm -r --filter=\"@notes-app/*\" run lint",
     "format": "pnpm -r --filter=\"@notes-app/*\" run format",
+    "generate:docs": "bash scripts/generate-api-doc.sh",
     "clean": "pnpm -r exec rm -rf node_modules dist .angular && rm -rf node_modules"
   }
 }

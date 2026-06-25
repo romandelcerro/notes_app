@@ -6,35 +6,104 @@
     </mat-card-header>
 
     <mat-card-content>
-      <p class="login-description">{{ 'login.description' | translate }}</p>
+      <mat-tab-group dynamicHeight>
+        <mat-tab [label]="'login.tabSignIn' | translate">
+          <div class="tab-content">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'login.emailLabel' | translate }}</mat-label>
+              <input matInput type="email" required [(ngModel)]="signInEmail" [disabled]="loading()" />
+            </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>{{ 'login.nameLabel' | translate }}</mat-label>
-        <input matInput [(ngModel)]="name" [disabled]="loading()" />
-      </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'login.passwordLabel' | translate }}</mat-label>
+              <input matInput type="password" [(ngModel)]="signInPassword" [disabled]="loading()" />
+            </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>{{ 'login.emailLabel' | translate }}</mat-label>
-        <input matInput type="email" [(ngModel)]="email" [disabled]="loading()" />
-      </mat-form-field>
+            @if (errorText()) {
+              <p class="login-error">{{ errorText() }}</p>
+            }
 
-      @if (errorText()) {
-        <p class="login-error">{{ errorText() }}</p>
-      }
+            <button mat-flat-button class="full-width" (click)="onSignIn()" [disabled]="loading() || !signInEmail.trim() || !signInPassword.trim()">
+              @if (loading()) {
+                <mat-spinner diameter="20" />
+              }
+              @if (!loading()) {
+                <mat-icon>login</mat-icon>
+              }
+              @if (!loading()) {
+                {{ 'login.signIn' | translate }}
+              }
+            </button>
+          </div>
+        </mat-tab>
+
+        <mat-tab [label]="'login.tabSignUp' | translate">
+          <div class="tab-content">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'login.nameLabel' | translate }}</mat-label>
+              <input matInput [(ngModel)]="signUpName" [disabled]="loading()" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'login.emailLabel' | translate }}</mat-label>
+              <input matInput type="email" required [(ngModel)]="signUpEmail" [disabled]="loading()" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'login.passwordLabel' | translate }}</mat-label>
+              <input matInput type="password" [(ngModel)]="signUpPassword" [disabled]="loading()" />
+            </mat-form-field>
+
+            @if (errorText()) {
+              <p class="login-error">{{ errorText() }}</p>
+            }
+
+            <button mat-flat-button class="full-width" (click)="onSignUp()" [disabled]="loading() || !signUpEmail.trim() || !signUpPassword.trim() || !signUpName.trim()">
+              @if (loading()) {
+                <mat-spinner diameter="20" />
+              }
+              @if (!loading()) {
+                <mat-icon>person_add</mat-icon>
+              }
+              @if (!loading()) {
+                {{ 'login.signUp' | translate }}
+              }
+            </button>
+          </div>
+        </mat-tab>
+
+        <mat-tab [label]="'login.tabGuest' | translate">
+          <div class="tab-content">
+            <p class="login-description">{{ 'login.description' | translate }}</p>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'login.nameLabel' | translate }}</mat-label>
+              <input matInput [(ngModel)]="guestName" [disabled]="loading()" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'login.emailLabelGuest' | translate }}</mat-label>
+              <input matInput type="email" [(ngModel)]="guestEmail" [disabled]="loading()" />
+            </mat-form-field>
+
+            @if (errorText()) {
+              <p class="login-error">{{ errorText() }}</p>
+            }
+
+            <button mat-flat-button class="full-width" (click)="onGuest()" [disabled]="loading() || !guestName.trim()">
+              @if (loading()) {
+                <mat-spinner diameter="20" />
+              }
+              @if (!loading()) {
+                <mat-icon>login</mat-icon>
+              }
+              @if (!loading()) {
+                {{ 'login.continue' | translate }}
+              }
+            </button>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
     </mat-card-content>
-
-    <mat-card-actions>
-      <button mat-flat-button (click)="signIn()" [disabled]="loading() || !name.trim()">
-        @if (loading()) {
-          <mat-spinner diameter="20" />
-        }
-        @if (!loading()) {
-          <mat-icon>login</mat-icon>
-        }
-        @if (!loading()) {
-          {{ 'login.continue' | translate }}
-        }
-      </button>
-    </mat-card-actions>
   </mat-card>
 </div>

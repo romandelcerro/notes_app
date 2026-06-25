@@ -25,6 +25,12 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Auth
+
+- **Registered users**: JWT expires in 7 days.
+- **Guest users**: JWT expires in 24 hours. Expired guest sessions are auto-cleaned on next guest sign-in.
+- **Guest conversion**: `POST /auth/convert-guest` lets guests set email + password to become permanent users.
+
 ## Project setup
 
 ```bash

@@ -1,67 +1,104 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { decryptNote, encryptNote, mapUpdatedNote } from '../mappers/note.mapper';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { decryptNote, encryptNote } from '../mappers/note.mapper';
 import type { Note, NoteFilter } from '../models/note.model';
 import { CryptoService } from './crypto.service';
-import { DatabaseService } from './database.service';
+
+interface NoteResponse {
+  id: number;
+  title: string;
+  content: string;
+  type: string;
+  color: string;
+  pinned: boolean;
+  userId: string;
+  sectionId: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class NotesService {
+  private readonly _http = inject(HttpClient);
   private readonly _cryptoService = inject(CryptoService);
-  private readonly _databaseService = inject(DatabaseService);
 
   readonly notes = signal<Note[]>([]);
   readonly filter = signal<NoteFilter>({ query: '', dateFrom: null, dateTo: null });
   private readonly _orderMap = signal<Record<string, number[]>>({});
 
-  private _currentUserId = '';
-
-  async loadNotes(userId: string) {
-    this._currentUserId = userId;
-    const raw = await this._databaseService.notes.where('userId').equals(userId).reverse().sortBy('updatedAt');
-    const decryptedNotes = await Promise.all(raw.map(n => decryptNote(n, this._cryptoService)));
+  async loadNotes() {
+    const raw = await firstValueFrom(this._http.get<NoteResponse[]>(`${environment.apiUrl}/notes`));
+    const parsed = raw.map(r => ({
+      id: r.id,
+      title: r.title,
+      content: r.content,
+      type: r.type as Note['type'],
+      color: r.color,
+      pinned: r.pinned,
+      userId: r.userId,
+      sectionId: r.sectionId ?? undefined,
+      createdAt: new Date(r.createdAt),
+      updatedAt: new Date(r.updatedAt),
+    }));
+    const decryptedNotes = await Promise.all(parsed.map(n => decryptNote(n, this._cryptoService)));
     this.notes.set(decryptedNotes);
-    this._loadOrderMap(userId);
   }
 
-  async createNote(note: Note) {
-    const now = new Date();
-    const encryptedNotes = await encryptNote({ ...note, userId: this._currentUserId }, this._cryptoService);
-    const id = await this._databaseService.notes.add({ ...encryptedNotes, createdAt: now, updatedAt: now });
-    const newNote: Note = { ...note, userId: this._currentUserId, id, createdAt: now, updatedAt: now };
+  async createNote(note: Note): Promise<Note> {
+    const encrypted = await encryptNote(note, this._cryptoService);
+    const created = await firstValueFrom(this._http.post<NoteResponse>(`${environment.apiUrl}/notes`, {
+      title: encrypted.title,
+      content: encrypted.content,
+      type: note.type,
+      color: note.color,
+      pinned: note.pinned,
+      sectionId: note.sectionId,
+    }));
+    const newNote: Note = {
+      ...note,
+      id: created.id,
+      createdAt: new Date(created.createdAt),
+      updatedAt: new Date(created.updatedAt),
+    };
     this.notes.update(current => [newNote, ...current]);
     return newNote;
   }
 
   async updateNote(id: number, note: Note) {
-    const updatedAt = new Date();
-    const updatedNote = await mapUpdatedNote(note, updatedAt, this._cryptoService);
-    await this._databaseService.notes.update(id, updatedNote);
-    this.notes.update(current => current.map(n => (n.id === id ? { ...n, ...note, updatedAt } : n)));
+    const encrypted = await encryptNote(note, this._cryptoService);
+    const updated = await firstValueFrom(this._http.patch<NoteResponse>(`${environment.apiUrl}/notes/${id}`, {
+      title: encrypted.title,
+      content: encrypted.content,
+      color: note.color,
+      pinned: note.pinned,
+      sectionId: note.sectionId ?? null,
+    }));
+    this.notes.update(current => current.map(n => (n.id === id ? { ...n, ...note, updatedAt: new Date(updated.updatedAt) } : n)));
   }
 
   async deleteNote(id: number) {
-    await this._databaseService.notes.delete(id);
-    await this._databaseService.attachments.where('noteId').equals(id).delete();
+    await firstValueFrom(this._http.delete(`${environment.apiUrl}/notes/${id}`));
     this.notes.update(current => current.filter(n => n.id !== id));
   }
 
   clearNotes() {
     this.notes.set([]);
     this._orderMap.set({});
-    this._currentUserId = '';
   }
 
   removeNotesForSection(sectionId: number) {
     this.notes.update(notes => notes.filter(n => n.sectionId !== sectionId));
   }
 
-  async clearAllData(userId: string) {
-    await this._databaseService.notes.where('userId').equals(userId).delete();
-    const noteIds = (await this._databaseService.notes.where('userId').equals(userId).toArray()).map(n => n.id!);
-    await this._databaseService.attachments.where('noteId').anyOf(noteIds).delete();
+  async clearAllData() {
+    const all = this.notes();
+    for (const note of all) {
+      if (note.id) await firstValueFrom(this._http.delete(`${environment.apiUrl}/notes/${note.id}`));
+    }
     this.notes.set([]);
     this._orderMap.set({});
-    localStorage.removeItem(`notes_order_${userId}`);
   }
 
   ordered(notes: Note[], key: string): Note[] {
@@ -74,13 +111,7 @@ export class NotesService {
   saveOrder(groupKey: string, ids: number[]) {
     this._orderMap.update(m => {
       const updated = { ...m, [groupKey]: ids };
-      localStorage.setItem(`notes_order_${this._currentUserId}`, JSON.stringify(updated));
       return updated;
     });
-  }
-
-  private _loadOrderMap(userId: string) {
-    const stored = localStorage.getItem(`notes_order_${userId}`);
-    this._orderMap.set(stored ? (JSON.parse(stored) as Record<string, number[]>) : {});
   }
 }

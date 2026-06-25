@@ -30,6 +30,10 @@ export class SectionList {
 
   protected readonly sections = this._sectionsService.sections;
 
+  protected getDisplayName(section: { name: string; isDefault: boolean }): string {
+    return this._sectionsService.getDisplayName(section);
+  }
+
   private readonly _currentUrl = toSignal(
     this._router.events.pipe(
       filter(e => e instanceof NavigationEnd),
@@ -63,7 +67,7 @@ export class SectionList {
         .open(ConfirmDialogModal, {
           data: {
             title: this._translateService.instant('confirm.title'),
-            message: this._translateService.instant('confirm.deleteSection', { name: section.name }),
+            message: this._translateService.instant('confirm.deleteSection', { name: this.getDisplayName(section) }),
             cancelLabel: this._translateService.instant('confirm.cancel'),
             confirmLabel: this._translateService.instant('confirm.delete'),
             confirmVariant: 'warn'

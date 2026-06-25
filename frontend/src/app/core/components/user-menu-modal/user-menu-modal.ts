@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -19,7 +19,7 @@ import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-user-menu-modal',
-  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatDividerModule, MatTooltipModule, ReactiveFormsModule, TranslatePipe],
+  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatDividerModule, MatTooltipModule, FormsModule, ReactiveFormsModule, TranslatePipe],
   templateUrl: './user-menu-modal.html',
   styleUrl: './user-menu-modal.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -39,6 +39,9 @@ export class UserMenuModal {
   protected readonly user = this._userService.user;
   protected readonly displayNameControl = new FormControl(this._userService.user()?.displayName ?? '', { nonNullable: true });
   protected readonly saving = signal(false);
+  protected readonly converting = signal(false);
+  protected readonly convertEmail = signal('');
+  protected readonly convertPassword = signal('');
   protected readonly exporting = signal(false);
   protected readonly importing = signal(false);
   protected readonly clearing = signal(false);
@@ -76,9 +79,24 @@ export class UserMenuModal {
     await this._authService.signOut();
   }
 
+  protected async convertAccount() {
+    const email = this.convertEmail().trim();
+    const password = this.convertPassword();
+    if (!email || !password) return;
+    this.converting.set(true);
+    try {
+      await this._authService.convertGuest(email, password);
+      this._snackBar.open(this._translateService.instant('profile.convertSuccess'), this._translateService.instant('common.close'), { duration: 3000 });
+    } catch {
+      this._snackBar.open(this._translateService.instant('profile.convertError'), this._translateService.instant('common.close'), { duration: 5000 });
+    } finally {
+      this.converting.set(false);
+    }
+  }
+
   protected async clearAllData() {
-    const userId = this.user()?.uid;
-    if (!userId) return;
+    const user = this.user();
+    if (!user?.uid) return;
     const confirmed = await firstValueFrom(
       this._dialog
         .open(ConfirmDialogModal, {
@@ -95,8 +113,8 @@ export class UserMenuModal {
     if (!confirmed) return;
     this.clearing.set(true);
     try {
-      await this._notesService.clearAllData(userId);
-      await this._sectionsService.clearAllData(userId);
+      await this._notesService.clearAllData();
+      await this._sectionsService.clearAllData();
       window.location.reload();
     } finally {
       this.clearing.set(false);
@@ -104,14 +122,15 @@ export class UserMenuModal {
   }
 
   protected async exportBackup() {
-    const userId = this.user()?.uid;
-    if (!userId) return;
+    const user = this.user();
+    if (!user?.uid) return;
     this.exporting.set(true);
     try {
-      await this._backupService.exportBackup(userId);
+      await this._backupService.exportBackup();
       this._snackBar.open(this._translateService.instant('backup.exportSuccess'), this._translateService.instant('common.close'), { duration: 3000 });
-    } catch (err) {
-      const key = err instanceof Error ? err.message : 'backup.exportError';
+    } catch (err: unknown) {
+      const body = err && typeof err === 'object' && 'error' in err ? (err as { error: { translationKey?: string; message?: string } }).error : null;
+      const key = body?.translationKey ?? body?.message ?? 'backup.exportError';
       this._snackBar.open(this._translateService.instant(key), this._translateService.instant('common.close'), { duration: 5000 });
     } finally {
       this.exporting.set(false);
@@ -122,14 +141,15 @@ export class UserMenuModal {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    const userId = this.user()?.uid;
-    if (!userId) return;
+    const user = this.user();
+    if (!user?.uid) return;
     this.importing.set(true);
     try {
-      await this._backupService.importBackup(file, userId);
+      await this._backupService.importBackup(file);
       this._snackBar.open(this._translateService.instant('backup.importSuccess'), this._translateService.instant('common.close'), { duration: 3000 });
-    } catch (err) {
-      const key = err instanceof Error ? err.message : 'backup.importError';
+    } catch (err: unknown) {
+      const body = err && typeof err === 'object' && 'error' in err ? (err as { error: { translationKey?: string; message?: string } }).error : null;
+      const key = body?.translationKey ?? body?.message ?? 'backup.importError';
       this._snackBar.open(this._translateService.instant(key), this._translateService.instant('common.close'), { duration: 5000 });
     } finally {
       input.value = '';

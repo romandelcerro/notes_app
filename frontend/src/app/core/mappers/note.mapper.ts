@@ -25,13 +25,4 @@ export async function decryptNote(note: Note, crypto: CryptoService): Promise<No
   };
 }
 
-export async function mapUpdatedNote(note: Note, updatedAt: Date, crypto: CryptoService) {
-  return {
-    title: await crypto.encrypt(note.title),
-    content: await crypto.encrypt(note.content),
-    color: note.color,
-    pinned: note.pinned,
-    sectionId: note.sectionId,
-    updatedAt
-  };
-}
+

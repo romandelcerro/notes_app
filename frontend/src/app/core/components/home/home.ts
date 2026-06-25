@@ -42,7 +42,7 @@ export class Home {
 
   protected async createNote() {
     const defaultName = this._translateService.instant('home.defaultSectionName');
-    const section = await this._sectionsService.createSection(defaultName);
+    const section = await this._sectionsService.createSection(defaultName, true);
     this._dialog
       .open(NoteCreateEditModal, {
         data: { sectionId: section.id },

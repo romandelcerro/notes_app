@@ -1,22 +1,23 @@
-# Notes App
+# Notes App — Frontend
 
-Aplicación web personal de notas construida con **Angular 21**, **Angular Material** e **IndexedDB** (Dexie.js). Todo el contenido de las notas se cifra en el navegador usando AES-GCM antes de guardarse localmente.
+Aplicación web personal de notas construida con **Angular 21**, **Angular Material** y **ngx-translate**. El contenido de las notas se cifra en el navegador (AES-GCM) antes de enviarse al backend NestJS.
 
 ## Características
 
-- Inicio de sesión local (sin cuenta externa)
+- Inicio de sesión con email/contraseña o como invitado (sesión 24h)
 - Notas con texto, enlaces y archivos adjuntos
 - Arrastrar y soltar archivos, pegar imágenes desde el portapapeles
-- Cifrado AES-GCM local (clave derivada con PBKDF2 desde tu ID de usuario)
-- Almacenamiento 100% local en IndexedDB (no sale de tu dispositivo)
+- Cifrado AES-GCM cliente-servidor (clave derivada con PBKDF2 desde el ID de usuario)
+- Almacenamiento remoto via API REST (NestJS :3000)
 - Busca, fija y colorea notas
 - Perfil de usuario editable
+- Temas claro/oscuro, multi-idioma (EN/ES)
 
 ## Desarrollo
 
 ```bash
 pnpm install
-pnpm start
+pnpm dev
 ```
 
 Abre http://localhost:4200
@@ -24,7 +25,7 @@ Abre http://localhost:4200
 ## Build producción
 
 ```bash
-pnpm run build
+pnpm build
 ```
 
 ## Estructura del proyecto
@@ -32,24 +33,31 @@ pnpm run build
 ```
 src/app/
   core/
-    guards/      # authGuard
-    models/      # Note, AppUser
-    services/    # AuthService, CryptoService, DatabaseService, NotesService, FilesService
-  features/
-    auth/        # LoginComponent
-    home/        # HomeComponent
-    notes/
-      note-card/    # NoteCardComponent
-      note-editor/  # NoteEditorComponent (dialog)
+    components/  # Home, login-card, settings-modal, user-menu-modal
+    guards/      # authGuard, guestGuard, hasDataGuard, noDataGuard
+    interceptors/ # authInterceptor (Bearer JWT)
+    mappers/     # encryptNote/decryptNote wrappers
+    models/      # User, Note, Section, Attachment
+    services/    # Auth, Crypto, Notes, Sections, User, Backup, Files
+  layout/
+    shell/       # Side + toolbar + router-outlet
+    sidenav/     # Section list + settings + sign-out
+    toolbar/     # Search, clock, user avatar
+  domains/
+    notes/       # NoteCard, NoteCreateEditModal, NoteList, NotePreview
+    sections/    # SectionCard, SectionCreateEditModal, SectionList
   shared/
-    toolbar/        # ToolbarComponent
-    user-menu/      # UserMenuComponent (dialog)
+    attachment-section/
+    clock/
+    confirm-dialog-modal/
+    search-input/
+    user-avatar/
 ```
 
 ## Seguridad
 
-- Las notas se cifran con **AES-GCM 256-bit** antes de escribirse en IndexedDB
-- La clave se deriva de tu ID de usuario usando **PBKDF2** con 310 000 iteraciones y SHA-256
-- La sal PBKDF2 se guarda en `localStorage` por usuario
+- Las notas se cifran con **AES-GCM 256-bit** antes de enviarse al backend
+- La clave se deriva del ID de usuario usando **PBKDF2** con 310000 iteraciones y SHA-256
 - La clave de cifrado nunca se persiste; se regenera en cada sesión
 - Los archivos adjuntos también se cifran individualmente
+- Autenticación via JWT (Bearer token en localStorage)

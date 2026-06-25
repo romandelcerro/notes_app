@@ -32,13 +32,14 @@ Use `workspace:*` for inter-package refs.
 ## Frontend
 
 - Angular 21, Material, ngx-translate
-- **IndexedDB (Dexie.js)** for all storage. No backend API calls yet.
+- **REST API** to backend (NestJS :3000) for all data. No IndexedDB.
 - **AES-GCM encryption** client-side (PBKDF2 key derivation)
 - Test: `ng test` → Vitest (via `@angular/build:unit-test` builder)
 - Build requires `.env` file for `pnpm set-env:ci` (auto-runs in build)
 - `src/app/core/` for guards, models, services
-- `src/app/features/` for pages (`auth`, `home`, `notes`)
-- `src/app/shared/` for reusable UI (`toolbar`, `user-menu`)
+- `src/app/layout/` for shell/toolbar/sidenav
+- `src/app/domains/` for feature pages (`notes`, `sections`)
+- `src/app/shared/` for reusable UI (`attachment-section`, `user-avatar`)
 
 ## Backend
 
@@ -46,7 +47,7 @@ Use `workspace:*` for inter-package refs.
 - Unit tests: `jest` (ts-jest, `*.spec.ts` in `src/`)
 - E2E tests: `jest --config ./test/jest-e2e.json` (supertest)
 - Coverage: `pnpm backend test:cov` (outputs to `coverage/`)
-- Currently scaffold only (no real modules yet)
+- Auth: JWT (registered 7d, guest 24h), bcryptjs, Passport, guest auto-cleanup
 
 ## Shared
 
@@ -58,6 +59,16 @@ Use `workspace:*` for inter-package refs.
 1. Create dir + `package.json` with `@notes-app/<name>`
 2. Add path to `pnpm-workspace.yaml` if not covered by glob
 3. `pnpm install` from root
+
+## Doc Sync
+
+`DATABASE_API_REFERENCE.md` must reflect actual DB schema + API endpoints.
+
+Run `pnpm generate:docs` to regenerate. **Always run after:**
+- Adding/removing entity columns or tables
+- Adding/removing controller routes or HTTP methods
+- Changing DTO fields or validation
+- Changing data layer schema or client-side models
 
 ## Gotchas
 
