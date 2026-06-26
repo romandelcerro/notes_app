@@ -44,7 +44,7 @@ export class FilesService {
   }
 
   resolveImageFromClipboard(items: DataTransferItemList) {
-    const imageItem = Array.from(items).find(item => item.type.startsWith('image/'));
+    const imageItem = Array.from(items).find((item) => item.type.startsWith('image/'));
     return Promise.resolve(imageItem?.getAsFile() ?? null);
   }
 }

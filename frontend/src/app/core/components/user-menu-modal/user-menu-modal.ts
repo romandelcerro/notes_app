@@ -19,10 +19,21 @@ import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-user-menu-modal',
-  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatDividerModule, MatTooltipModule, FormsModule, ReactiveFormsModule, TranslatePipe],
+  imports: [
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatDividerModule,
+    MatTooltipModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TranslatePipe,
+  ],
   templateUrl: './user-menu-modal.html',
   styleUrl: './user-menu-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserMenuModal {
   private readonly _authService = inject(AuthService);
@@ -37,7 +48,10 @@ export class UserMenuModal {
   private readonly _dialogRef = inject(MatDialogRef<UserMenuModal>);
 
   protected readonly user = this._userService.user;
-  protected readonly displayNameControl = new FormControl(this._userService.user()?.displayName ?? '', { nonNullable: true });
+  protected readonly displayNameControl = new FormControl(
+    this._userService.user()?.displayName ?? '',
+    { nonNullable: true },
+  );
   protected readonly saving = signal(false);
   protected readonly converting = signal(false);
   protected readonly convertEmail = signal('');
@@ -86,9 +100,17 @@ export class UserMenuModal {
     this.converting.set(true);
     try {
       await this._authService.convertGuest(email, password);
-      this._snackBar.open(this._translateService.instant('profile.convertSuccess'), this._translateService.instant('common.close'), { duration: 3000 });
+      this._snackBar.open(
+        this._translateService.instant('profile.convertSuccess'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
     } catch {
-      this._snackBar.open(this._translateService.instant('profile.convertError'), this._translateService.instant('common.close'), { duration: 5000 });
+      this._snackBar.open(
+        this._translateService.instant('profile.convertError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
     } finally {
       this.converting.set(false);
     }
@@ -105,10 +127,10 @@ export class UserMenuModal {
             message: this._translateService.instant('profile.clearDataConfirm'),
             cancelLabel: this._translateService.instant('confirm.cancel'),
             confirmLabel: this._translateService.instant('confirm.delete'),
-            confirmVariant: 'warn'
-          }
+            confirmVariant: 'warn',
+          },
         })
-        .afterClosed()
+        .afterClosed(),
     );
     if (!confirmed) return;
     this.clearing.set(true);
@@ -127,11 +149,22 @@ export class UserMenuModal {
     this.exporting.set(true);
     try {
       await this._backupService.exportBackup();
-      this._snackBar.open(this._translateService.instant('backup.exportSuccess'), this._translateService.instant('common.close'), { duration: 3000 });
+      this._snackBar.open(
+        this._translateService.instant('backup.exportSuccess'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
     } catch (err: unknown) {
-      const body = err && typeof err === 'object' && 'error' in err ? (err as { error: { translationKey?: string; message?: string } }).error : null;
+      const body =
+        err && typeof err === 'object' && 'error' in err
+          ? (err as { error: { translationKey?: string; message?: string } }).error
+          : null;
       const key = body?.translationKey ?? body?.message ?? 'backup.exportError';
-      this._snackBar.open(this._translateService.instant(key), this._translateService.instant('common.close'), { duration: 5000 });
+      this._snackBar.open(
+        this._translateService.instant(key),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
     } finally {
       this.exporting.set(false);
     }
@@ -146,11 +179,22 @@ export class UserMenuModal {
     this.importing.set(true);
     try {
       await this._backupService.importBackup(file);
-      this._snackBar.open(this._translateService.instant('backup.importSuccess'), this._translateService.instant('common.close'), { duration: 3000 });
+      this._snackBar.open(
+        this._translateService.instant('backup.importSuccess'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
     } catch (err: unknown) {
-      const body = err && typeof err === 'object' && 'error' in err ? (err as { error: { translationKey?: string; message?: string } }).error : null;
+      const body =
+        err && typeof err === 'object' && 'error' in err
+          ? (err as { error: { translationKey?: string; message?: string } }).error
+          : null;
       const key = body?.translationKey ?? body?.message ?? 'backup.importError';
-      this._snackBar.open(this._translateService.instant(key), this._translateService.instant('common.close'), { duration: 5000 });
+      this._snackBar.open(
+        this._translateService.instant(key),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
     } finally {
       input.value = '';
       this.importing.set(false);

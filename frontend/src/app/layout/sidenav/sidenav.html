@@ -1,6 +1,11 @@
 <div class="sidenav-header">
   <app-settings-modal />
-  <button mat-icon-button (click)="closeClick.emit()" [attr.aria-label]="'sidenav.closeMenuAriaLabel' | translate" [matTooltip]="'sidenav.closeMenuAriaLabel' | translate">
+  <button
+    mat-icon-button
+    (click)="closeClick.emit()"
+    [attr.aria-label]="'sidenav.closeMenuAriaLabel' | translate"
+    [matTooltip]="'sidenav.closeMenuAriaLabel' | translate"
+  >
     <mat-icon>keyboard_double_arrow_left</mat-icon>
   </button>
 </div>

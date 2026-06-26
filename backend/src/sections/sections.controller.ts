@@ -40,10 +40,7 @@ export class SectionsController {
   }
 
   @Delete(':id')
-  remove(
-    @CurrentUser() user: { uid: string },
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  remove(@CurrentUser() user: { uid: string }, @Param('id', ParseIntPipe) id: number) {
     return this.sectionsService.remove(id, user.uid);
   }
 }

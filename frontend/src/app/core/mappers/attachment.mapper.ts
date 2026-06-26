@@ -7,6 +7,6 @@ export function mapFileToAttachment(noteId: number, file: File, encryptedData: s
     mimeType: file.type,
     encryptedData,
     size: file.size,
-    createdAt: new Date()
+    createdAt: new Date(),
   };
 }

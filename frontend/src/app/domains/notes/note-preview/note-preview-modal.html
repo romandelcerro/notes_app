@@ -14,7 +14,12 @@
       @for (img of imageUrls(); track img.url) {
         <div class="preview-img-wrap">
           <img [src]="img.url" [alt]="img.attachment.name" class="preview-img" />
-          <button mat-icon-button class="img-download-btn" (click)="downloadAttachment(img.attachment)" [attr.aria-label]="'note.downloadAttachment' | translate">
+          <button
+            mat-icon-button
+            class="img-download-btn"
+            (click)="downloadAttachment(img.attachment)"
+            [attr.aria-label]="'note.downloadAttachment' | translate"
+          >
             <mat-icon>download</mat-icon>
           </button>
         </div>
@@ -28,7 +33,11 @@
           <mat-icon class="file-icon">insert_drive_file</mat-icon>
           <span>{{ file.name }}</span>
           <span class="file-size">{{ formatSize(file.size) }}</span>
-          <button mat-icon-button (click)="downloadAttachment(file)" [attr.aria-label]="'note.downloadAttachment' | translate">
+          <button
+            mat-icon-button
+            (click)="downloadAttachment(file)"
+            [attr.aria-label]="'note.downloadAttachment' | translate"
+          >
             <mat-icon>download</mat-icon>
           </button>
         </li>

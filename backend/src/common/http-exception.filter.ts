@@ -1,10 +1,4 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  Logger,
-} from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Logger } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { I18nService } from './i18n/i18n.service.js';
 
@@ -28,9 +22,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
     const exceptionResponse = exception.getResponse() as string | ErrorBody;
     const rawMessage =
-      typeof exceptionResponse === 'string'
-        ? exceptionResponse
-        : exceptionResponse.message;
+      typeof exceptionResponse === 'string' ? exceptionResponse : exceptionResponse.message;
 
     const message = Array.isArray(rawMessage) ? rawMessage[0] : rawMessage;
     const messageStr = typeof message === 'string' ? message : 'Unknown error';
@@ -38,18 +30,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const lang = this._resolveLang(request);
     const translatedMessage = this._i18n.translate(messageStr, lang);
 
-    this._logger.error(
-      `${request.method} ${request.url} → ${status} ${messageStr}`,
-    );
+    this._logger.error(`${request.method} ${request.url} → ${status} ${messageStr}`);
 
     response.status(status).json({
       statusCode: status,
       message: translatedMessage,
       translationKey: messageStr,
-      error:
-        typeof exceptionResponse === 'object'
-          ? exceptionResponse.error
-          : undefined,
+      error: typeof exceptionResponse === 'object' ? exceptionResponse.error : undefined,
     });
   }
 

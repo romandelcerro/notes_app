@@ -16,9 +16,19 @@ import { UserAvatar } from '../../shared/user-avatar/user-avatar';
 
 @Component({
   selector: 'app-toolbar',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, TranslatePipe, SearchInput, UserAvatar, Clock],
+  imports: [
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatTooltipModule,
+    TranslatePipe,
+    SearchInput,
+    UserAvatar,
+    Clock,
+  ],
   templateUrl: './toolbar.html',
-  styleUrl: './toolbar.scss'
+  styleUrl: './toolbar.scss',
 })
 export class Toolbar {
   private readonly _authService = inject(AuthService);
@@ -57,7 +67,11 @@ export class Toolbar {
   }
 
   protected onProfileClick() {
-    this._dialog.open(UserMenuModal, { maxHeight: '90dvh' }).afterClosed().pipe(takeUntilDestroyed(this._destroyRef)).subscribe();
+    this._dialog
+      .open(UserMenuModal, { maxHeight: '90dvh' })
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe();
   }
 
   protected onMenuClick() {
@@ -68,7 +82,7 @@ export class Toolbar {
     this._noteFilterService.filter.set({
       query,
       dateFrom: this.dateFrom() ? new Date(this.dateFrom()) : null,
-      dateTo: this.dateTo() ? new Date(this.dateTo()) : null
+      dateTo: this.dateTo() ? new Date(this.dateTo()) : null,
     });
   }
 }

@@ -13,9 +13,16 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.{ts,json}\""
   },
   "devDependencies": {
-    "typescript": "^5.7.0"
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.6.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.60.0"
   }
 }

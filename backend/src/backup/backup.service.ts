@@ -96,9 +96,7 @@ export class BackupService {
     const existingNotes = await this.noteRepo.find({ where: { userId } });
     const existingNoteIds = existingNotes.map((n) => n.id);
     if (existingNoteIds.length) {
-      await this.attachmentRepo.delete(
-        existingNoteIds.map((id) => ({ noteId: id })),
-      );
+      await this.attachmentRepo.delete(existingNoteIds.map((id) => ({ noteId: id })));
     }
     await this.noteRepo.delete({ userId });
     await this.sectionRepo.delete({ userId });

@@ -14,7 +14,9 @@ export class BackupService {
   private readonly _sectionsService = inject(SectionsService);
 
   async exportBackup() {
-    const blob = await firstValueFrom(this._http.get(`${environment.apiUrl}/backup/export`, { responseType: 'blob' }));
+    const blob = await firstValueFrom(
+      this._http.get(`${environment.apiUrl}/backup/export`, { responseType: 'blob' }),
+    );
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

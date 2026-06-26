@@ -18,7 +18,7 @@ import { SectionCreateEditModal } from '../section-create-edit-modal/section-cre
   imports: [MatButtonModule, MatIconModule, TranslatePipe, SectionCard],
   templateUrl: './section-list.html',
   styleUrl: './section-list.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionList {
   private readonly _sectionsService = inject(SectionsService);
@@ -36,10 +36,10 @@ export class SectionList {
 
   private readonly _currentUrl = toSignal(
     this._router.events.pipe(
-      filter(e => e instanceof NavigationEnd),
+      filter((e) => e instanceof NavigationEnd),
       map(() => this._router.url),
-      startWith(this._router.url)
-    )
+      startWith(this._router.url),
+    ),
   );
 
   protected readonly selectedSectionId = computed(() => {
@@ -47,14 +47,14 @@ export class SectionList {
     const match = url.match(/^\/list\/(.+)$/);
     if (!match) return null;
     const sectionName = decodeURIComponent(match[1]);
-    return this.sections().find(s => s.name === sectionName)?.id ?? null;
+    return this.sections().find((s) => s.name === sectionName)?.id ?? null;
   });
 
   protected selectSection(id: number | null) {
     if (id === null) {
       this._router.navigate(['/list']);
     } else {
-      const section = this.sections().find(s => s.id === id);
+      const section = this.sections().find((s) => s.id === id);
       if (section) {
         this._router.navigate(['/list', section.name]);
       }
@@ -67,18 +67,21 @@ export class SectionList {
         .open(ConfirmDialogModal, {
           data: {
             title: this._translateService.instant('confirm.title'),
-            message: this._translateService.instant('confirm.deleteSection', { name: this.getDisplayName(section) }),
+            message: this._translateService.instant('confirm.deleteSection', {
+              name: this.getDisplayName(section),
+            }),
             cancelLabel: this._translateService.instant('confirm.cancel'),
             confirmLabel: this._translateService.instant('confirm.delete'),
-            confirmVariant: 'warn'
-          }
+            confirmVariant: 'warn',
+          },
         })
-        .afterClosed()
+        .afterClosed(),
     );
     if (!confirmed) return;
     await this._sectionsService.deleteSection(section.id!);
     this._notesService.removeNotesForSection(section.id!);
-    const hasData = this._notesService.notes().length > 0 || this._sectionsService.sections().length > 0;
+    const hasData =
+      this._notesService.notes().length > 0 || this._sectionsService.sections().length > 0;
     this._router.navigate([hasData ? '/list' : '/']);
   }
 
@@ -91,7 +94,7 @@ export class SectionList {
       .open(SectionCreateEditModal)
       .afterClosed()
       .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe(created => {
+      .subscribe((created) => {
         if (!created) return;
         const sections = this._sectionsService.sections();
         const newSection = sections[sections.length - 1];

@@ -12,11 +12,20 @@
         <input type="file" accept="image/*" (change)="uploadAvatar($event)" hidden />
         <button mat-stroked-button type="button" onclick="this.previousElementSibling.click()">
           <mat-icon>photo_camera</mat-icon>
-          {{ user()?.photoURL ? ('profile.changePhoto' | translate) : ('profile.uploadPhoto' | translate) }}
+          {{
+            user()?.photoURL
+              ? ('profile.changePhoto' | translate)
+              : ('profile.uploadPhoto' | translate)
+          }}
         </button>
       </label>
       @if (user()?.photoURL) {
-        <button mat-icon-button (click)="removeAvatar()" [matTooltip]="'profile.removePhotoTooltip' | translate" [attr.aria-label]="'profile.removePhotoAriaLabel' | translate">
+        <button
+          mat-icon-button
+          (click)="removeAvatar()"
+          [matTooltip]="'profile.removePhotoTooltip' | translate"
+          [attr.aria-label]="'profile.removePhotoAriaLabel' | translate"
+        >
           <mat-icon>delete</mat-icon>
         </button>
       }
@@ -30,34 +39,63 @@
     <input matInput [formControl]="displayNameControl" />
   </mat-form-field>
 
-  <button mat-flat-button class="save-name-btn" (click)="saveName()" [disabled]="saving() || !displayNameControl.value.trim()">
+  <button
+    mat-flat-button
+    class="save-name-btn"
+    (click)="saveName()"
+    [disabled]="saving() || !displayNameControl.value.trim()"
+  >
     {{ saving() ? ('profile.savingName' | translate) : ('profile.saveName' | translate) }}
   </button>
 
   @if (user()?.isGuest) {
     <div class="guest-conversion-section">
-      <p class="backup-title"><span class="inline-badge">!</span>{{ 'profile.guestConversionTitle' | translate }}</p>
+      <p class="backup-title">
+        <span class="inline-badge">!</span>{{ 'profile.guestConversionTitle' | translate }}
+      </p>
       <p class="guest-conversion-desc">{{ 'profile.guestConversionDesc' | translate }}</p>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'login.emailLabel' | translate }}</mat-label>
-        <input matInput type="email" [ngModel]="convertEmail()" (ngModelChange)="convertEmail.set($event)" />
+        <input
+          matInput
+          type="email"
+          [ngModel]="convertEmail()"
+          (ngModelChange)="convertEmail.set($event)"
+        />
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'login.passwordLabel' | translate }}</mat-label>
-        <input matInput type="password" [ngModel]="convertPassword()" (ngModelChange)="convertPassword.set($event)" />
+        <input
+          matInput
+          type="password"
+          [ngModel]="convertPassword()"
+          (ngModelChange)="convertPassword.set($event)"
+        />
       </mat-form-field>
 
-      <button mat-flat-button class="convert-btn" (click)="convertAccount()" [disabled]="converting() || !convertEmail().trim() || !convertPassword()">
-        {{ converting() ? ('profile.converting' | translate) : ('profile.convertAccount' | translate) }}
+      <button
+        mat-flat-button
+        class="convert-btn"
+        (click)="convertAccount()"
+        [disabled]="converting() || !convertEmail().trim() || !convertPassword()"
+      >
+        {{
+          converting() ? ('profile.converting' | translate) : ('profile.convertAccount' | translate)
+        }}
       </button>
     </div>
   }
 
   <mat-divider class="backup-divider" />
 
-  <button mat-stroked-button class="clear-data-btn" (click)="clearAllData()" [disabled]="clearing()">
+  <button
+    mat-stroked-button
+    class="clear-data-btn"
+    (click)="clearAllData()"
+    [disabled]="clearing()"
+  >
     <mat-icon>delete_sweep</mat-icon>
     {{ clearing() ? ('profile.clearingData' | translate) : ('profile.clearData' | translate) }}
   </button>

@@ -1,6 +1,15 @@
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -16,10 +25,20 @@ import { NotesService } from '../../../core/services/notes.service';
 
 @Component({
   selector: 'app-note-card',
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatChipsModule, MatMenuModule, MatTooltipModule, DatePipe, TranslatePipe, CdkDragHandle],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatMenuModule,
+    MatTooltipModule,
+    DatePipe,
+    TranslatePipe,
+    CdkDragHandle,
+  ],
   templateUrl: './note-card.html',
   styleUrl: './note-card.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoteCard {
   private readonly _notesService = inject(NotesService);
@@ -37,12 +56,15 @@ export class NoteCard {
 
   private readonly _loadThumb = effect(async (onCleanup) => {
     const atts = this.attachments();
-    const attIds = atts.map(a => a.id).sort().join(',');
+    const attIds = atts
+      .map((a) => a.id)
+      .sort()
+      .join(',');
     if (attIds === this._prevAttIds && attIds !== '') return;
     this._prevAttIds = attIds;
 
-    const img = atts.find(a => a.mimeType.startsWith('image/'));
-    this.hasFileAttachments.set(atts.some(a => !a.mimeType.startsWith('image/')));
+    const img = atts.find((a) => a.mimeType.startsWith('image/'));
+    this.hasFileAttachments.set(atts.some((a) => !a.mimeType.startsWith('image/')));
 
     const prev = this.thumbUrl();
     if (prev) this._filesService.revokeObjectURL(prev);
@@ -78,7 +100,7 @@ export class NoteCard {
     return content.length > 300 ? content.slice(0, 300) + '…' : content;
   });
 
-  protected onContentClick(event: MouseEvent) {
+  protected onContentClick(event: Event) {
     if ((event.target as HTMLElement).tagName === 'A') {
       event.stopPropagation();
     }
@@ -86,8 +108,15 @@ export class NoteCard {
 
   protected readonly contentHtml = computed(() => {
     const raw = this.contentPreview();
-    const escaped = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    return escaped.replace(/https?:\/\/[^\s]+/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+    const escaped = raw
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+    return escaped.replace(
+      /https?:\/\/[^\s]+/g,
+      (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`,
+    );
   });
 
   protected readonly isLink = computed(() => this.note().type === 'link');

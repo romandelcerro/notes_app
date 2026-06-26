@@ -13,7 +13,7 @@ export async function encryptNote(note: Note, crypto: CryptoService): Promise<No
   return {
     ...note,
     title: await crypto.encrypt(note.title),
-    content: await crypto.encrypt(note.content)
+    content: await crypto.encrypt(note.content),
   };
 }
 
@@ -21,8 +21,6 @@ export async function decryptNote(note: Note, crypto: CryptoService): Promise<No
   return {
     ...note,
     title: await crypto.decrypt(note.title),
-    content: await crypto.decrypt(note.content)
+    content: await crypto.decrypt(note.content),
   };
 }
-
-

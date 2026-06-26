@@ -12,13 +12,15 @@ import { SectionsService } from '../../../core/services/sections.service';
   imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, TranslatePipe],
   templateUrl: './section-create-edit-modal.html',
   styleUrl: './section-create-edit-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionCreateEditModal {
   private readonly _sectionsService = inject(SectionsService);
 
   private readonly _dialogRef = inject(MatDialogRef<SectionCreateEditModal>);
-  private readonly _data = inject<{ section?: Section } | null>(MAT_DIALOG_DATA, { optional: true });
+  private readonly _data = inject<{ section?: Section } | null>(MAT_DIALOG_DATA, {
+    optional: true,
+  });
 
   protected readonly editMode = !!this._data?.section;
   protected readonly name = signal(this._data?.section?.name ?? '');

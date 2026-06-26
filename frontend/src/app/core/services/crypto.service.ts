@@ -11,7 +11,13 @@ export class CryptoService {
   async initKey(userId: string) {
     const salt = await this._getOrCreateSalt(userId);
     const rawKeyMaterial = await this._deriveRawKey(userId);
-    const derivedKey = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 310_000, hash: 'SHA-256' }, rawKeyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    const derivedKey = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 310_000, hash: 'SHA-256' },
+      rawKeyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt'],
+    );
     this.key.set(derivedKey);
   }
 
@@ -50,7 +56,7 @@ export class CryptoService {
   }
 
   private _randomIV() {
-    return crypto.getRandomValues(new Uint8Array(12)) as TypedIV;
+    return crypto.getRandomValues(new Uint8Array(12));
   }
 
   private async _deriveRawKey(userId: string) {
@@ -62,9 +68,9 @@ export class CryptoService {
     const saltKey = `notes_salt_${userId}`;
     const stored = localStorage.getItem(saltKey);
     if (stored) {
-      return new Uint8Array(JSON.parse(stored) as number[]) as TypedIV;
+      return new Uint8Array(JSON.parse(stored) as number[]);
     }
-    const salt = crypto.getRandomValues(new Uint8Array(32)) as TypedIV;
+    const salt = crypto.getRandomValues(new Uint8Array(32));
     localStorage.setItem(saltKey, JSON.stringify(Array.from(salt)));
     return salt;
   }
@@ -73,11 +79,11 @@ export class CryptoService {
     const combined = new Uint8Array(iv.length + data.length);
     combined.set(iv);
     combined.set(data, iv.length);
-    return btoa(Array.from(combined, b => String.fromCharCode(b)).join(''));
+    return btoa(Array.from(combined, (b) => String.fromCharCode(b)).join(''));
   }
 
   private _unpack(packed: string): [TypedIV, TypedIV] {
-    const bytes = Uint8Array.from(atob(packed), c => c.charCodeAt(0));
-    return [new Uint8Array(bytes.buffer, 0, 12) as TypedIV, new Uint8Array(bytes.buffer, 12) as TypedIV];
+    const bytes = Uint8Array.from(atob(packed), (c) => c.charCodeAt(0));
+    return [new Uint8Array(bytes.buffer, 0, 12), new Uint8Array(bytes.buffer, 12)];
   }
 }

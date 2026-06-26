@@ -14,10 +14,7 @@ export class BackupController {
   }
 
   @Post('import')
-  importBackup(
-    @CurrentUser() user: { uid: string },
-    @Body() data: BackupPayload,
-  ) {
+  importBackup(@CurrentUser() user: { uid: string }, @Body() data: BackupPayload) {
     return this.backupService.importBackup(user.uid, data);
   }
 }

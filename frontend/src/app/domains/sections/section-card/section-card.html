@@ -1,10 +1,20 @@
-<button class="section-btn" [class.active]="active()" [class.primary]="primary()" (click)="selectClick.emit()">
+<button
+  class="section-btn"
+  [class.active]="active()"
+  [class.primary]="primary()"
+  (click)="selectClick.emit()"
+>
   <mat-icon>{{ icon() }}</mat-icon>
   <span>{{ label() }}</span>
 </button>
 
 @if (section(); as sec) {
-  <button class="section-menu-btn" mat-icon-button [matMenuTriggerFor]="sectionMenu" [attr.aria-label]="('sidenav.sectionOptionsAriaLabel' | translate) + ' ' + label()">
+  <button
+    class="section-menu-btn"
+    mat-icon-button
+    [matMenuTriggerFor]="sectionMenu"
+    [attr.aria-label]="('sidenav.sectionOptionsAriaLabel' | translate) + ' ' + label()"
+  >
     <mat-icon>more_vert</mat-icon>
   </button>
 

@@ -1,5 +1,14 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,7 +23,10 @@ import { AttachmentService } from '../../../core/services/attachment.service';
 import { NotesService } from '../../../core/services/notes.service';
 import { SectionsService } from '../../../core/services/sections.service';
 import { NoteCard } from '../note-card/note-card';
-import { NoteCreateEditModal, type NoteCreateEditResult } from '../note-create-edit-modal/note-create-edit-modal';
+import {
+  NoteCreateEditModal,
+  type NoteCreateEditResult,
+} from '../note-create-edit-modal/note-create-edit-modal';
 import { NotePreviewModal } from '../note-preview/note-preview-modal';
 
 @Component({
@@ -22,7 +34,7 @@ import { NotePreviewModal } from '../note-preview/note-preview-modal';
   imports: [NoteCard, MatButtonModule, MatIconModule, TranslatePipe, CdkDropList, CdkDrag],
   templateUrl: './note-list.html',
   styleUrl: './note-list.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoteListComponent {
   private readonly _route = inject(ActivatedRoute);
@@ -39,7 +51,10 @@ export class NoteListComponent {
     return this._sectionsService.getDisplayName(section);
   }
 
-  private readonly _sectionName = toSignal(this._route.paramMap.pipe(map(p => p.get('section'))), { initialValue: null });
+  private readonly _sectionName = toSignal(
+    this._route.paramMap.pipe(map((p) => p.get('section'))),
+    { initialValue: null },
+  );
 
   private readonly _attachmentsByNoteId = signal<Map<number, Attachment[]>>(new Map());
   private _currentFetchId = 0;
@@ -48,7 +63,7 @@ export class NoteListComponent {
 
   private async _fetchAndUpdateNoteAttachments(noteId: number): Promise<void> {
     const atts = await this._attachmentService.getAttachments(noteId);
-    this._attachmentsByNoteId.update(map => {
+    this._attachmentsByNoteId.update((map) => {
       const next = new Map(map);
       next.set(noteId, atts);
       return next;
@@ -61,11 +76,14 @@ export class NoteListComponent {
     const ids = untracked(() => {
       const section = this.selectedSection();
       const notes = section ? this.selectedSectionNotes() : this._notesService.notes();
-      return notes.filter(n => n.hasAttachments).map(n => n.id).filter((id): id is number => !!id);
+      return notes
+        .filter((n) => n.hasAttachments)
+        .map((n) => n.id)
+        .filter((id): id is number => !!id);
     });
     if (ids.length === 0) return;
     const fetchId = ++this._currentFetchId;
-    this._attachmentService.getAttachmentsByNoteIds(ids).then(map => {
+    void this._attachmentService.getAttachmentsByNoteIds(ids).then((map) => {
       if (fetchId !== this._currentFetchId) return;
       this._attachmentsByNoteId.set(map);
     });
@@ -75,7 +93,7 @@ export class NoteListComponent {
     const notesLen = this._notesService.notes().length;
     if (notesLen > 0 && !this._initialFetchDone) {
       this._initialFetchDone = true;
-      this._refreshTrigger.update(v => v + 1);
+      this._refreshTrigger.update((v) => v + 1);
     }
   });
 
@@ -87,13 +105,16 @@ export class NoteListComponent {
   protected readonly selectedSection = computed(() => {
     const name = this._sectionName();
     if (!name) return null;
-    return this._sectionsService.sections().find(s => s.name === name) ?? null;
+    return this._sectionsService.sections().find((s) => s.name === name) ?? null;
   });
 
   private readonly _filtered = computed(() => {
     const { query, dateFrom, dateTo } = this._notesService.filter();
-    return this._notesService.notes().filter(n => {
-      const matchesQuery = !query || n.title.toLowerCase().includes(query.toLowerCase()) || n.content.toLowerCase().includes(query.toLowerCase());
+    return this._notesService.notes().filter((n) => {
+      const matchesQuery =
+        !query ||
+        n.title.toLowerCase().includes(query.toLowerCase()) ||
+        n.content.toLowerCase().includes(query.toLowerCase());
       const noteDate = n.updatedAt ? new Date(n.updatedAt) : null;
       const matchesFrom = !dateFrom || (!!noteDate && noteDate >= dateFrom);
       const matchesTo = !dateTo || (!!noteDate && noteDate <= this._endOfDay(dateTo));
@@ -101,12 +122,14 @@ export class NoteListComponent {
     });
   });
 
-  protected readonly unsectionedNotes = computed(() => (this.selectedSection() ? [] : this._filtered().filter(n => !n.pinned && !n.sectionId)));
+  protected readonly unsectionedNotes = computed(() =>
+    this.selectedSection() ? [] : this._filtered().filter((n) => !n.pinned && !n.sectionId),
+  );
 
   protected readonly selectedSectionNotes = computed(() => {
     const section = this.selectedSection();
     if (!section) return [];
-    return this._filtered().filter(n => n.sectionId === section.id);
+    return this._filtered().filter((n) => n.sectionId === section.id);
   });
 
   private readonly _notesBySectionId = computed(() => {
@@ -125,7 +148,7 @@ export class NoteListComponent {
   });
 
   protected notesForSection(section: Section): Note[] {
-    return section.id ? this._notesBySectionId().get(section.id) ?? [] : [];
+    return section.id ? (this._notesBySectionId().get(section.id) ?? []) : [];
   }
 
   protected ordered(notes: Note[], key: string): Note[] {
@@ -133,7 +156,7 @@ export class NoteListComponent {
   }
 
   protected onNoteDrop(event: CdkDragDrop<Note[]>, key: string) {
-    const ids = event.container.data.map(n => n.id!);
+    const ids = event.container.data.map((n) => n.id!);
     moveItemInArray(ids, event.previousIndex, event.currentIndex);
     this._notesService.saveOrder(key, ids);
   }
@@ -145,12 +168,12 @@ export class NoteListComponent {
         data: { sectionId: targetSectionId },
         width: '600px',
         maxWidth: '95vw',
-        maxHeight: '90dvh'
+        maxHeight: '90dvh',
       })
       .afterClosed()
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((result: NoteCreateEditResult | undefined) => {
-        if (result?.noteId) this._fetchAndUpdateNoteAttachments(result.noteId);
+        if (result?.noteId) void this._fetchAndUpdateNoteAttachments(result.noteId);
       });
   }
 
@@ -159,7 +182,7 @@ export class NoteListComponent {
       .open(NotePreviewModal, { data: note, width: '600px', maxWidth: '95vw', maxHeight: '90dvh' })
       .afterClosed()
       .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe(result => {
+      .subscribe((result) => {
         if (result === 'edit') this.openEditNoteModal(note);
       });
   }
@@ -170,12 +193,12 @@ export class NoteListComponent {
         data: { note },
         width: '600px',
         maxWidth: '95vw',
-        maxHeight: '90dvh'
+        maxHeight: '90dvh',
       })
       .afterClosed()
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((result: NoteCreateEditResult | undefined) => {
-        if (result?.noteId) this._fetchAndUpdateNoteAttachments(result.noteId);
+        if (result?.noteId) void this._fetchAndUpdateNoteAttachments(result.noteId);
       });
   }
 

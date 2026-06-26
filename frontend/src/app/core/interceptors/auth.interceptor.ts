@@ -23,12 +23,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
   }
   return next(req).pipe(
-    catchError(err => {
+    catchError((err) => {
       if (err.status === 401) {
         clearToken();
         inject(Router).navigate(['/login']);
       }
       return throwError(() => err);
-    })
+    }),
   );
 };

@@ -9,12 +9,12 @@ import { Toolbar } from '../toolbar/toolbar';
   imports: [RouterOutlet, Sidenav, Toolbar, MatSidenavModule],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Shell {
   protected readonly sidenavOpen = signal(false);
 
   protected toggleSidenav() {
-    this.sidenavOpen.update(open => !open);
+    this.sidenavOpen.update((open) => !open);
   }
 }

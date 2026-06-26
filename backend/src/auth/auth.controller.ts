@@ -28,10 +28,7 @@ export class AuthController {
 
   @Post('convert-guest')
   @UseGuards(JwtAuthGuard)
-  convertGuest(
-    @Body() dto: ConvertGuestDto,
-    @CurrentUser() user: { uid: string },
-  ) {
+  convertGuest(@Body() dto: ConvertGuestDto, @CurrentUser() user: { uid: string }) {
     return this.authService.convertGuest(user.uid, dto);
   }
 

@@ -9,14 +9,21 @@ function createAuthGuard(requireAuth: boolean): CanActivateFn {
     const auth = inject(AuthService);
     const router = inject(Router);
 
-    const resolve = () => (auth.isAuthenticated() ? (requireAuth ? true : router.createUrlTree(['/'])) : requireAuth ? router.createUrlTree(['/login']) : true);
+    const resolve = () =>
+      auth.isAuthenticated()
+        ? requireAuth
+          ? true
+          : router.createUrlTree(['/'])
+        : requireAuth
+          ? router.createUrlTree(['/login'])
+          : true;
 
     if (!auth.loading()) return resolve();
 
     return toObservable(auth.loading).pipe(
-      filter(loading => !loading),
+      filter((loading) => !loading),
       take(1),
-      map(resolve)
+      map(resolve),
     );
   };
 }

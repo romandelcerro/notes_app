@@ -1,4 +1,9 @@
-<button mat-icon-button (click)="settingsOpen.set(!settingsOpen())" [matTooltip]="'sidenav.settings' | translate" [attr.aria-label]="'sidenav.settings' | translate">
+<button
+  mat-icon-button
+  (click)="settingsOpen.set(!settingsOpen())"
+  [matTooltip]="'sidenav.settings' | translate"
+  [attr.aria-label]="'sidenav.settings' | translate"
+>
   <mat-icon>settings</mat-icon>
 </button>
 
@@ -8,10 +13,16 @@
       mat-icon-button
       (click)="toggleTheme()"
       [matTooltip]="(isDark() ? 'sidenav.lightMode' : 'sidenav.darkMode') | translate"
-      [attr.aria-label]="(isDark() ? 'sidenav.lightMode' : 'sidenav.darkMode') | translate">
+      [attr.aria-label]="(isDark() ? 'sidenav.lightMode' : 'sidenav.darkMode') | translate"
+    >
       <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
     </button>
-    <button mat-icon-button (click)="toggleLanguage()" [matTooltip]="'toolbar.toggleLanguage' | translate" [attr.aria-label]="'toolbar.toggleLanguage' | translate">
+    <button
+      mat-icon-button
+      (click)="toggleLanguage()"
+      [matTooltip]="'toolbar.toggleLanguage' | translate"
+      [attr.aria-label]="'toolbar.toggleLanguage' | translate"
+    >
       <span class="lang-flag">{{ currentLang() === 'es' ? 'EN' : 'ES' }}</span>
     </button>
   </div>

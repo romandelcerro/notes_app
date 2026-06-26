@@ -13,8 +13,8 @@ import { map } from 'rxjs';
   styleUrl: './settings-modal.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    '(document:click)': 'onDocumentClick($event)'
-  }
+    '(document:click)': 'onDocumentClick($event)',
+  },
 })
 export class SettingsModal {
   protected readonly _translateService = inject(TranslateService);
@@ -23,11 +23,14 @@ export class SettingsModal {
 
   protected readonly isDark = signal(localStorage.getItem('notes_theme') === 'dark');
   protected readonly settingsOpen = signal(false);
-  protected readonly currentLang = toSignal(this._translateService.onLangChange.pipe(map(e => e.lang)), { initialValue: this._translateService.currentLang });
+  protected readonly currentLang = toSignal(
+    this._translateService.onLangChange.pipe(map((e) => e.lang)),
+    { initialValue: this._translateService.currentLang },
+  );
 
   protected onDocumentClick(event: MouseEvent) {
     if (!this.settingsOpen()) return;
-    if (!this._elementRef.nativeElement.contains(event.target as Node)) {
+    if (!this._elementRef.nativeElement.contains(event.target)) {
       this.settingsOpen.set(false);
     }
   }

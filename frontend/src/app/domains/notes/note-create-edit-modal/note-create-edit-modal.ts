@@ -25,10 +25,18 @@ const NOTE_COLORS = ['', '#F28B82', '#FBBC04', '#FFF475', '#CCFF90', '#A8D5F7', 
 
 @Component({
   selector: 'app-note-create-edit-modal',
-  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, TranslatePipe, AttachmentSection],
+  imports: [
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    TranslatePipe,
+    AttachmentSection,
+  ],
   templateUrl: './note-create-edit-modal.html',
   styleUrl: './note-create-edit-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoteCreateEditModal {
   private readonly _notesService = inject(NotesService);
@@ -56,12 +64,26 @@ export class NoteCreateEditModal {
     this.saving.set(true);
     try {
       if (this.isEditing && this._data.note?.id) {
-        const updatedNote = buildUpdatedNote(this._data.note, { ...this._data.note, title, content, color: this.selectedColor() });
+        const updatedNote = buildUpdatedNote(this._data.note, {
+          ...this._data.note,
+          title,
+          content,
+          color: this.selectedColor(),
+        });
         await this._notesService.updateNote(this._data.note.id, updatedNote);
         this._dialogRef.close({ noteId: this._data.note.id });
       } else {
         const userId = this._userService.user()?.uid ?? '';
-        const noteTmp: Note = { title, content, type: this.noteType(), color: this.selectedColor(), pinned: false, hasAttachments: false, userId, sectionId: this._data.sectionId };
+        const noteTmp: Note = {
+          title,
+          content,
+          type: this.noteType(),
+          color: this.selectedColor(),
+          pinned: false,
+          hasAttachments: false,
+          userId,
+          sectionId: this._data.sectionId,
+        };
         const newNote = await this._notesService.createNote(buildNewNote(noteTmp, userId));
         const pending = this._attachmentSection().pendingFiles();
         if (pending.length) {

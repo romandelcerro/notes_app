@@ -22,14 +22,18 @@ export class SectionsService {
   readonly sections = signal<Section[]>([]);
 
   async loadSections() {
-    const raw = await firstValueFrom(this._http.get<SectionResponse[]>(`${environment.apiUrl}/sections`));
-    this.sections.set(raw.map(r => ({ ...r, createdAt: new Date(r.createdAt) })));
+    const raw = await firstValueFrom(
+      this._http.get<SectionResponse[]>(`${environment.apiUrl}/sections`),
+    );
+    this.sections.set(raw.map((r) => ({ ...r, createdAt: new Date(r.createdAt) })));
   }
 
   async createSection(name: string, isDefault = false): Promise<Section> {
-    const created = await firstValueFrom(this._http.post<SectionResponse>(`${environment.apiUrl}/sections`, { name, isDefault }));
+    const created = await firstValueFrom(
+      this._http.post<SectionResponse>(`${environment.apiUrl}/sections`, { name, isDefault }),
+    );
     const newSection: Section = { ...created, createdAt: new Date(created.createdAt) };
-    this.sections.update(s => [...s, newSection]);
+    this.sections.update((s) => [...s, newSection]);
     return newSection;
   }
 
@@ -41,18 +45,24 @@ export class SectionsService {
   }
 
   async renameSection(id: number, name: string) {
-    const section = this.sections().find(s => s.id === id);
+    const section = this.sections().find((s) => s.id === id);
     const payload: Record<string, unknown> = { name };
     if (section?.isDefault) {
       payload['isDefault'] = false;
     }
-    await firstValueFrom(this._http.patch<SectionResponse>(`${environment.apiUrl}/sections/${id}`, payload));
-    this.sections.update(s => s.map(sec => (sec.id === id ? { ...sec, name, isDefault: sec.isDefault ? false : sec.isDefault } : sec)));
+    await firstValueFrom(
+      this._http.patch<SectionResponse>(`${environment.apiUrl}/sections/${id}`, payload),
+    );
+    this.sections.update((s) =>
+      s.map((sec) =>
+        sec.id === id ? { ...sec, name, isDefault: sec.isDefault ? false : sec.isDefault } : sec,
+      ),
+    );
   }
 
   async deleteSection(id: number) {
     await firstValueFrom(this._http.delete(`${environment.apiUrl}/sections/${id}`));
-    this.sections.update(s => s.filter(sec => sec.id !== id));
+    this.sections.update((s) => s.filter((sec) => sec.id !== id));
   }
 
   clearSections() {
@@ -62,7 +72,8 @@ export class SectionsService {
   async clearAllData() {
     const all = this.sections();
     for (const section of all) {
-      if (section.id) await firstValueFrom(this._http.delete(`${environment.apiUrl}/sections/${section.id}`));
+      if (section.id)
+        await firstValueFrom(this._http.delete(`${environment.apiUrl}/sections/${section.id}`));
     }
     this.sections.set([]);
   }

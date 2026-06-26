@@ -1,17 +1,33 @@
 <main class="notes-main">
   @if (selectedSection()) {
     <section>
-      <h2 class="section-label" [title]="getDisplayName(selectedSection()!)">{{ getDisplayName(selectedSection()!) }}</h2>
+      <h2 class="section-label" [title]="getDisplayName(selectedSection()!)">
+        {{ getDisplayName(selectedSection()!) }}
+      </h2>
       <div
         class="notes-grid"
         cdkDropList
         cdkDropListOrientation="mixed"
         [cdkDropListData]="ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id)"
-        (cdkDropListDropped)="onNoteDrop($event, 'sec-' + selectedSection()!.id)">
-        @for (note of ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id); track note.id) {
-          <app-note-card cdkDrag [note]="note" [attachments]="attachmentsForNote(note.id)" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
+        (cdkDropListDropped)="onNoteDrop($event, 'sec-' + selectedSection()!.id)"
+      >
+        @for (
+          note of ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id);
+          track note.id
+        ) {
+          <app-note-card
+            cdkDrag
+            [note]="note"
+            [attachments]="attachmentsForNote(note.id)"
+            (previewRequest)="openPreviewNote($event)"
+            (editRequest)="openEditNoteModal($event)"
+          />
         }
-        <button class="add-note-card" (click)="openNewNoteModal()" [attr.aria-label]="'home.addNote' | translate">
+        <button
+          class="add-note-card"
+          (click)="openNewNoteModal()"
+          [attr.aria-label]="'home.addNote' | translate"
+        >
           <mat-icon>add</mat-icon>
           <span>{{ 'home.addNote' | translate }}</span>
         </button>
@@ -26,11 +42,22 @@
           cdkDropList
           cdkDropListOrientation="mixed"
           [cdkDropListData]="ordered(notesForSection(sec), 'sec-' + sec.id)"
-          (cdkDropListDropped)="onNoteDrop($event, 'sec-' + sec.id)">
+          (cdkDropListDropped)="onNoteDrop($event, 'sec-' + sec.id)"
+        >
           @for (note of ordered(notesForSection(sec), 'sec-' + sec.id); track note.id) {
-            <app-note-card cdkDrag [note]="note" [attachments]="attachmentsForNote(note.id)" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
+            <app-note-card
+              cdkDrag
+              [note]="note"
+              [attachments]="attachmentsForNote(note.id)"
+              (previewRequest)="openPreviewNote($event)"
+              (editRequest)="openEditNoteModal($event)"
+            />
           }
-          <button class="add-note-card" (click)="openNewNoteModal(sec.id)" [attr.aria-label]="'home.addNote' | translate">
+          <button
+            class="add-note-card"
+            (click)="openNewNoteModal(sec.id)"
+            [attr.aria-label]="'home.addNote' | translate"
+          >
             <mat-icon>add</mat-icon>
             <span>{{ 'home.addNote' | translate }}</span>
           </button>
@@ -40,9 +67,21 @@
 
     @if (unsectionedNotes().length) {
       <section>
-        <div class="notes-grid" cdkDropList cdkDropListOrientation="mixed" [cdkDropListData]="ordered(unsectionedNotes(), 'unsectioned')" (cdkDropListDropped)="onNoteDrop($event, 'unsectioned')">
+        <div
+          class="notes-grid"
+          cdkDropList
+          cdkDropListOrientation="mixed"
+          [cdkDropListData]="ordered(unsectionedNotes(), 'unsectioned')"
+          (cdkDropListDropped)="onNoteDrop($event, 'unsectioned')"
+        >
           @for (note of ordered(unsectionedNotes(), 'unsectioned'); track note.id) {
-            <app-note-card cdkDrag [note]="note" [attachments]="attachmentsForNote(note.id)" (previewRequest)="openPreviewNote($event)" (editRequest)="openEditNoteModal($event)" />
+            <app-note-card
+              cdkDrag
+              [note]="note"
+              [attachments]="attachmentsForNote(note.id)"
+              (previewRequest)="openPreviewNote($event)"
+              (editRequest)="openEditNoteModal($event)"
+            />
           }
         </div>
       </section>

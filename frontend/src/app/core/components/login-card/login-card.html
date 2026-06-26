@@ -11,7 +11,13 @@
           <div class="tab-content">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'login.emailLabel' | translate }}</mat-label>
-              <input matInput type="email" required [(ngModel)]="signInEmail" [disabled]="loading()" />
+              <input
+                matInput
+                type="email"
+                required
+                [(ngModel)]="signInEmail"
+                [disabled]="loading()"
+              />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
@@ -23,7 +29,12 @@
               <p class="login-error">{{ errorText() }}</p>
             }
 
-            <button mat-flat-button class="full-width" (click)="onSignIn()" [disabled]="loading() || !signInEmail.trim() || !signInPassword.trim()">
+            <button
+              mat-flat-button
+              class="full-width"
+              (click)="onSignIn()"
+              [disabled]="loading() || !signInEmail.trim() || !signInPassword.trim()"
+            >
               @if (loading()) {
                 <mat-spinner diameter="20" />
               }
@@ -46,7 +57,13 @@
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'login.emailLabel' | translate }}</mat-label>
-              <input matInput type="email" required [(ngModel)]="signUpEmail" [disabled]="loading()" />
+              <input
+                matInput
+                type="email"
+                required
+                [(ngModel)]="signUpEmail"
+                [disabled]="loading()"
+              />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
@@ -58,7 +75,14 @@
               <p class="login-error">{{ errorText() }}</p>
             }
 
-            <button mat-flat-button class="full-width" (click)="onSignUp()" [disabled]="loading() || !signUpEmail.trim() || !signUpPassword.trim() || !signUpName.trim()">
+            <button
+              mat-flat-button
+              class="full-width"
+              (click)="onSignUp()"
+              [disabled]="
+                loading() || !signUpEmail.trim() || !signUpPassword.trim() || !signUpName.trim()
+              "
+            >
               @if (loading()) {
                 <mat-spinner diameter="20" />
               }
@@ -90,7 +114,12 @@
               <p class="login-error">{{ errorText() }}</p>
             }
 
-            <button mat-flat-button class="full-width" (click)="onGuest()" [disabled]="loading() || !guestName.trim()">
+            <button
+              mat-flat-button
+              class="full-width"
+              (click)="onGuest()"
+              [disabled]="loading() || !guestName.trim()"
+            >
               @if (loading()) {
                 <mat-spinner diameter="20" />
               }

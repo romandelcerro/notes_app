@@ -7,9 +7,7 @@ import { BackupController } from './backup.controller.js';
 import { BackupService } from './backup.service.js';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([NoteEntity, SectionEntity, AttachmentEntity]),
-  ],
+  imports: [TypeOrmModule.forFeature([NoteEntity, SectionEntity, AttachmentEntity])],
   controllers: [BackupController],
   providers: [BackupService],
 })

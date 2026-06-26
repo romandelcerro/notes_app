@@ -74,8 +74,7 @@ export class AttachmentsService {
     if (cached) return cached;
 
     const attachment = await this.attachmentRepo.findOne({ where: { id } });
-    if (!attachment)
-      throw new NotFoundException('exception.attachment.notFound');
+    if (!attachment) throw new NotFoundException('exception.attachment.notFound');
     await this.cache.set(cacheKey, attachment);
     return attachment;
   }

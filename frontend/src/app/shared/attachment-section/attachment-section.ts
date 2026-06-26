@@ -1,5 +1,13 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -13,7 +21,7 @@ import { FilesService } from '../../core/services/files.service';
   imports: [DatePipe, MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './attachment-section.html',
   styleUrl: './attachment-section.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttachmentSection {
   private readonly _attachmentService = inject(AttachmentService);
@@ -40,7 +48,7 @@ export class AttachmentSection {
 
   constructor() {
     this._destroyRef.onDestroy(() => {
-      this._objectURLs().forEach(url => this._filesService.revokeObjectURL(url));
+      this._objectURLs().forEach((url) => this._filesService.revokeObjectURL(url));
     });
   }
 
@@ -48,14 +56,18 @@ export class AttachmentSection {
     const noteId = this.noteId();
     for (const file of Array.from(files)) {
       if (file.size > this.maxFileSizeBytes()) {
-        this._snackBar.open(this._translateService.instant('note.fileTooLarge', { name: file.name, max: '5 MB' }), this._translateService.instant('note.cancel'), { duration: 4000 });
+        this._snackBar.open(
+          this._translateService.instant('note.fileTooLarge', { name: file.name, max: '5 MB' }),
+          this._translateService.instant('note.cancel'),
+          { duration: 4000 },
+        );
         continue;
       }
       if (noteId) {
         const created = await this._attachmentService.addAttachment(noteId, file);
-        this.attachments.update(list => [...list, created]);
+        this.attachments.update((list) => [...list, created]);
       } else {
-        this.pendingFiles.update(pending => [...pending, file]);
+        this.pendingFiles.update((pending) => [...pending, file]);
       }
     }
   }
@@ -64,14 +76,16 @@ export class AttachmentSection {
     const noteId = this.noteId();
     if (noteId) {
       const created = await this._attachmentService.addAttachment(noteId, file);
-      this.attachments.update(list => [...list, created]);
+      this.attachments.update((list) => [...list, created]);
     } else {
-      this.pendingFiles.update(files => [...files, file]);
+      this.pendingFiles.update((files) => [...files, file]);
     }
   }
 
   async uploadPendingTo(noteId: number) {
-    await Promise.all(this.pendingFiles().map(file => this._attachmentService.addAttachment(noteId, file)));
+    await Promise.all(
+      this.pendingFiles().map((file) => this._attachmentService.addAttachment(noteId, file)),
+    );
   }
 
   protected async onFileSelected(event: Event) {
@@ -80,13 +94,13 @@ export class AttachmentSection {
   }
 
   protected removePendingFile(file: File): void {
-    this.pendingFiles.update(files => files.filter(f => f !== file));
+    this.pendingFiles.update((files) => files.filter((f) => f !== file));
   }
 
   protected async deleteAttachment(attachment: Attachment) {
     if (!attachment.id) return;
     await this._attachmentService.deleteAttachment(attachment.id);
-    this.attachments.update(list => list.filter(a => a.id !== attachment.id));
+    this.attachments.update((list) => list.filter((a) => a.id !== attachment.id));
   }
 
   protected async downloadAttachment(attachment: Attachment) {

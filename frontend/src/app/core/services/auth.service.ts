@@ -8,6 +8,7 @@ import { NotesService } from './notes.service';
 import { SectionsService } from './sections.service';
 import { UserService } from './user.service';
 import { getToken, setToken, clearToken } from '../interceptors/auth.interceptor';
+import type { AuthResponse, UserResponse } from '@notes-app/shared';
 import type { User } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
@@ -27,7 +28,9 @@ export class AuthService {
   }
 
   async signIn(email: string, password: string) {
-    const res = await firstValueFrom(this._http.post<AuthResponse>(`${environment.apiUrl}/auth/signin`, { email, password }));
+    const res = await firstValueFrom(
+      this._http.post<AuthResponse>(`${environment.apiUrl}/auth/signin`, { email, password }),
+    );
     setToken(res.accessToken);
     await this._initUserSession(res.user);
     this.loading.set(false);
@@ -35,7 +38,13 @@ export class AuthService {
   }
 
   async signUp(email: string, password: string, displayName: string) {
-    const res = await firstValueFrom(this._http.post<AuthResponse>(`${environment.apiUrl}/auth/signup`, { email, password, displayName }));
+    const res = await firstValueFrom(
+      this._http.post<AuthResponse>(`${environment.apiUrl}/auth/signup`, {
+        email,
+        password,
+        displayName,
+      }),
+    );
     setToken(res.accessToken);
     await this._initUserSession(res.user);
     this.loading.set(false);
@@ -43,7 +52,9 @@ export class AuthService {
   }
 
   async signInGuest(displayName: string, email?: string) {
-    const res = await firstValueFrom(this._http.post<AuthResponse>(`${environment.apiUrl}/auth/guest`, { displayName, email }));
+    const res = await firstValueFrom(
+      this._http.post<AuthResponse>(`${environment.apiUrl}/auth/guest`, { displayName, email }),
+    );
     setToken(res.accessToken);
     await this._initUserSession(res.user);
     this.loading.set(false);
@@ -51,7 +62,12 @@ export class AuthService {
   }
 
   async convertGuest(email: string, password: string) {
-    const res = await firstValueFrom(this._http.post<AuthResponse>(`${environment.apiUrl}/auth/convert-guest`, { email, password }));
+    const res = await firstValueFrom(
+      this._http.post<AuthResponse>(`${environment.apiUrl}/auth/convert-guest`, {
+        email,
+        password,
+      }),
+    );
     setToken(res.accessToken);
     const user = this._userService.user();
     this._userService.user.set({
@@ -76,7 +92,9 @@ export class AuthService {
     const token = getToken();
     if (token) {
       try {
-        const user = await firstValueFrom(this._http.get<UserResponse>(`${environment.apiUrl}/auth/me`));
+        const user = await firstValueFrom(
+          this._http.get<UserResponse>(`${environment.apiUrl}/auth/me`),
+        );
         await this._initUserSession(user);
         this._router.navigate(['/']);
       } catch {
@@ -105,19 +123,4 @@ export class AuthService {
     this._notesService.clearNotes();
     this._sectionsService.clearSections();
   }
-}
-
-interface AuthResponse {
-  accessToken: string;
-  user: UserResponse;
-}
-
-interface UserResponse {
-  uid: string;
-  email: string;
-  displayName: string | null;
-  photoURL: string | null;
-  isGuest: boolean;
-  guestExpiresAt: string | null;
-  createdAt: string;
 }

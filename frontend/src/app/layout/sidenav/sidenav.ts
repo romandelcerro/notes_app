@@ -9,10 +9,17 @@ import { SectionList } from '../../domains/sections/section-list/section-list';
 
 @Component({
   selector: 'app-sidenav',
-  imports: [MatButtonModule, MatIconModule, MatTooltipModule, TranslatePipe, SettingsModal, SectionList],
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    TranslatePipe,
+    SettingsModal,
+    SectionList,
+  ],
   templateUrl: './sidenav.html',
   styleUrl: './sidenav.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Sidenav {
   private readonly _authService = inject(AuthService);

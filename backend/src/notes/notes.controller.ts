@@ -28,10 +28,7 @@ export class NotesController {
   }
 
   @Get(':id')
-  findOne(
-    @CurrentUser() user: { uid: string },
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  findOne(@CurrentUser() user: { uid: string }, @Param('id', ParseIntPipe) id: number) {
     return this.notesService.findOne(id, user.uid);
   }
 
@@ -50,10 +47,7 @@ export class NotesController {
   }
 
   @Delete(':id')
-  remove(
-    @CurrentUser() user: { uid: string },
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  remove(@CurrentUser() user: { uid: string }, @Param('id', ParseIntPipe) id: number) {
     return this.notesService.remove(id, user.uid);
   }
 

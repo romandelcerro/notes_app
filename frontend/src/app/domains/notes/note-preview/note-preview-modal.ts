@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,7 +20,7 @@ import { FilesService } from '../../../core/services/files.service';
   imports: [MatDialogModule, MatButtonModule, MatIconModule, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './note-preview-modal.html',
-  styleUrl: './note-preview-modal.scss'
+  styleUrl: './note-preview-modal.scss',
 })
 export class NotePreviewModal {
   private readonly _attachmentService = inject(AttachmentService);
@@ -22,16 +29,16 @@ export class NotePreviewModal {
   private readonly _dialogRef = inject(MatDialogRef<NotePreviewModal>);
   private readonly _destroyRef = inject(DestroyRef);
 
-  readonly note: Note = inject(MAT_DIALOG_DATA);
+  readonly note = inject<Note>(MAT_DIALOG_DATA);
 
   protected readonly imageUrls = signal<{ url: string; attachment: Attachment }[]>([]);
   protected readonly attachments = signal<Attachment[]>([]);
 
   constructor() {
     this._destroyRef.onDestroy(() => {
-      this.imageUrls().forEach(img => this._filesService.revokeObjectURL(img.url));
+      this.imageUrls().forEach((img) => this._filesService.revokeObjectURL(img.url));
     });
-    this._loadImages();
+    void this._loadImages();
   }
 
   protected edit() {
@@ -53,20 +60,27 @@ export class NotePreviewModal {
   }
 
   protected readonly contentHtml = computed(() => {
-    const escaped = this.note.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    return escaped.replace(/https?:\/\/[^\s]+/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+    const escaped = this.note.content
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+    return escaped.replace(
+      /https?:\/\/[^\s]+/g,
+      (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`,
+    );
   });
 
   private async _loadImages() {
     if (!this.note.id) return;
     const attachments: Attachment[] = await this._attachmentService.getAttachments(this.note.id);
-    const images = attachments.filter(a => a.mimeType.startsWith('image/'));
-    const files = attachments.filter(a => !a.mimeType.startsWith('image/'));
+    const images = attachments.filter((a) => a.mimeType.startsWith('image/'));
+    const files = attachments.filter((a) => !a.mimeType.startsWith('image/'));
     const loaded = await Promise.all(
-      images.map(async a => {
+      images.map(async (a) => {
         const buffer = await this._attachmentService.decryptAttachment(a);
         return { url: this._filesService.bufferToObjectURL(buffer, a.mimeType), attachment: a };
-      })
+      }),
     );
     this.imageUrls.set(loaded);
     this.attachments.set(files);

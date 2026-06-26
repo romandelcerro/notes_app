@@ -15,7 +15,7 @@ import { SectionsService } from '../../services/sections.service';
   imports: [MatButtonModule, MatIconModule, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.html',
-  styleUrl: './home.scss'
+  styleUrl: './home.scss',
 })
 export class Home {
   private readonly _notesService = inject(NotesService);
@@ -30,7 +30,7 @@ export class Home {
       .open(SectionCreateEditModal, { width: '400px', maxWidth: '95vw' })
       .afterClosed()
       .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe(created => {
+      .subscribe((created) => {
         if (!created) return;
         const sections = this._sectionsService.sections();
         const newSection = sections[sections.length - 1];
@@ -48,7 +48,7 @@ export class Home {
         data: { sectionId: section.id },
         width: '600px',
         maxWidth: '95vw',
-        maxHeight: '90dvh'
+        maxHeight: '90dvh',
       })
       .afterClosed()
       .pipe(takeUntilDestroyed(this._destroyRef))

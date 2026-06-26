@@ -26,13 +26,15 @@ export class AttachmentService {
     const buffer = await file.arrayBuffer();
     const encryptedData = await this._cryptoService.encryptBuffer(buffer);
     const attachment = mapFileToAttachment(noteId, file, encryptedData);
-    const created = await firstValueFrom(this._http.post<AttachmentResponse>(`${environment.apiUrl}/attachments`, {
-      noteId: attachment.noteId,
-      name: attachment.name,
-      mimeType: attachment.mimeType,
-      encryptedData: attachment.encryptedData,
-      size: attachment.size,
-    }));
+    const created = await firstValueFrom(
+      this._http.post<AttachmentResponse>(`${environment.apiUrl}/attachments`, {
+        noteId: attachment.noteId,
+        name: attachment.name,
+        mimeType: attachment.mimeType,
+        encryptedData: attachment.encryptedData,
+        size: attachment.size,
+      }),
+    );
     this._batchCache.clear();
     return { ...created, createdAt: new Date(created.createdAt) };
   }
@@ -44,9 +46,11 @@ export class AttachmentService {
     if (cached) return cached;
     const ids = noteIds.join(',');
     const raw = await firstValueFrom(
-      this._http.get<AttachmentResponse[]>(`${environment.apiUrl}/attachments/batch?noteIds=${ids}`)
+      this._http.get<AttachmentResponse[]>(
+        `${environment.apiUrl}/attachments/batch?noteIds=${ids}`,
+      ),
     );
-    const attachments = raw.map(r => ({ ...r, createdAt: new Date(r.createdAt) }));
+    const attachments = raw.map((r) => ({ ...r, createdAt: new Date(r.createdAt) }));
     const map = new Map<number, Attachment[]>();
     for (const att of attachments) {
       const existing = map.get(att.noteId) ?? [];

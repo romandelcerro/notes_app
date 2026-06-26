@@ -10,7 +10,7 @@ import { UserService } from '../../core/services/user.service';
   imports: [MatBadgeModule, MatButtonModule, MatTooltipModule, TranslatePipe],
   templateUrl: './user-avatar.html',
   styleUrl: './user-avatar.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAvatar {
   private readonly _userService = inject(UserService);

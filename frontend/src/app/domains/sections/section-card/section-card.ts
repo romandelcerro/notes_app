@@ -12,7 +12,7 @@ import type { Section } from '../../../core/models/section.model';
   templateUrl: './section-card.html',
   styleUrl: './section-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class.has-menu]': 'section() !== null' }
+  host: { '[class.has-menu]': 'section() !== null' },
 })
 export class SectionCard {
   readonly icon = input.required<string>();

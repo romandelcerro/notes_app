@@ -15,6 +15,7 @@ import { CacheService, CACHE_TTL } from '../common/cache.service.js';
 import { SignUpDto } from './dto/sign-up.dto.js';
 import { SignInDto } from './dto/sign-in.dto.js';
 import { GuestDto } from './dto/guest.dto.js';
+import type { UserResponse } from '@notes-app/shared';
 import { ConvertGuestDto } from './dto/convert-guest.dto.js';
 
 const GUEST_TTL_MS = 24 * 60 * 60 * 1000;
@@ -50,12 +51,10 @@ export class AuthService {
 
   async signin(dto: SignInDto) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
-    if (!user)
-      throw new UnauthorizedException('exception.auth.invalidCredentials');
+    if (!user) throw new UnauthorizedException('exception.auth.invalidCredentials');
 
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!valid)
-      throw new UnauthorizedException('exception.auth.invalidCredentials');
+    if (!valid) throw new UnauthorizedException('exception.auth.invalidCredentials');
 
     this._logger.log(`User signed in: ${user.email} (${user.uid})`);
     return this._buildResponse(user);
@@ -86,9 +85,7 @@ export class AuthService {
       await this.userRepo.save(user);
     }
 
-    this._logger.log(
-      `Guest session created: ${user.displayName} (${user.uid})`,
-    );
+    this._logger.log(`Guest session created: ${user.displayName} (${user.uid})`);
     return this._buildResponse(user, true);
   }
 
@@ -116,15 +113,11 @@ export class AuthService {
 
   async getProfile(uid: string) {
     const cacheKey = `auth:profile:${uid}`;
-    const cached = await this.cache.get<any>(cacheKey);
+    const cached = await this.cache.get<UserResponse>(cacheKey);
     if (cached) return cached;
 
     const user = await this.userRepo.findOneOrFail({ where: { uid } });
-    if (
-      user.isGuest &&
-      user.guestExpiresAt &&
-      user.guestExpiresAt < new Date()
-    ) {
+    if (user.isGuest && user.guestExpiresAt && user.guestExpiresAt < new Date()) {
       throw new GoneException('exception.auth.guestExpired');
     }
     const response = this._toUserResponse(user);
@@ -151,7 +144,7 @@ export class AuthService {
     };
   }
 
-  private _toUserResponse(user: UserEntity) {
+  private _toUserResponse(user: UserEntity): UserResponse {
     return {
       uid: user.uid,
       email: user.email,

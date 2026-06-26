@@ -4,7 +4,14 @@
       <mat-card-title [title]="note().title">{{ note().title }}</mat-card-title>
     }
     <span class="card-spacer"></span>
-    <button mat-icon-button class="drag-handle" cdkDragHandle (click)="$event.stopPropagation()" [attr.aria-label]="'note.drag' | translate" [matTooltip]="'note.drag' | translate">
+    <button
+      mat-icon-button
+      class="drag-handle"
+      cdkDragHandle
+      (click)="$event.stopPropagation()"
+      [attr.aria-label]="'note.drag' | translate"
+      [matTooltip]="'note.drag' | translate"
+    >
       <mat-icon>drag_indicator</mat-icon>
     </button>
     <button
@@ -13,7 +20,8 @@
       [matMenuTriggerFor]="cardMenu"
       (click)="$event.stopPropagation()"
       [attr.aria-label]="'note.moreOptions' | translate"
-      [matTooltip]="'note.moreOptions' | translate">
+      [matTooltip]="'note.moreOptions' | translate"
+    >
       <mat-icon>more_vert</mat-icon>
     </button>
   </mat-card-header>
@@ -22,11 +30,22 @@
     <div class="content-row">
       <div class="content-text">
         @if (isLink()) {
-          <a [href]="note().content" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">
+          <a
+            [href]="note().content"
+            target="_blank"
+            rel="noopener noreferrer"
+            (click)="$event.stopPropagation()"
+          >
             {{ note().content }}
           </a>
         } @else {
-          <p class="note-content" [innerHTML]="contentHtml()" (click)="onContentClick($event)"></p>
+          <p
+            class="note-content"
+            [innerHTML]="contentHtml()"
+            (click)="onContentClick($event)"
+            (keydown.enter)="onContentClick($event)"
+            tabindex="0"
+          ></p>
         }
       </div>
       @if (thumbUrl()) {

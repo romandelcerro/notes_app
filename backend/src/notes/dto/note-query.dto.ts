@@ -1,9 +1,4 @@
-import {
-  IsOptional,
-  IsString,
-  IsBooleanString,
-  IsNumberString,
-} from 'class-validator';
+import { IsOptional, IsString, IsBooleanString, IsNumberString } from 'class-validator';
 
 export class NoteQueryDto {
   @IsOptional()

@@ -21,11 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: { sub: string; email: string }) {
     const user = await this.userRepo.findOne({ where: { uid: payload.sub } });
     if (!user) throw new UnauthorizedException();
-    if (
-      user.isGuest &&
-      user.guestExpiresAt &&
-      user.guestExpiresAt < new Date()
-    ) {
+    if (user.isGuest && user.guestExpiresAt && user.guestExpiresAt < new Date()) {
       throw new UnauthorizedException('exception.auth.guestExpired');
     }
     return { uid: user.uid, email: user.email, isGuest: user.isGuest };

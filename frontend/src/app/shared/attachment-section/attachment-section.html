@@ -14,13 +14,25 @@
     <ul class="att-list">
       @for (att of attachments(); track att.id) {
         <li>
-          <mat-icon>{{ att.mimeType.startsWith('image/') ? 'image' : 'insert_drive_file' }}</mat-icon>
+          <mat-icon>{{
+            att.mimeType.startsWith('image/') ? 'image' : 'insert_drive_file'
+          }}</mat-icon>
           <span class="att-name">{{ att.name }}</span>
-          <span class="att-meta">{{ formatSize(att.size) }} · {{ att.createdAt | date: 'd MMM' }}</span>
-          <button mat-icon-button (click)="deleteAttachment(att)" [attr.aria-label]="'note.deleteAttachment' | translate">
+          <span class="att-meta"
+            >{{ formatSize(att.size) }} · {{ att.createdAt | date: 'd MMM' }}</span
+          >
+          <button
+            mat-icon-button
+            (click)="deleteAttachment(att)"
+            [attr.aria-label]="'note.deleteAttachment' | translate"
+          >
             <mat-icon class="danger-icon">delete</mat-icon>
           </button>
-          <button mat-icon-button (click)="downloadAttachment(att)" [attr.aria-label]="'note.downloadAttachment' | translate">
+          <button
+            mat-icon-button
+            (click)="downloadAttachment(att)"
+            [attr.aria-label]="'note.downloadAttachment' | translate"
+          >
             <mat-icon>download</mat-icon>
           </button>
         </li>
@@ -37,7 +49,11 @@
           <mat-icon>{{ file.type.startsWith('image/') ? 'image' : 'insert_drive_file' }}</mat-icon>
           <span class="att-name">{{ file.name }}</span>
           <span class="att-meta">{{ formatSize(file.size) }}</span>
-          <button mat-icon-button (click)="removePendingFile(file)" [attr.aria-label]="'note.deleteAttachment' | translate">
+          <button
+            mat-icon-button
+            (click)="removePendingFile(file)"
+            [attr.aria-label]="'note.deleteAttachment' | translate"
+          >
             <mat-icon class="danger-icon">delete</mat-icon>
           </button>
         </li>

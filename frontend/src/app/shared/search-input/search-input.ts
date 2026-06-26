@@ -7,7 +7,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   imports: [MatIconModule, TranslatePipe],
   templateUrl: './search-input.html',
   styleUrl: './search-input.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchInput {
   protected readonly searchQuery = signal('');

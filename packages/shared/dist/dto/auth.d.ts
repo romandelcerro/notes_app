@@ -20,5 +20,7 @@ export interface UserResponse {
     email: string;
     displayName: string | null;
     photoURL: string | null;
+    isGuest: boolean;
+    guestExpiresAt: string | null;
     createdAt: string;
 }

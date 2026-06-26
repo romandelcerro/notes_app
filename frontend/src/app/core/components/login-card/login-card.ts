@@ -12,9 +12,19 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login-card',
-  imports: [FormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTabsModule, MatProgressSpinnerModule, TranslatePipe],
+  imports: [
+    FormsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatTabsModule,
+    MatProgressSpinnerModule,
+    TranslatePipe,
+  ],
   templateUrl: './login-card.html',
-  styleUrl: './login-card.scss'
+  styleUrl: './login-card.scss',
 })
 export class LoginCard {
   private readonly _authService = inject(AuthService);
@@ -40,8 +50,13 @@ export class LoginCard {
     try {
       await this._authService.signIn(this.signInEmail.trim(), this.signInPassword);
     } catch (err: unknown) {
-      const body = err && typeof err === 'object' && 'error' in err ? (err as { error: { translationKey?: string; message?: string } }).error : null;
-      this.errorText.set(this._translateService.instant(body?.translationKey ?? body?.message ?? 'login.error'));
+      const body =
+        err && typeof err === 'object' && 'error' in err
+          ? (err as { error: { translationKey?: string; message?: string } }).error
+          : null;
+      this.errorText.set(
+        this._translateService.instant(body?.translationKey ?? body?.message ?? 'login.error'),
+      );
     } finally {
       this.loading.set(false);
     }
@@ -52,10 +67,19 @@ export class LoginCard {
     this.loading.set(true);
     this.errorText.set('');
     try {
-      await this._authService.signUp(this.signUpEmail.trim(), this.signUpPassword, this.signUpName.trim());
+      await this._authService.signUp(
+        this.signUpEmail.trim(),
+        this.signUpPassword,
+        this.signUpName.trim(),
+      );
     } catch (err: unknown) {
-      const body = err && typeof err === 'object' && 'error' in err ? (err as { error: { translationKey?: string; message?: string } }).error : null;
-      this.errorText.set(this._translateService.instant(body?.translationKey ?? body?.message ?? 'login.error'));
+      const body =
+        err && typeof err === 'object' && 'error' in err
+          ? (err as { error: { translationKey?: string; message?: string } }).error
+          : null;
+      this.errorText.set(
+        this._translateService.instant(body?.translationKey ?? body?.message ?? 'login.error'),
+      );
     } finally {
       this.loading.set(false);
     }
@@ -69,8 +93,13 @@ export class LoginCard {
     try {
       await this._authService.signInGuest(name, this.guestEmail.trim() || undefined);
     } catch (err: unknown) {
-      const body = err && typeof err === 'object' && 'error' in err ? (err as { error: { translationKey?: string; message?: string } }).error : null;
-      this.errorText.set(this._translateService.instant(body?.translationKey ?? body?.message ?? 'login.error'));
+      const body =
+        err && typeof err === 'object' && 'error' in err
+          ? (err as { error: { translationKey?: string; message?: string } }).error
+          : null;
+      this.errorText.set(
+        this._translateService.instant(body?.translationKey ?? body?.message ?? 'login.error'),
+      );
     } finally {
       this.loading.set(false);
     }

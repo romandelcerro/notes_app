@@ -22,9 +22,7 @@ export class NotesService {
     const cached = await this.cache.get<NoteEntity[]>(cacheKey);
     if (cached) return cached;
 
-    const qb = this.noteRepo
-      .createQueryBuilder('note')
-      .where('note.userId = :userId', { userId });
+    const qb = this.noteRepo.createQueryBuilder('note').where('note.userId = :userId', { userId });
 
     if (query?.sectionId) {
       qb.andWhere('note.sectionId = :sectionId', {
