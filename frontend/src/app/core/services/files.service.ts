@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class FilesService {
   blobToDataURL(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {

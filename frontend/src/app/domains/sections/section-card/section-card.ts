@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -11,7 +11,6 @@ import type { Section } from '../../../core/models/section.model';
   imports: [MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, TranslatePipe],
   templateUrl: './section-card.html',
   styleUrl: './section-card.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '[class.has-menu]': 'section() !== null' },
 })
 export class SectionCard {

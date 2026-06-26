@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,7 +18,6 @@ import { SectionCreateEditModal } from '../section-create-edit-modal/section-cre
   imports: [MatButtonModule, MatIconModule, TranslatePipe, SectionCard],
   templateUrl: './section-list.html',
   styleUrl: './section-list.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionList {
   private readonly _sectionsService = inject(SectionsService);

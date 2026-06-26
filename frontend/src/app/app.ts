@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
@@ -6,7 +6,6 @@ import { AuthService } from './core/services/auth.service';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, MatProgressSpinnerModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (authService.loading()) {
       <div class="auth-loading">

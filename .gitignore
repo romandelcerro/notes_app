@@ -18,6 +18,9 @@ coverage
 .env.local
 .env.*.local
 
+# TypeScript incremental build cache
+*.tsbuildinfo
+
 # Runtime / Node
 pids
 *.pid

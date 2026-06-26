@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, output } from '@angular/core';
+import { Component, computed, inject, output } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -10,7 +10,6 @@ import { UserService } from '../../core/services/user.service';
   imports: [MatBadgeModule, MatButtonModule, MatTooltipModule, TranslatePipe],
   templateUrl: './user-avatar.html',
   styleUrl: './user-avatar.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAvatar {
   private readonly _userService = inject(UserService);

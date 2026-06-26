@@ -6,10 +6,10 @@ html {
     (
       color: (
         primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette
+        tertiary: mat.$blue-palette,
       ),
       typography: Roboto,
-      density: 0
+      density: 0,
     )
   );
 }
@@ -30,10 +30,10 @@ html.dark-theme {
       color: (
         primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
-        theme-type: dark
+        theme-type: dark,
       ),
       typography: Roboto,
-      density: 0
+      density: 0,
     )
   );
 

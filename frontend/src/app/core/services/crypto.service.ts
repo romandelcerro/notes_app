@@ -1,8 +1,8 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Service, computed, signal } from '@angular/core';
 
 type TypedIV = Uint8Array<ArrayBuffer>;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class CryptoService {
   readonly key = signal<CryptoKey | null>(null);
 

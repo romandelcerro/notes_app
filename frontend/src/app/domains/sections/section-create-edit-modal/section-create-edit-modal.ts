@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,7 +12,6 @@ import { SectionsService } from '../../../core/services/sections.service';
   imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, TranslatePipe],
   templateUrl: './section-create-edit-modal.html',
   styleUrl: './section-create-edit-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionCreateEditModal {
   private readonly _sectionsService = inject(SectionsService);

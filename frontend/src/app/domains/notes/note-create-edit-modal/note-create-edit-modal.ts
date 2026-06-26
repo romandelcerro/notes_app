@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,7 +36,6 @@ const NOTE_COLORS = ['', '#F28B82', '#FBBC04', '#FFF475', '#CCFF90', '#A8D5F7', 
   ],
   templateUrl: './note-create-edit-modal.html',
   styleUrl: './note-create-edit-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoteCreateEditModal {
   private readonly _notesService = inject(NotesService);

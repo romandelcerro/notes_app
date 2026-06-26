@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -33,7 +33,6 @@ import { UserService } from '../../services/user.service';
   ],
   templateUrl: './user-menu-modal.html',
   styleUrl: './user-menu-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserMenuModal {
   private readonly _authService = inject(AuthService);

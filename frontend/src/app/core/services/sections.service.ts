@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -14,7 +14,7 @@ interface SectionResponse {
   createdAt: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SectionsService {
   private readonly _http = inject(HttpClient);
   private readonly _translateService = inject(TranslateService);

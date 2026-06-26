@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Service, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -11,7 +11,7 @@ import { getToken, setToken, clearToken } from '../interceptors/auth.interceptor
 import type { AuthResponse, UserResponse } from '@notes-app/shared';
 import type { User } from '../models/user.model';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AuthService {
   private readonly _http = inject(HttpClient);
   private readonly _router = inject(Router);

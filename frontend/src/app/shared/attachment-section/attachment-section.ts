@@ -1,13 +1,5 @@
 import { DatePipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  effect,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -21,7 +13,6 @@ import { FilesService } from '../../core/services/files.service';
   imports: [DatePipe, MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './attachment-section.html',
   styleUrl: './attachment-section.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttachmentSection {
   private readonly _attachmentService = inject(AttachmentService);

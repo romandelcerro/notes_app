@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs';
@@ -15,7 +8,6 @@ import { map } from 'rxjs';
   imports: [],
   templateUrl: './clock.html',
   styleUrl: './clock.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Clock {
   private readonly _translateService = inject(TranslateService);
@@ -24,7 +16,7 @@ export class Clock {
 
   private readonly _currentLang = toSignal(
     this._translateService.onLangChange.pipe(map((e) => e.lang)),
-    { initialValue: this._translateService.getCurrentLang() },
+    { initialValue: this._translateService.getCurrentLang() ?? 'es' },
   );
   private readonly _now = signal(new Date());
   private readonly _locale = computed(() => (this._currentLang() === 'es' ? 'es-ES' : 'en-US'));

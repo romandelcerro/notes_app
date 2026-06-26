@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, signal } from '@angular/core';
+import { Component, ElementRef, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,6 @@ import { map } from 'rxjs';
   imports: [MatButtonModule, MatIconModule, MatTooltipModule, TranslatePipe],
   templateUrl: './settings-modal.html',
   styleUrl: './settings-modal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(document:click)': 'onDocumentClick($event)',
   },
@@ -25,7 +24,7 @@ export class SettingsModal {
   protected readonly settingsOpen = signal(false);
   protected readonly currentLang = toSignal(
     this._translateService.onLangChange.pipe(map((e) => e.lang)),
-    { initialValue: this._translateService.currentLang },
+    { initialValue: this._translateService.currentLang() ?? 'es' },
   );
 
   protected onDocumentClick(event: MouseEvent) {

@@ -1,14 +1,5 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  effect,
-  inject,
-  signal,
-  untracked,
-} from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -34,7 +25,6 @@ import { NotePreviewModal } from '../note-preview/note-preview-modal';
   imports: [NoteCard, MatButtonModule, MatIconModule, TranslatePipe, CdkDropList, CdkDrag],
   templateUrl: './note-list.html',
   styleUrl: './note-list.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoteListComponent {
   private readonly _route = inject(ActivatedRoute);

@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -20,7 +20,7 @@ interface NoteResponse {
   updatedAt: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class NotesService {
   private readonly _http = inject(HttpClient);
   private readonly _cryptoService = inject(CryptoService);

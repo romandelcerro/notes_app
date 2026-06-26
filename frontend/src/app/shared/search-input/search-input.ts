@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
+import { Component, output, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -7,7 +7,6 @@ import { TranslatePipe } from '@ngx-translate/core';
   imports: [MatIconModule, TranslatePipe],
   templateUrl: './search-input.html',
   styleUrl: './search-input.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchInput {
   protected readonly searchQuery = signal('');

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -19,7 +19,6 @@ import { SectionList } from '../../domains/sections/section-list/section-list';
   ],
   templateUrl: './sidenav.html',
   styleUrl: './sidenav.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Sidenav {
   private readonly _authService = inject(AuthService);

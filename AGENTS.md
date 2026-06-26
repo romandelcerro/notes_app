@@ -1,6 +1,6 @@
 # notes-app monorepo
 
-pnpm workspace. 3 packages: `@notes-app/frontend` (Angular 21), `@notes-app/backend` (NestJS 11), `@notes-app/shared`.
+pnpm workspace. 3 packages: `@notes-app/frontend` (Angular 22), `@notes-app/backend` (NestJS 11), `@notes-app/shared`.
 
 ## Commands (root)
 
@@ -31,7 +31,7 @@ Use `workspace:*` for inter-package refs.
 
 ## Frontend
 
-- Angular 21, Material, ngx-translate
+- Angular 22, Material, ngx-translate
 - **REST API** to backend (NestJS :3000) for all data. No IndexedDB.
 - **AES-GCM encryption** client-side (PBKDF2 key derivation)
 - Test: `ng test` → Vitest (via `@angular/build:unit-test` builder)
@@ -78,3 +78,4 @@ Run `pnpm generate:docs` to regenerate. **Always run after:**
 - Backend `test:e2e` uses separate Jest config at `test/jest-e2e.json`
 - `.env` files are gitignored; frontend build reads them
 - NestJS uses `experimentalDecorators` + `emitDecoratorMetadata` + `module:nodenext`
+- Angular 22 uses `@Service()` decorator (stable). Replaces `@Injectable({providedIn: 'root'})`. No constructor DI, only `inject()` fn. Export from `@angular/core`.
