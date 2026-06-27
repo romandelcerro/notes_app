@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs';
+import { LANG, THEME } from '../../constants/app.constants';
 
 @Component({
   selector: 'app-settings-modal',
@@ -20,11 +21,11 @@ export class SettingsModal {
 
   private readonly _elementRef = inject(ElementRef);
 
-  protected readonly isDark = signal(localStorage.getItem('notes_theme') === 'dark');
+  protected readonly isDark = signal(localStorage.getItem(THEME.STORAGE_KEY) === THEME.DARK);
   protected readonly settingsOpen = signal(false);
   protected readonly currentLang = toSignal(
     this._translateService.onLangChange.pipe(map((e) => e.lang)),
-    { initialValue: this._translateService.currentLang() ?? 'es' },
+    { initialValue: this._translateService.currentLang() ?? LANG.ES },
   );
 
   protected onDocumentClick(event: MouseEvent) {
@@ -37,13 +38,13 @@ export class SettingsModal {
   protected toggleTheme() {
     const dark = !this.isDark();
     this.isDark.set(dark);
-    document.documentElement.classList.toggle('dark-theme', dark);
-    localStorage.setItem('notes_theme', dark ? 'dark' : 'light');
+    document.documentElement.classList.toggle(THEME.CSS_CLASS, dark);
+    localStorage.setItem(THEME.STORAGE_KEY, dark ? THEME.DARK : THEME.LIGHT);
   }
 
   protected toggleLanguage() {
-    const next = this.currentLang() === 'es' ? 'en' : 'es';
+    const next = this.currentLang() === LANG.ES ? LANG.EN : LANG.ES;
     this._translateService.use(next);
-    localStorage.setItem('notes_lang', next);
+    localStorage.setItem(LANG.STORAGE_KEY, next);
   }
 }

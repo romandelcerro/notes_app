@@ -19,12 +19,11 @@
   }
 
   <button
-    mat-button
     class="new-section-btn"
     (click)="openNewSection()"
     [attr.aria-label]="'sidenav.newSection' | translate"
   >
     <mat-icon>add</mat-icon>
-    {{ 'sidenav.newSection' | translate }}
+    <span>{{ 'sidenav.newSection' | translate }}</span>
   </button>
 </nav>

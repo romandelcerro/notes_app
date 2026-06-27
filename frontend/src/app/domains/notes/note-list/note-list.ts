@@ -99,16 +99,14 @@ export class NoteListComponent {
   });
 
   private readonly _filtered = computed(() => {
-    const { query, dateFrom, dateTo } = this._notesService.filter();
+    const { query } = this._notesService.filter();
     return this._notesService.notes().filter((n) => {
       const matchesQuery =
         !query ||
         n.title.toLowerCase().includes(query.toLowerCase()) ||
         n.content.toLowerCase().includes(query.toLowerCase());
-      const noteDate = n.updatedAt ? new Date(n.updatedAt) : null;
-      const matchesFrom = !dateFrom || (!!noteDate && noteDate >= dateFrom);
-      const matchesTo = !dateTo || (!!noteDate && noteDate <= this._endOfDay(dateTo));
-      return matchesQuery && matchesFrom && matchesTo;
+
+      return matchesQuery;
     });
   });
 

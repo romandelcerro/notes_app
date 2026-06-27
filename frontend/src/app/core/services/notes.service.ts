@@ -1,5 +1,5 @@
-import { Service, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Service, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { decryptNote, encryptNote } from '../mappers/note.mapper';
@@ -26,7 +26,7 @@ export class NotesService {
   private readonly _cryptoService = inject(CryptoService);
 
   readonly notes = signal<Note[]>([]);
-  readonly filter = signal<NoteFilter>({ query: '', dateFrom: null, dateTo: null });
+  readonly filter = signal<NoteFilter>({ query: '' });
   private readonly _orderMap = signal<Record<string, number[]>>({});
 
   async loadNotes() {

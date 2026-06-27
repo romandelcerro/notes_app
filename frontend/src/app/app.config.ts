@@ -9,14 +9,15 @@ import { provideRouter } from '@angular/router';
 import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { firstValueFrom } from 'rxjs';
+import { LANG } from './core/constants/app.constants';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 function initTranslate(translate: TranslateService) {
   return () => {
-    const stored = localStorage.getItem('notes_lang') as 'es' | 'en' | null;
-    const lang = stored === 'en' ? 'en' : 'es';
-    translate.setFallbackLang('es');
+    const stored = localStorage.getItem(LANG.STORAGE_KEY) as typeof LANG.ES | typeof LANG.EN | null;
+    const lang = stored === LANG.EN ? LANG.EN : LANG.ES;
+    translate.setFallbackLang(LANG.ES);
     return firstValueFrom(translate.use(lang));
   };
 }

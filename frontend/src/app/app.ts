@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
+import { THEME } from './core/constants/app.constants';
 
 @Component({
   selector: 'app-root',
@@ -29,8 +30,8 @@ export class App {
   protected readonly authService = inject(AuthService);
 
   constructor() {
-    if (localStorage.getItem('notes_theme') === 'dark') {
-      document.documentElement.classList.add('dark-theme');
+    if (localStorage.getItem(THEME.STORAGE_KEY) === THEME.DARK) {
+      document.documentElement.classList.add(THEME.CSS_CLASS);
     }
   }
 }

@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { form, FormField, readonly } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -12,10 +12,10 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmDialogModal } from '../../../shared/confirm-dialog-modal/confirm-dialog-modal';
 import { AuthService } from '../../services/auth.service';
-import { BackupService } from '../../services/backup.service';
 import { NotesService } from '../../services/notes.service';
 import { SectionsService } from '../../services/sections.service';
 import { UserService } from '../../services/user.service';
+import { SettingsModal } from '../settings-modal/settings-modal';
 
 @Component({
   selector: 'app-user-menu-modal',
@@ -27,17 +27,15 @@ import { UserService } from '../../services/user.service';
     MatIconModule,
     MatDividerModule,
     MatTooltipModule,
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     TranslatePipe,
+    SettingsModal,
   ],
   templateUrl: './user-menu-modal.html',
   styleUrl: './user-menu-modal.scss',
 })
 export class UserMenuModal {
   private readonly _authService = inject(AuthService);
-  private readonly _userService = inject(UserService);
-  private readonly _backupService = inject(BackupService);
   private readonly _notesService = inject(NotesService);
   private readonly _sectionsService = inject(SectionsService);
   private readonly _translateService = inject(TranslateService);
@@ -46,30 +44,35 @@ export class UserMenuModal {
   private readonly _dialog = inject(MatDialog);
   private readonly _dialogRef = inject(MatDialogRef<UserMenuModal>);
 
-  protected readonly user = this._userService.user;
-  protected readonly displayNameControl = new FormControl(
-    this._userService.user()?.displayName ?? '',
-    { nonNullable: true },
-  );
+  protected readonly userService = inject(UserService);
+
+  protected readonly defaultUserIcon = computed(() => {
+    const displayText =
+      this.userService.user()?.displayName ?? this.userService.user()?.email ?? '?';
+
+    return displayText.charAt(0).toUpperCase();
+  });
+
   protected readonly saving = signal(false);
   protected readonly converting = signal(false);
-  protected readonly convertEmail = signal('');
-  protected readonly convertPassword = signal('');
-  protected readonly exporting = signal(false);
-  protected readonly importing = signal(false);
   protected readonly clearing = signal(false);
 
-  protected readonly avatarInitial = computed(() => {
-    const name = this.user()?.displayName ?? this.user()?.email ?? '?';
-    return name.charAt(0).toUpperCase();
+  protected readonly profileFormData = signal({
+    displayEmail: this.userService.user()?.email ?? '',
+    displayName: this.userService.user()?.displayName ?? '',
+    convertEmail: '',
+    convertPassword: '',
+  });
+  protected readonly profileForm = form(this.profileFormData, (path) => {
+    readonly(path.displayEmail, { when: () => true });
   });
 
   protected async saveName() {
-    const name = this.displayNameControl.value.trim();
+    const name = this.profileFormData().displayName.trim();
     if (!name) return;
     this.saving.set(true);
     try {
-      await this._userService.updateDisplayName(name);
+      await this.userService.updateDisplayName(name);
     } finally {
       this.saving.set(false);
     }
@@ -80,11 +83,7 @@ export class UserMenuModal {
     const file = input.files?.[0];
     if (!file) return;
     const dataURL = await this._resizeImage(file, 256);
-    await this._userService.updateLocalAvatar(dataURL);
-  }
-
-  protected async removeAvatar() {
-    await this._userService.removeLocalAvatar();
+    await this.userService.updateLocalAvatar(dataURL);
   }
 
   protected async signOut() {
@@ -93,8 +92,9 @@ export class UserMenuModal {
   }
 
   protected async convertAccount() {
-    const email = this.convertEmail().trim();
-    const password = this.convertPassword();
+    const data = this.profileFormData();
+    const email = data.convertEmail.trim();
+    const password = data.convertPassword;
     if (!email || !password) return;
     this.converting.set(true);
     try {
@@ -116,7 +116,7 @@ export class UserMenuModal {
   }
 
   protected async clearAllData() {
-    const user = this.user();
+    const user = this.userService.user();
     if (!user?.uid) return;
     const confirmed = await firstValueFrom(
       this._dialog
@@ -139,64 +139,6 @@ export class UserMenuModal {
       window.location.reload();
     } finally {
       this.clearing.set(false);
-    }
-  }
-
-  protected async exportBackup() {
-    const user = this.user();
-    if (!user?.uid) return;
-    this.exporting.set(true);
-    try {
-      await this._backupService.exportBackup();
-      this._snackBar.open(
-        this._translateService.instant('backup.exportSuccess'),
-        this._translateService.instant('common.close'),
-        { duration: 3000 },
-      );
-    } catch (err: unknown) {
-      const body =
-        err && typeof err === 'object' && 'error' in err
-          ? (err as { error: { translationKey?: string; message?: string } }).error
-          : null;
-      const key = body?.translationKey ?? body?.message ?? 'backup.exportError';
-      this._snackBar.open(
-        this._translateService.instant(key),
-        this._translateService.instant('common.close'),
-        { duration: 5000 },
-      );
-    } finally {
-      this.exporting.set(false);
-    }
-  }
-
-  protected async importBackup(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    const user = this.user();
-    if (!user?.uid) return;
-    this.importing.set(true);
-    try {
-      await this._backupService.importBackup(file);
-      this._snackBar.open(
-        this._translateService.instant('backup.importSuccess'),
-        this._translateService.instant('common.close'),
-        { duration: 3000 },
-      );
-    } catch (err: unknown) {
-      const body =
-        err && typeof err === 'object' && 'error' in err
-          ? (err as { error: { translationKey?: string; message?: string } }).error
-          : null;
-      const key = body?.translationKey ?? body?.message ?? 'backup.importError';
-      this._snackBar.open(
-        this._translateService.instant(key),
-        this._translateService.instant('common.close'),
-        { duration: 5000 },
-      );
-    } finally {
-      input.value = '';
-      this.importing.set(false);
     }
   }
 

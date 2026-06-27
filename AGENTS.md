@@ -70,6 +70,14 @@ Run `pnpm generate:docs` to regenerate. **Always run after:**
 - Changing DTO fields or validation
 - Changing data layer schema or client-side models
 
+## Command discipline
+
+- **Before running any CLI tool**, verify it's defined in project (package.json scripts, Makefile, etc). Don't guess subcommands.
+- **If command fails** (`error: unexpected argument`, `command not found`, non-zero exit): stop. Don't retry same thing. Check docs or ask.
+- `rtk` is NOT used in this project. Don't run it.
+- `ls`/`grep`/`cat`/`head`/`tail` in bash: use dedicated file tools instead (Read/Glob/Grep/Write/Edit). Avoid bash for file ops.
+- `pnpm` commands: only root. Use `pnpm --filter` for per-package. Never `pnpm dev:frontend` etc from inside a subpackage dir.
+
 ## Gotchas
 
 - Always `pnpm install` from root, never from subpackage

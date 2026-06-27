@@ -1,21 +1,23 @@
 <mat-toolbar>
   <div class="toolbar-left">
-    @if (!sidenavOpen()) {
-      <button
-        mat-icon-button
-        (click)="onMenuClick()"
-        [attr.aria-label]="'toolbar.menuAriaLabel' | translate"
-        [matTooltip]="'toolbar.menuAriaLabel' | translate"
-      >
-        <mat-icon>menu</mat-icon>
-      </button>
-    }
-    <app-search-input (queryChange)="onSearchInput($event)" />
+    <button
+      mat-icon-button
+      (click)="toggleSidenav.emit()"
+      [attr.aria-label]="'toolbar.menuAriaLabel' | translate"
+      [matTooltip]="'toolbar.menuAriaLabel' | translate"
+    >
+      @if (sidenavOpened()) {
+        <span class="material-symbols-outlined">side_navigation</span>
+      } @else {
+        <span class="material-symbols-outlined">grid_layout_side</span>
+      }
+    </button>
+    <app-search-notes-input (searchInputChange)="noteFilterService.filter.set({ query: $event })" />
   </div>
 
   <app-clock />
 
   <div class="toolbar-right">
-    <app-user-avatar (avatarClick)="onProfileClick()" />
+    <app-user-icon (userIconClick)="openUserModal()" />
   </div>
 </mat-toolbar>

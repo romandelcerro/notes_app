@@ -16,6 +16,4 @@ export interface Note {
 
 export interface NoteFilter {
   query: string;
-  dateFrom: Date | null;
-  dateTo: Date | null;
 }

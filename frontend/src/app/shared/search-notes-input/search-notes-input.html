@@ -4,8 +4,8 @@
     class="search-input"
     type="text"
     [placeholder]="'toolbar.search' | translate"
-    [value]="searchQuery()"
-    (input)="onInput($any($event.target).value)"
+    [value]="searchInputValue()"
+    (input)="onSearchInputChange($event.target.value)"
     [attr.aria-label]="'toolbar.searchAriaLabel' | translate"
   />
 </div>

@@ -1,32 +1,24 @@
-.sidenav-container {
+:host {
+  display: flex;
+  flex-direction: column;
   height: 100vh;
 }
 
-.content-layout {
+.sidenav-container {
+  flex: 1;
+  overflow: hidden;
+}
+
+::ng-deep .mat-drawer {
+  width: 15rem;
+  border-right: 1px solid var(--mat-sys-outline-variant);
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: 0 !important;
+}
+
+::ng-deep .mat-drawer-inner-container {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-}
-
-.content-scroll {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.sidenav {
-  width: 15rem;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--mat-sys-outline-variant);
-  background-color: var(--mat-sys-surface-container-low);
-  border-radius: 0 !important;
-
-  ::ng-deep .mat-drawer-inner-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-  }
 }

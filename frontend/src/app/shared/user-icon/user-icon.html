@@ -1,0 +1,18 @@
+<span class="avatar-wrapper" matBadge="!" [matBadgeHidden]="!userService.user()?.isGuest">
+  <button
+    class="user-icon-btn"
+    (click)="userIconClick.emit()"
+    [attr.aria-label]="userService.user()?.displayName ?? ('toolbar.profileAriaLabel' | translate)"
+    [matTooltip]="'toolbar.profileAriaLabel' | translate"
+  >
+    @if (userService.user()?.photoURL) {
+      <img
+        class="user-icon"
+        [src]="userService.user()!.photoURL!"
+        [alt]="userService.user()!.displayName"
+      />
+    } @else {
+      <span class="default-user-icon">{{ defaultUserIcon() }}</span>
+    }
+  </button>
+</span>

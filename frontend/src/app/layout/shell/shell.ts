@@ -1,19 +1,15 @@
-import { Component, signal } from '@angular/core';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { Component, ViewChild } from '@angular/core';
+import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 import { RouterOutlet } from '@angular/router';
 import { Sidenav } from '../sidenav/sidenav';
 import { Toolbar } from '../toolbar/toolbar';
-
+import { MatListModule } from '@angular/material/list';
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, Sidenav, Toolbar, MatSidenavModule],
+  imports: [RouterOutlet, Sidenav, Toolbar, MatSidenavModule, MatListModule],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
 export class Shell {
-  protected readonly sidenavOpen = signal(false);
-
-  protected toggleSidenav() {
-    this.sidenavOpen.update((open) => !open);
-  }
+  @ViewChild(MatSidenav) sidenav!: MatSidenav;
 }

@@ -1,11 +1,11 @@
-import { Component, computed, DestroyRef, inject } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { NavigationEnd, Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { filter, firstValueFrom, map, startWith } from 'rxjs';
+import { filter, firstValueFrom } from 'rxjs';
 import type { Section } from '../../../core/models/section.model';
 import { NotesService } from '../../../core/services/notes.service';
 import { SectionsService } from '../../../core/services/sections.service';
@@ -33,21 +33,35 @@ export class SectionList {
     return this._sectionsService.getDisplayName(section);
   }
 
-  private readonly _currentUrl = toSignal(
-    this._router.events.pipe(
-      filter((e) => e instanceof NavigationEnd),
-      map(() => this._router.url),
-      startWith(this._router.url),
-    ),
-  );
+  private readonly _selectedId = signal<number | null>(null);
 
-  protected readonly selectedSectionId = computed(() => {
-    const url = this._currentUrl() ?? '';
-    const match = url.match(/^\/list\/(.+)$/);
-    if (!match) return null;
-    const sectionName = decodeURIComponent(match[1]);
-    return this.sections().find((s) => s.name === sectionName)?.id ?? null;
-  });
+  protected readonly selectedSectionId = this._selectedId.asReadonly();
+
+  constructor() {
+    effect(() => {
+      this.sections();
+      this._syncFromUrl();
+    });
+
+    this._router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe(() => this._syncFromUrl());
+  }
+
+  private _syncFromUrl(): void {
+    const segments = this._router.url.split('/').filter(Boolean);
+    const raw = segments.length >= 2 ? segments[1] : null;
+    const name = raw ? decodeURIComponent(raw) : null;
+    if (!name) {
+      this._selectedId.set(null);
+      return;
+    }
+    const section = this.sections().find((s) => s.name === name);
+    this._selectedId.set(section?.id ?? null);
+  }
 
   protected selectSection(id: number | null) {
     if (id === null) {

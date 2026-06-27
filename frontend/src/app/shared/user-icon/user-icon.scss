@@ -3,7 +3,7 @@
   align-items: center;
 }
 
-.avatar-btn {
+.user-icon-btn {
   padding: 0;
   overflow: hidden;
   border-radius: 50%;
@@ -21,18 +21,18 @@
   }
 }
 
-.avatar,
-.avatar-initial {
+.user-icon,
+.default-user-icon {
   width: 2.5rem;
   height: 2.5rem;
   display: block;
 }
 
-.avatar {
+.user-icon {
   object-fit: cover;
 }
 
-.avatar-initial {
+.default-user-icon {
   display: grid;
   place-items: center;
   background-color: var(--mat-sys-primary);
