@@ -32,7 +32,7 @@
         <li>
           <mat-icon class="file-icon">insert_drive_file</mat-icon>
           <span>{{ file.name }}</span>
-          <span class="file-size">{{ formatSize(file.size) }}</span>
+          <span class="file-size">{{ filesService.formatBytes(file.size) }}</span>
           <button
             mat-icon-button
             (click)="downloadAttachment(file)"
@@ -47,7 +47,7 @@
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button mat-dialog-close>{{ 'note.cancel' | translate }}</button>
-  <button mat-flat-button (click)="edit()">
+  <button mat-flat-button (click)="dialogRef.close('edit')">
     <mat-icon>edit</mat-icon>
     {{ 'note.edit' | translate }}
   </button>

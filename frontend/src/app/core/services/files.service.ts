@@ -2,7 +2,7 @@ import { Service } from '@angular/core';
 
 @Service()
 export class FilesService {
-  blobToDataURL(blob: Blob): Promise<string> {
+  public blobToDataURL(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
@@ -11,30 +11,30 @@ export class FilesService {
     });
   }
 
-  bufferToObjectURL(buffer: ArrayBuffer, mimeType: string) {
+  public bufferToObjectURL(buffer: ArrayBuffer, mimeType: string) {
     const blob = new Blob([buffer], { type: mimeType });
     return URL.createObjectURL(blob);
   }
 
-  revokeObjectURL(url: string) {
+  public revokeObjectURL(url: string) {
     URL.revokeObjectURL(url);
   }
 
-  isImageType(mimeType: string) {
+  public isImageType(mimeType: string) {
     return mimeType.startsWith('image/');
   }
 
-  isPdfType(mimeType: string) {
+  public isPdfType(mimeType: string) {
     return mimeType === 'application/pdf';
   }
 
-  formatBytes(bytes: number) {
+  public formatBytes(bytes: number) {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
-  extractLinkMetadata(url: string): { hostname: string; isValid: boolean } {
+  public extractLinkMetadata(url: string): { hostname: string; isValid: boolean } {
     try {
       const parsed = new URL(url);
       return { hostname: parsed.hostname, isValid: true };
@@ -43,7 +43,7 @@ export class FilesService {
     }
   }
 
-  resolveImageFromClipboard(items: DataTransferItemList) {
+  public resolveImageFromClipboard(items: DataTransferItemList) {
     const imageItem = Array.from(items).find((item) => item.type.startsWith('image/'));
     return Promise.resolve(imageItem?.getAsFile() ?? null);
   }

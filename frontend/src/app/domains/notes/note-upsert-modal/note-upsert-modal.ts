@@ -44,16 +44,16 @@ export class NoteUpsertModal {
   private readonly _dialogRef = inject(MatDialogRef<NoteUpsertModal, NoteCreateEditResult>);
   private readonly _attachmentSection = viewChild.required(AttachmentSection);
 
-  protected readonly _data: NoteEditModalData = inject(MAT_DIALOG_DATA);
+  protected readonly data: NoteEditModalData = inject(MAT_DIALOG_DATA);
 
-  protected readonly title = signal(this._data.note?.title ?? '');
-  protected readonly content = signal(this._data.note?.content ?? '');
-  protected readonly noteType = signal<NoteType>(this._data.note?.type ?? 'text');
-  protected readonly selectedColor = signal(this._data.note?.color ?? '');
+  protected readonly title = signal(this.data.note?.title ?? '');
+  protected readonly content = signal(this.data.note?.content ?? '');
+  protected readonly noteType = signal<NoteType>(this.data.note?.type ?? 'text');
+  protected readonly selectedColor = signal(this.data.note?.color ?? '');
   protected readonly saving = signal(false);
 
   protected readonly colors = NOTE_COLORS;
-  protected readonly isEditing = Boolean(this._data.note);
+  protected readonly isEditing = Boolean(this.data.note);
 
   protected async save() {
     const title = this.title().trim();
@@ -62,15 +62,15 @@ export class NoteUpsertModal {
 
     this.saving.set(true);
     try {
-      if (this.isEditing && this._data.note?.id) {
-        const updatedNote = buildUpdatedNote(this._data.note, {
-          ...this._data.note,
+      if (this.isEditing && this.data.note?.id) {
+        const updatedNote = buildUpdatedNote(this.data.note, {
+          ...this.data.note,
           title,
           content,
           color: this.selectedColor(),
         });
-        await this._notesService.updateNote(this._data.note.id, updatedNote);
-        this._dialogRef.close({ noteId: this._data.note.id });
+        await this._notesService.updateNote(this.data.note.id, updatedNote);
+        this._dialogRef.close({ noteId: this.data.note.id });
       } else {
         const userId = this._userService.user()?.uid ?? '';
         const noteTmp: Note = {
@@ -81,7 +81,7 @@ export class NoteUpsertModal {
           pinned: false,
           hasAttachments: false,
           userId,
-          sectionId: this._data.sectionId,
+          sectionId: this.data.sectionId,
         };
         const newNote = await this._notesService.createNote(buildNewNote(noteTmp, userId));
         const pending = this._attachmentSection().pendingFiles();

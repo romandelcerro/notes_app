@@ -20,14 +20,14 @@ export class AuthService {
   private readonly _sectionsService = inject(SectionsService);
   private readonly _userService = inject(UserService);
 
-  readonly loading = signal(true);
-  readonly isAuthenticated = computed(() => !!this._userService.user());
+  public readonly loading = signal(true);
+  public readonly isAuthenticated = computed(() => !!this._userService.user());
 
   constructor() {
     this._tryRestoreSession();
   }
 
-  async signIn(email: string, password: string) {
+  public async signIn(email: string, password: string) {
     const res = await firstValueFrom(
       this._http.post<AuthResponse>(`${environment.apiUrl}/auth/signin`, { email, password }),
     );
@@ -37,7 +37,7 @@ export class AuthService {
     this._router.navigate(['/']);
   }
 
-  async signUp(email: string, password: string, displayName: string) {
+  public async signUp(email: string, password: string, displayName: string) {
     const res = await firstValueFrom(
       this._http.post<AuthResponse>(`${environment.apiUrl}/auth/signup`, {
         email,
@@ -51,7 +51,7 @@ export class AuthService {
     this._router.navigate(['/']);
   }
 
-  async signInGuest(displayName: string, email?: string) {
+  public async signInGuest(displayName: string, email?: string) {
     const res = await firstValueFrom(
       this._http.post<AuthResponse>(`${environment.apiUrl}/auth/guest`, { displayName, email }),
     );
@@ -61,7 +61,7 @@ export class AuthService {
     this._router.navigate(['/']);
   }
 
-  async convertGuest(email: string, password: string) {
+  public async convertGuest(email: string, password: string) {
     const res = await firstValueFrom(
       this._http.post<AuthResponse>(`${environment.apiUrl}/auth/convert-guest`, {
         email,
@@ -80,7 +80,7 @@ export class AuthService {
     });
   }
 
-  async signOut() {
+  public async signOut() {
     this._clearAppData();
     clearToken();
     this._userService.user.set(null);

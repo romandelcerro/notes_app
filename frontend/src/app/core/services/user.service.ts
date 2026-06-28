@@ -8,21 +8,21 @@ import type { User } from '../models/user.model';
 export class UserService {
   private readonly _http = inject(HttpClient);
 
-  readonly user = signal<User | null>(null);
+  public readonly user = signal<User | null>(null);
 
-  async updateDisplayName(name: string) {
+  public async updateDisplayName(name: string) {
     const updated = await firstValueFrom(
       this._http.patch<UserResponse>(`${environment.apiUrl}/users/me`, { displayName: name }),
     );
     this.user.update((u) => (u ? { ...u, displayName: updated.displayName } : u));
   }
 
-  async updateLocalAvatar(dataURL: string) {
+  public async updateLocalAvatar(dataURL: string) {
     await firstValueFrom(this._http.patch(`${environment.apiUrl}/users/me`, { photoURL: dataURL }));
     this.user.update((u) => (u ? { ...u, photoURL: dataURL } : u));
   }
 
-  async removeLocalAvatar() {
+  public async removeLocalAvatar() {
     await firstValueFrom(this._http.patch(`${environment.apiUrl}/users/me`, { photoURL: null }));
     this.user.update((u) => (u ? { ...u, photoURL: null } : u));
   }

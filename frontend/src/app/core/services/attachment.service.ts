@@ -22,7 +22,7 @@ export class AttachmentService {
   private readonly _cryptoService = inject(CryptoService);
   private readonly _batchCache = new Map<string, Map<number, Attachment[]>>();
 
-  async addAttachment(noteId: number, file: File): Promise<Attachment> {
+  public async addAttachment(noteId: number, file: File): Promise<Attachment> {
     const buffer = await file.arrayBuffer();
     const encryptedData = await this._cryptoService.encryptBuffer(buffer);
     const attachment = mapFileToAttachment(noteId, file, encryptedData);
@@ -39,7 +39,7 @@ export class AttachmentService {
     return { ...created, createdAt: new Date(created.createdAt) };
   }
 
-  async getAttachmentsByNoteIds(noteIds: number[]): Promise<Map<number, Attachment[]>> {
+  public async getAttachmentsByNoteIds(noteIds: number[]): Promise<Map<number, Attachment[]>> {
     if (!noteIds.length) return new Map();
     const key = [...noteIds].sort().join(',');
     const cached = this._batchCache.get(key);
@@ -61,17 +61,17 @@ export class AttachmentService {
     return map;
   }
 
-  async getAttachments(noteId: number) {
+  public async getAttachments(noteId: number) {
     const map = await this.getAttachmentsByNoteIds([noteId]);
     return map.get(noteId) ?? [];
   }
 
-  async deleteAttachment(attachmentId: number) {
+  public async deleteAttachment(attachmentId: number) {
     await firstValueFrom(this._http.delete(`${environment.apiUrl}/attachments/${attachmentId}`));
     this._batchCache.clear();
   }
 
-  async decryptAttachment(attachment: Attachment) {
+  public async decryptAttachment(attachment: Attachment) {
     return this._cryptoService.decryptBuffer(attachment.encryptedData);
   }
 }

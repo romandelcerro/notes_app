@@ -17,7 +17,7 @@ import { LANG, THEME } from '../../constants/app.constants';
   },
 })
 export class SettingsModal {
-  protected readonly _translateService = inject(TranslateService);
+  private readonly _translateService = inject(TranslateService);
 
   private readonly _elementRef = inject(ElementRef);
 

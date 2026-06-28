@@ -11,7 +11,7 @@ export class BackupService {
   private readonly _notesService = inject(NotesService);
   private readonly _sectionsService = inject(SectionsService);
 
-  async exportBackup() {
+  public async exportBackup() {
     const blob = await firstValueFrom(
       this._http.get(`${environment.apiUrl}/backup/export`, { responseType: 'blob' }),
     );
@@ -23,7 +23,7 @@ export class BackupService {
     URL.revokeObjectURL(url);
   }
 
-  async importBackup(file: File) {
+  public async importBackup(file: File) {
     const text = await file.text();
     const data = JSON.parse(text);
     await firstValueFrom(this._http.post(`${environment.apiUrl}/backup/import`, data));

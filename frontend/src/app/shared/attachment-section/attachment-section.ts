@@ -22,10 +22,10 @@ export class AttachmentSection {
   private readonly _snackBar = inject(MatSnackBar);
   private readonly _destroyRef = inject(DestroyRef);
 
-  readonly noteId = input<number | undefined>(undefined);
-  readonly maxFileSizeBytes = input(5 * 1024 * 1024);
+  public readonly noteId = input<number | undefined>(undefined);
+  public readonly maxFileSizeBytes = input(5 * 1024 * 1024);
 
-  readonly attachments = signal<Attachment[]>([]);
+  protected readonly attachments = signal<Attachment[]>([]);
   public readonly pendingFiles = signal<File[]>([]);
   private readonly _objectURLs = signal<string[]>([]);
 
@@ -50,7 +50,7 @@ export class AttachmentSection {
     });
   }
 
-  async addFiles(files: FileList) {
+  public async addFiles(files: FileList) {
     const noteId = this.noteId();
     for (const file of Array.from(files)) {
       if (file.size > this.maxFileSizeBytes()) {
@@ -70,7 +70,7 @@ export class AttachmentSection {
     }
   }
 
-  async addImageFile(file: File) {
+  public async addImageFile(file: File) {
     const noteId = this.noteId();
     if (noteId) {
       const created = await this._attachmentService.addAttachment(noteId, file);
@@ -80,7 +80,7 @@ export class AttachmentSection {
     }
   }
 
-  async uploadPendingTo(noteId: number) {
+  public async uploadPendingTo(noteId: number) {
     await Promise.all(
       this.pendingFiles().map((file) => this._attachmentService.addAttachment(noteId, file)),
     );

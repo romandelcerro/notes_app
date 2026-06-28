@@ -78,6 +78,13 @@ Run `pnpm generate:docs` to regenerate. **Always run after:**
 - `ls`/`grep`/`cat`/`head`/`tail` in bash: use dedicated file tools instead (Read/Glob/Grep/Write/Edit). Avoid bash for file ops.
 - `pnpm` commands: only root. Use `pnpm --filter` for per-package. Never `pnpm dev:frontend` etc from inside a subpackage dir.
 
+## Encapsulation rules (frontend)
+
+- All class members need explicit access modifier: `public`, `protected`, or `private`
+- Private members must start with `_` prefix (e.g. `private readonly _foo`)
+- `@typescript-eslint/explicit-member-accessibility` and `@typescript-eslint/naming-convention` enforce this
+- **No one-line function wrappers.** If a method only forwards to a service call, expose the service as `protected` and call it directly from template. Bad: `protected onClearNotes() { this._notesService.notes.set([]); }`. Good: `protected readonly notesService = inject(NotesService);` then `notesService.notes.set([])` in template.
+
 ## Gotchas
 
 - Always `pnpm install` from root, never from subpackage

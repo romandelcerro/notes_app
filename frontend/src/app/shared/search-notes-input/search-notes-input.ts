@@ -11,7 +11,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class SearchNotesInput {
   protected readonly searchInputValue = signal('');
 
-  readonly searchInputChange = output<string>();
+  public readonly searchInputChange = output<string>();
 
   protected onSearchInputChange(value: string) {
     this.searchInputValue.set(value);

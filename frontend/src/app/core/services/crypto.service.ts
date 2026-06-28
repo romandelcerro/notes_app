@@ -4,11 +4,11 @@ type TypedIV = Uint8Array<ArrayBuffer>;
 
 @Service()
 export class CryptoService {
-  readonly key = signal<CryptoKey | null>(null);
+  public readonly key = signal<CryptoKey | null>(null);
 
-  readonly hasKey = computed(() => this.key() !== null);
+  public readonly hasKey = computed(() => this.key() !== null);
 
-  async initKey(userId: string) {
+  public async initKey(userId: string) {
     const salt = await this._getOrCreateSalt(userId);
     const rawKeyMaterial = await this._deriveRawKey(userId);
     const derivedKey = await crypto.subtle.deriveKey(
@@ -21,7 +21,7 @@ export class CryptoService {
     this.key.set(derivedKey);
   }
 
-  async encrypt(plaintext: string) {
+  public async encrypt(plaintext: string) {
     const key = this._requireKey();
     const iv = this._randomIV();
     const encoded = new TextEncoder().encode(plaintext);
@@ -29,21 +29,21 @@ export class CryptoService {
     return this._pack(iv, new Uint8Array(ciphertext));
   }
 
-  async decrypt(packed: string) {
+  public async decrypt(packed: string) {
     const key = this._requireKey();
     const [iv, data] = this._unpack(packed);
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
     return new TextDecoder().decode(decrypted);
   }
 
-  async encryptBuffer(buffer: ArrayBuffer) {
+  public async encryptBuffer(buffer: ArrayBuffer) {
     const key = this._requireKey();
     const iv = this._randomIV();
     const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, buffer);
     return this._pack(iv, new Uint8Array(ciphertext));
   }
 
-  async decryptBuffer(packed: string) {
+  public async decryptBuffer(packed: string) {
     const key = this._requireKey();
     const [iv, data] = this._unpack(packed);
     return crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);

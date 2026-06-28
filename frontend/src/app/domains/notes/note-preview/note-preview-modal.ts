@@ -16,40 +16,15 @@ import { FilesService } from '../../../core/services/files.service';
 })
 export class NotePreviewModal {
   private readonly _attachmentService = inject(AttachmentService);
-  private readonly _filesService = inject(FilesService);
+  protected readonly filesService = inject(FilesService);
 
-  private readonly _dialogRef = inject(MatDialogRef<NotePreviewModal>);
+  protected readonly dialogRef = inject(MatDialogRef<NotePreviewModal>);
   private readonly _destroyRef = inject(DestroyRef);
 
-  readonly note = inject<Note>(MAT_DIALOG_DATA);
+  public readonly note = inject<Note>(MAT_DIALOG_DATA);
 
   protected readonly imageUrls = signal<{ url: string; attachment: Attachment }[]>([]);
   protected readonly attachments = signal<Attachment[]>([]);
-
-  constructor() {
-    this._destroyRef.onDestroy(() => {
-      this.imageUrls().forEach((img) => this._filesService.revokeObjectURL(img.url));
-    });
-    void this._loadImages();
-  }
-
-  protected edit() {
-    this._dialogRef.close('edit');
-  }
-
-  protected formatSize(bytes: number) {
-    return this._filesService.formatBytes(bytes);
-  }
-
-  protected async downloadAttachment(attachment: Attachment) {
-    const buffer = await this._attachmentService.decryptAttachment(attachment);
-    const url = this._filesService.bufferToObjectURL(buffer, attachment.mimeType);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = attachment.name;
-    a.click();
-    this._filesService.revokeObjectURL(url);
-  }
 
   protected readonly contentHtml = computed(() => {
     const escaped = this.note.content
@@ -63,6 +38,23 @@ export class NotePreviewModal {
     );
   });
 
+  constructor() {
+    this._destroyRef.onDestroy(() => {
+      this.imageUrls().forEach((img) => this.filesService.revokeObjectURL(img.url));
+    });
+    this._loadImages();
+  }
+
+  protected async downloadAttachment(attachment: Attachment) {
+    const buffer = await this._attachmentService.decryptAttachment(attachment);
+    const url = this.filesService.bufferToObjectURL(buffer, attachment.mimeType);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = attachment.name;
+    a.click();
+    this.filesService.revokeObjectURL(url);
+  }
+
   private async _loadImages() {
     if (!this.note.id) return;
     const attachments: Attachment[] = await this._attachmentService.getAttachments(this.note.id);
@@ -71,7 +63,7 @@ export class NotePreviewModal {
     const loaded = await Promise.all(
       images.map(async (a) => {
         const buffer = await this._attachmentService.decryptAttachment(a);
-        return { url: this._filesService.bufferToObjectURL(buffer, a.mimeType), attachment: a };
+        return { url: this.filesService.bufferToObjectURL(buffer, a.mimeType), attachment: a };
       }),
     );
     this.imageUrls.set(loaded);

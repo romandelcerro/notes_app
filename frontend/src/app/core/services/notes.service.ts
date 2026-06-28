@@ -25,11 +25,11 @@ export class NotesService {
   private readonly _http = inject(HttpClient);
   private readonly _cryptoService = inject(CryptoService);
 
-  readonly notes = signal<Note[]>([]);
-  readonly filter = signal<NoteFilter>({ query: '' });
+  public readonly notes = signal<Note[]>([]);
+  public readonly filter = signal<NoteFilter>({ query: '' });
   private readonly _orderMap = signal<Record<string, number[]>>({});
 
-  async loadNotes() {
+  public async loadNotes() {
     const raw = await firstValueFrom(this._http.get<NoteResponse[]>(`${environment.apiUrl}/notes`));
     const parsed = raw.map((r) => ({
       id: r.id,
@@ -50,7 +50,7 @@ export class NotesService {
     this.notes.set(decryptedNotes);
   }
 
-  async createNote(note: Note) {
+  public async createNote(note: Note) {
     const encrypted = await encryptNote(note, this._cryptoService);
     const created = await firstValueFrom(
       this._http.post<NoteResponse>(`${environment.apiUrl}/notes`, {
@@ -72,7 +72,7 @@ export class NotesService {
     return newNote;
   }
 
-  async updateNote(id: number, note: Note) {
+  public async updateNote(id: number, note: Note) {
     const encrypted = await encryptNote(note, this._cryptoService);
     const updated = await firstValueFrom(
       this._http.patch<NoteResponse>(`${environment.apiUrl}/notes/${id}`, {
@@ -90,17 +90,17 @@ export class NotesService {
     );
   }
 
-  async deleteNote(id: number) {
+  public async deleteNote(id: number) {
     await firstValueFrom(this._http.delete(`${environment.apiUrl}/notes/${id}`));
     this.notes.update((current) => current.filter((n) => n.id !== id));
   }
 
-  clearNotes() {
+  public clearNotes() {
     this.notes.set([]);
     this._orderMap.set({});
   }
 
-  async clearAllData() {
+  public async clearAllData() {
     const notes = this.notes();
     const results = await Promise.allSettled(
       notes
@@ -113,7 +113,7 @@ export class NotesService {
     this._orderMap.set({});
   }
 
-  ordered(notes: Note[], key: string) {
+  public ordered(notes: Note[], key: string) {
     const order = this._orderMap()[key];
     if (!order) return notes;
     const byId = new Map(notes.map((n) => [n.id!, n]));
@@ -123,7 +123,7 @@ export class NotesService {
     ];
   }
 
-  notesForSection(sectionId: number) {
+  public notesForSection(sectionId: number) {
     if (!sectionId) return [];
     const { query } = this.filter();
     const notes = this.notes();
@@ -137,7 +137,7 @@ export class NotesService {
     return filtered.filter((n) => n.sectionId === sectionId);
   }
 
-  saveOrder(groupKey: string, ids: number[]) {
+  public saveOrder(groupKey: string, ids: number[]) {
     this._orderMap.update((m) => {
       const updated = { ...m, [groupKey]: ids };
       return updated;

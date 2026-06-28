@@ -11,5 +11,5 @@ import { MatListModule } from '@angular/material/list';
   styleUrl: './shell.scss',
 })
 export class Shell {
-  @ViewChild(MatSidenav) sidenav!: MatSidenav;
+  @ViewChild(MatSidenav) public sidenav!: MatSidenav;
 }

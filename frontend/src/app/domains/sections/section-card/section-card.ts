@@ -14,13 +14,13 @@ import type { Section } from '../../../core/models/section.model';
   host: { '[class.has-menu]': 'section() !== null' },
 })
 export class SectionCard {
-  readonly icon = input.required<string>();
-  readonly label = input.required<string>();
-  readonly section = input<Section | null>(null);
-  readonly active = input(false);
-  readonly primary = input(false);
+  public readonly icon = input.required<string>();
+  public readonly label = input.required<string>();
+  public readonly section = input<Section | null>(null);
+  public readonly active = input(false);
+  public readonly primary = input(false);
 
-  readonly selectClick = output();
-  readonly editClick = output<Section>();
-  readonly deleteClick = output<Section>();
+  public readonly selectClick = output();
+  public readonly editClick = output<Section>();
+  public readonly deleteClick = output<Section>();
 }
