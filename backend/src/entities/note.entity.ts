@@ -6,10 +6,15 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { UserEntity } from './user.entity.js';
 import { SectionEntity } from './section.entity.js';
 
+@Index(['userId', 'sectionId'])
+@Index(['userId', 'pinned'])
+@Index(['userId', 'createdAt'])
+@Index(['userId', 'updatedAt'])
 @Entity('notes')
 export class NoteEntity {
   @PrimaryGeneratedColumn()

@@ -1,8 +1,7 @@
 export interface SignUpRequest {
   email: string;
   password: string;
-  displayName: string;
-  username?: string;
+  username: string;
 }
 
 export interface SignInRequest {
@@ -11,7 +10,7 @@ export interface SignInRequest {
 }
 
 export interface GuestRequest {
-  displayName: string;
+  username: string;
   email?: string;
 }
 
@@ -38,9 +37,8 @@ export interface AuthResponse {
 export interface UserResponse {
   uid: string;
   email: string;
-  displayName: string | null;
   photoURL: string | null;
-  username: string | null;
+  username: string;
   isGuest: boolean;
   isVerified: boolean;
   plan: 'basic' | 'pro';

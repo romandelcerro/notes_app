@@ -25,9 +25,8 @@ export class UsersService {
     return user;
   }
 
-  async update(uid: string, data: { displayName?: string; photoURL?: string; username?: string }) {
+  async update(uid: string, data: { photoURL?: string; username?: string }) {
     const user = await this.findOne(uid);
-    if (data.displayName !== undefined) user.displayName = data.displayName;
     if (data.photoURL !== undefined) user.photoURL = data.photoURL;
     if (data.username !== undefined) user.username = data.username;
     const saved = await this.userRepo.save(user);

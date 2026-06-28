@@ -10,5 +10,5 @@ export class SignUpDto {
   password: string;
 
   @IsString()
-  displayName: string;
+  username: string;
 }

@@ -4,17 +4,8 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { mapFileToAttachment } from '../mappers/attachment.mapper';
 import type { Attachment } from '../models/attachment.model';
+import type { AttachmentResponse } from '@notes-app/shared';
 import { CryptoService } from './crypto.service';
-
-interface AttachmentResponse {
-  id: number;
-  noteId: number;
-  name: string;
-  mimeType: string;
-  encryptedData: string;
-  size: number;
-  createdAt: string;
-}
 
 @Service()
 export class AttachmentService {

@@ -4,6 +4,7 @@ import { Repository, LessThan, MoreThan, IsNull } from 'typeorm';
 import { createHash, randomUUID } from 'node:crypto';
 import { SessionEntity } from '../entities/session.entity.js';
 import { CacheService } from '../common/cache.service.js';
+import type { SessionResponse } from '@notes-app/shared';
 
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -70,11 +71,23 @@ export class SessionsService {
     this._logger.log(`All sessions revoked for user ${userId}`);
   }
 
-  async findActiveByUser(userId: string) {
-    return this.sessionRepo.find({
+  async findActiveByUser(userId: string): Promise<SessionResponse[]> {
+    const sessions = await this.sessionRepo.find({
       where: { userId, revokedAt: IsNull(), expiresAt: MoreThan(new Date()) },
       order: { createdAt: 'DESC' },
     });
+    return sessions.map((s) => this._toSessionResponse(s));
+  }
+
+  private _toSessionResponse(s: SessionEntity): SessionResponse {
+    return {
+      id: s.id,
+      deviceInfo: s.deviceInfo,
+      ipAddress: s.ipAddress,
+      expiresAt: s.expiresAt.toISOString(),
+      lastUsedAt: s.lastUsedAt?.toISOString() ?? null,
+      createdAt: s.createdAt.toISOString(),
+    };
   }
 
   async cleanupExpired() {

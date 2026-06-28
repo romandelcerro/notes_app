@@ -4,21 +4,8 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { decryptNote, encryptNote } from '../mappers/note.mapper';
 import type { Note, NoteFilter } from '../models/note.model';
+import type { NoteResponse } from '@notes-app/shared';
 import { CryptoService } from './crypto.service';
-
-interface NoteResponse {
-  id: number;
-  title: string;
-  content: string;
-  type: string;
-  color: string;
-  pinned: boolean;
-  hasAttachments: boolean;
-  userId: string;
-  sectionId: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
 
 @Service()
 export class NotesService {
@@ -30,7 +17,14 @@ export class NotesService {
   private readonly _orderMap = signal<Record<string, number[]>>({});
 
   public async loadNotes() {
-    const raw = await firstValueFrom(this._http.get<NoteResponse[]>(`${environment.apiUrl}/notes`));
+    const f = this.filter();
+    const params: Record<string, string | number | boolean> = {};
+    for (const [k, v] of Object.entries(f)) {
+      if (v !== undefined && v !== '' && v !== null) params[k] = v;
+    }
+    const raw = await firstValueFrom(
+      this._http.get<NoteResponse[]>(`${environment.apiUrl}/notes`, { params }),
+    );
     const parsed = raw.map((r) => ({
       id: r.id,
       title: r.title,
@@ -137,10 +131,13 @@ export class NotesService {
     return filtered.filter((n) => n.sectionId === sectionId);
   }
 
-  public saveOrder(groupKey: string, ids: number[]) {
+  public async saveOrder(groupKey: string, ids: number[]) {
     this._orderMap.update((m) => {
       const updated = { ...m, [groupKey]: ids };
       return updated;
     });
+    await firstValueFrom(
+      this._http.post(`${environment.apiUrl}/notes/reorder`, { groupKey, noteIds: ids }),
+    ).catch(() => {});
   }
 }

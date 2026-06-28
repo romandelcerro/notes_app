@@ -39,8 +39,8 @@ export class AttachmentsController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.attachmentsService.findOne(id);
+  findOne(@CurrentUser() user: { uid: string }, @Param('id', ParseIntPipe) id: number) {
+    return this.attachmentsService.findOne(id, user.uid);
   }
 
   @Delete(':id')

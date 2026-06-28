@@ -9,7 +9,7 @@
       <img
         class="avatar-large"
         [src]="userService.user()!.photoURL!"
-        [alt]="userService.user()!.displayName ?? 'Avatar'"
+        [alt]="userService.user()!.username ?? 'Avatar'"
       />
     } @else {
       <div class="avatar-initial">{{ defaultUserIcon() }}</div>
@@ -84,14 +84,14 @@
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>{{ 'profile.nameLabel' | translate }}</mat-label>
-    <input matInput [formField]="profileForm.displayName" />
+    <input matInput [formField]="profileForm.username" />
   </mat-form-field>
 
   <button
     mat-flat-button
     class="save-name-btn"
     (click)="saveName()"
-    [disabled]="saving() || !profileFormData().displayName.trim()"
+    [disabled]="saving() || !profileFormData().username.trim()"
   >
     {{ saving() ? ('profile.savingName' | translate) : ('profile.saveName' | translate) }}
   </button>

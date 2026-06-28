@@ -4,15 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import type { Section } from '../models/section.model';
-
-interface SectionResponse {
-  id: number;
-  name: string;
-  userId: string;
-  order: number;
-  isDefault: boolean;
-  createdAt: string;
-}
+import type { SectionResponse } from '@notes-app/shared';
 
 @Service()
 export class SectionsService {

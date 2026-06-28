@@ -1,8 +1,11 @@
 export interface User {
   uid: string;
-  displayName: string | null;
   email: string | null;
   photoURL: string | null;
+  username: string;
+  isVerified: boolean;
+  plan: 'basic' | 'pro';
+  storageUsedBytes: number;
   isGuest?: boolean;
   guestExpiresAt?: string | null;
 }

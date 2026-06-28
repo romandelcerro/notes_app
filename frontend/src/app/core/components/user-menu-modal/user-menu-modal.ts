@@ -47,9 +47,7 @@ export class UserMenuModal {
   protected readonly userService = inject(UserService);
 
   protected readonly defaultUserIcon = computed(() => {
-    const displayText =
-      this.userService.user()?.displayName ?? this.userService.user()?.email ?? '?';
-
+    const displayText = this.userService.user()?.username ?? this.userService.user()?.email ?? '?';
     return displayText.charAt(0).toUpperCase();
   });
 
@@ -59,7 +57,7 @@ export class UserMenuModal {
 
   protected readonly profileFormData = signal({
     displayEmail: this.userService.user()?.email ?? '',
-    displayName: this.userService.user()?.displayName ?? '',
+    username: this.userService.user()?.username ?? '',
     convertEmail: '',
     convertPassword: '',
   });
@@ -68,11 +66,11 @@ export class UserMenuModal {
   });
 
   protected async saveName() {
-    const name = this.profileFormData().displayName.trim();
+    const name = this.profileFormData().username.trim();
     if (!name) return;
     this.saving.set(true);
     try {
-      await this.userService.updateDisplayName(name);
+      await this.userService.updateUsername(name);
     } finally {
       this.saving.set(false);
     }

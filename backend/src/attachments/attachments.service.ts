@@ -72,19 +72,21 @@ export class AttachmentsService {
     return saved;
   }
 
-  async findOne(id: number) {
-    const cacheKey = `attachments:findOne:${id}`;
+  async findOne(id: number, userId: string) {
+    const cacheKey = `attachments:findOne:${id}:${userId}`;
     const cached = await this.cache.get<AttachmentEntity>(cacheKey);
     if (cached) return cached;
 
     const attachment = await this.attachmentRepo.findOne({ where: { id } });
     if (!attachment) throw new NotFoundException('exception.attachment.notFound');
+    const note = await this.noteRepo.findOne({ where: { id: attachment.noteId, userId } });
+    if (!note) throw new NotFoundException('exception.attachment.notFound');
     await this.cache.set(cacheKey, attachment);
     return attachment;
   }
 
   async remove(id: number, userId: string) {
-    const attachment = await this.findOne(id);
+    const attachment = await this.findOne(id, userId);
     const note = await this.noteRepo.findOne({
       where: { id: attachment.noteId, userId },
     });

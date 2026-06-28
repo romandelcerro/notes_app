@@ -22,7 +22,7 @@
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'login.passwordLabel' | translate }}</mat-label>
-              <input matInput type="password" [(ngModel)]="signInPassword" [disabled]="loading()" />
+              <input matInput type="password" required [(ngModel)]="signInPassword" [disabled]="loading()" />
             </mat-form-field>
 
             @if (errorText()) {
@@ -52,7 +52,7 @@
           <div class="tab-content">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'login.nameLabel' | translate }}</mat-label>
-              <input matInput [(ngModel)]="signUpName" [disabled]="loading()" />
+              <input matInput required [(ngModel)]="signUpName" [disabled]="loading()" />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
@@ -68,7 +68,7 @@
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'login.passwordLabel' | translate }}</mat-label>
-              <input matInput type="password" [(ngModel)]="signUpPassword" [disabled]="loading()" />
+              <input matInput type="password" required [(ngModel)]="signUpPassword" [disabled]="loading()" />
             </mat-form-field>
 
             @if (errorText()) {
@@ -98,11 +98,9 @@
 
         <mat-tab [label]="'login.tabGuest' | translate">
           <div class="tab-content">
-            <p class="login-description">{{ 'login.description' | translate }}</p>
-
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'login.nameLabel' | translate }}</mat-label>
-              <input matInput [(ngModel)]="guestName" [disabled]="loading()" />
+              <input matInput required [(ngModel)]="guestName" [disabled]="loading()" />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">

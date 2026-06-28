@@ -2,14 +2,14 @@
   <button
     class="user-icon-btn"
     (click)="userIconClick.emit()"
-    [attr.aria-label]="userService.user()?.displayName ?? ('toolbar.profileAriaLabel' | translate)"
+    [attr.aria-label]="userService.user()?.username ?? ('toolbar.profileAriaLabel' | translate)"
     [matTooltip]="'toolbar.profileAriaLabel' | translate"
   >
     @if (userService.user()?.photoURL) {
       <img
         class="user-icon"
         [src]="userService.user()!.photoURL!"
-        [alt]="userService.user()!.displayName"
+        [alt]="userService.user()!.username"
       />
     } @else {
       <span class="default-user-icon">{{ defaultUserIcon() }}</span>

@@ -16,4 +16,8 @@ export interface Note {
 
 export interface NoteFilter {
   query: string;
+  dateFrom?: string;
+  dateTo?: string;
+  sectionId?: number;
+  pinned?: boolean;
 }

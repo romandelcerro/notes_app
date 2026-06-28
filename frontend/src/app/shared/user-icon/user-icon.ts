@@ -17,8 +17,7 @@ export class UserIcon {
   public readonly userIconClick = output();
 
   protected readonly defaultUserIcon = computed(() => {
-    const displayText =
-      this.userService.user()?.displayName ?? this.userService.user()?.email ?? '?';
+    const displayText = this.userService.user()?.username ?? this.userService.user()?.email ?? '?';
 
     return displayText.charAt(0).toUpperCase();
   });

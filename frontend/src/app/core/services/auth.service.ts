@@ -4,7 +4,13 @@ import { Router } from '@angular/router';
 import type { AuthResponse, UserResponse } from '@notes-app/shared';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { clearToken, getToken, setToken } from '../interceptors/auth.interceptor';
+import {
+  clearAllTokens,
+  getRefreshToken,
+  getToken,
+  setRefreshToken,
+  setToken,
+} from '../interceptors/auth.interceptor';
 import type { User } from '../models/user.model';
 import { CryptoService } from './crypto.service';
 import { NotesService } from './notes.service';
@@ -32,30 +38,33 @@ export class AuthService {
       this._http.post<AuthResponse>(`${environment.apiUrl}/auth/signin`, { email, password }),
     );
     setToken(res.accessToken);
+    setRefreshToken(res.refreshToken);
     await this._initUserSession(res.user);
     this.loading.set(false);
     this._router.navigate(['/']);
   }
 
-  public async signUp(email: string, password: string, displayName: string) {
+  public async signUp(email: string, password: string, username: string) {
     const res = await firstValueFrom(
       this._http.post<AuthResponse>(`${environment.apiUrl}/auth/signup`, {
         email,
         password,
-        displayName,
+        username,
       }),
     );
     setToken(res.accessToken);
+    setRefreshToken(res.refreshToken);
     await this._initUserSession(res.user);
     this.loading.set(false);
     this._router.navigate(['/']);
   }
 
-  public async signInGuest(displayName: string, email?: string) {
+  public async signInGuest(username: string, email?: string) {
     const res = await firstValueFrom(
-      this._http.post<AuthResponse>(`${environment.apiUrl}/auth/guest`, { displayName, email }),
+      this._http.post<AuthResponse>(`${environment.apiUrl}/auth/guest`, { username, email }),
     );
     setToken(res.accessToken);
+    setRefreshToken(res.refreshToken);
     await this._initUserSession(res.user);
     this.loading.set(false);
     this._router.navigate(['/']);
@@ -69,20 +78,36 @@ export class AuthService {
       }),
     );
     setToken(res.accessToken);
-    const user = this._userService.user();
-    this._userService.user.set({
-      uid: res.user.uid,
-      displayName: res.user.displayName,
-      email: res.user.email,
-      photoURL: res.user.photoURL ?? user?.photoURL ?? null,
-      isGuest: res.user.isGuest,
-      guestExpiresAt: res.user.guestExpiresAt,
-    });
+    setRefreshToken(res.refreshToken);
+    this._userService.user.set(this._mapUser(res.user));
   }
 
   public async signOut() {
+    const refreshToken = getRefreshToken();
+    try {
+      if (refreshToken) {
+        await firstValueFrom(
+          this._http.post(`${environment.apiUrl}/auth/logout`, { refreshToken }),
+        );
+      }
+    } catch {
+      // ignore logout errors
+    }
     this._clearAppData();
-    clearToken();
+    clearAllTokens();
+    this._userService.user.set(null);
+    this.loading.set(false);
+    this._router.navigate(['/login']);
+  }
+
+  public async signOutAll() {
+    try {
+      await firstValueFrom(this._http.post(`${environment.apiUrl}/auth/logout-all`, {}));
+    } catch {
+      // ignore
+    }
+    this._clearAppData();
+    clearAllTokens();
     this._userService.user.set(null);
     this.loading.set(false);
     this._router.navigate(['/login']);
@@ -98,21 +123,28 @@ export class AuthService {
         await this._initUserSession(user);
         this._router.navigate(['/']);
       } catch {
-        clearToken();
+        clearAllTokens();
       }
     }
     this.loading.set(false);
   }
 
-  private async _initUserSession(user: UserResponse) {
-    const mapped: User = {
+  private _mapUser(user: UserResponse): User {
+    return {
       uid: user.uid,
-      displayName: user.displayName,
       email: user.email,
       photoURL: user.photoURL,
+      username: user.username,
+      isVerified: user.isVerified,
+      plan: user.plan,
+      storageUsedBytes: user.storageUsedBytes,
       isGuest: user.isGuest,
       guestExpiresAt: user.guestExpiresAt,
     };
+  }
+
+  private async _initUserSession(user: UserResponse) {
+    const mapped = this._mapUser(user);
     await this._cryptoService.initKey(user.uid);
     await Promise.all([this._notesService.loadNotes(), this._sectionsService.loadSections()]);
     this._userService.user.set(mapped);

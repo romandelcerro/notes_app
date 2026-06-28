@@ -43,7 +43,7 @@ export class AuthService {
     const user = this.userRepo.create({
       email: dto.email,
       passwordHash,
-      displayName: dto.displayName,
+      username: dto.username,
     });
     await this.userRepo.save(user);
 
@@ -66,7 +66,7 @@ export class AuthService {
     await this._cleanupExpiredGuests();
 
     let user = await this.userRepo.findOne({
-      where: { displayName: dto.displayName, isGuest: true },
+      where: { username: dto.username, isGuest: true },
     });
     const now = new Date();
     if (user && user.guestExpiresAt && user.guestExpiresAt < now) {
@@ -76,18 +76,18 @@ export class AuthService {
     if (!user) {
       const email =
         dto.email ??
-        `${dto.displayName.replace(/\s+/g, '.').toLowerCase()}.${crypto.randomUUID().slice(0, 8)}@guest.local`;
+        `${dto.username.replace(/\s+/g, '.').toLowerCase()}.${crypto.randomUUID().slice(0, 8)}@guest.local`;
       user = this.userRepo.create({
         email,
         passwordHash: '',
-        displayName: dto.displayName,
+        username: dto.username,
         isGuest: true,
         guestExpiresAt: new Date(Date.now() + GUEST_TTL_MS),
       });
       await this.userRepo.save(user);
     }
 
-    this._logger.log(`Guest session created: ${user.displayName} (${user.uid})`);
+    this._logger.log(`Guest session created: ${user.username} (${user.uid})`);
     return this._buildResponse(user, true);
   }
 
@@ -183,7 +183,6 @@ export class AuthService {
     return {
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName,
       photoURL: user.photoURL,
       username: user.username,
       isGuest: user.isGuest,

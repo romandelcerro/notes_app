@@ -1,3 +1,5 @@
+export type AttachmentStatus = 'pending' | 'active';
+
 export interface Attachment {
   id?: number;
   noteId: number;
@@ -5,5 +7,7 @@ export interface Attachment {
   mimeType: string;
   encryptedData: string;
   size: number;
+  status: AttachmentStatus;
+  uploadedAt: string | null;
   createdAt: Date;
 }

@@ -1,4 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+import { NoteEntity } from './note.entity.js';
+import { SectionEntity } from './section.entity.js';
+import { SessionEntity } from './session.entity.js';
 
 @Entity('users')
 export class UserEntity {
@@ -11,14 +14,11 @@ export class UserEntity {
   @Column()
   passwordHash: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  displayName: string | null;
-
   @Column({ type: 'text', nullable: true })
   photoURL: string | null;
 
-  @Column({ type: 'varchar', nullable: true })
-  username: string | null;
+  @Column({ type: 'varchar' })
+  username: string;
 
   @Column({ default: false })
   isGuest: boolean;
@@ -40,4 +40,13 @@ export class UserEntity {
 
   @Column({ type: 'datetime', nullable: true })
   deletedAt: Date | null;
+
+  @OneToMany(() => NoteEntity, (n) => n.user)
+  notes: NoteEntity[];
+
+  @OneToMany(() => SectionEntity, (s) => s.user)
+  sections: SectionEntity[];
+
+  @OneToMany(() => SessionEntity, (s) => s.user)
+  sessions: SessionEntity[];
 }
