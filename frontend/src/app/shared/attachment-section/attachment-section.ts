@@ -62,8 +62,21 @@ export class AttachmentSection {
         continue;
       }
       if (noteId) {
-        const created = await this._attachmentService.addAttachment(noteId, file);
-        this.attachments.update((list) => [...list, created]);
+        try {
+          const created = await this._attachmentService.addAttachment(noteId, file);
+          this.attachments.update((list) => [...list, created]);
+          this._snackBar.open(
+            this._translateService.instant('attachment.added'),
+            this._translateService.instant('common.close'),
+            { duration: 3000 },
+          );
+        } catch {
+          this._snackBar.open(
+            this._translateService.instant('attachment.addError'),
+            this._translateService.instant('common.close'),
+            { duration: 5000 },
+          );
+        }
       } else {
         this.pendingFiles.update((pending) => [...pending, file]);
       }
@@ -73,8 +86,21 @@ export class AttachmentSection {
   public async addImageFile(file: File) {
     const noteId = this.noteId();
     if (noteId) {
-      const created = await this._attachmentService.addAttachment(noteId, file);
-      this.attachments.update((list) => [...list, created]);
+      try {
+        const created = await this._attachmentService.addAttachment(noteId, file);
+        this.attachments.update((list) => [...list, created]);
+        this._snackBar.open(
+          this._translateService.instant('attachment.added'),
+          this._translateService.instant('common.close'),
+          { duration: 3000 },
+        );
+      } catch {
+        this._snackBar.open(
+          this._translateService.instant('attachment.addError'),
+          this._translateService.instant('common.close'),
+          { duration: 5000 },
+        );
+      }
     } else {
       this.pendingFiles.update((files) => [...files, file]);
     }
@@ -93,8 +119,21 @@ export class AttachmentSection {
 
   protected async deleteAttachment(attachment: Attachment) {
     if (!attachment.id) return;
-    await this._attachmentService.deleteAttachment(attachment.id);
-    this.attachments.update((list) => list.filter((a) => a.id !== attachment.id));
+    try {
+      await this._attachmentService.deleteAttachment(attachment.id);
+      this.attachments.update((list) => list.filter((a) => a.id !== attachment.id));
+      this._snackBar.open(
+        this._translateService.instant('attachment.deleted'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
+    } catch {
+      this._snackBar.open(
+        this._translateService.instant('attachment.deleteError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
+    }
   }
 
   protected async downloadAttachment(attachment: Attachment) {

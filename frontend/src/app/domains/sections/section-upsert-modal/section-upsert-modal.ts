@@ -3,7 +3,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { TranslatePipe } from '@ngx-translate/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import type { Section } from '../../../core/models/section.model';
 import { SectionsService } from '../../../core/services/sections.service';
 
@@ -15,6 +16,8 @@ import { SectionsService } from '../../../core/services/sections.service';
 })
 export class SectionUpsertModal {
   private readonly _sectionsService = inject(SectionsService);
+  private readonly _translateService = inject(TranslateService);
+  private readonly _snackBar = inject(MatSnackBar);
 
   private readonly _dialogRef = inject(MatDialogRef<SectionUpsertModal>);
   private readonly _data = inject<{ section?: Section } | null>(MAT_DIALOG_DATA, {
@@ -32,14 +35,32 @@ export class SectionUpsertModal {
     try {
       if (this.editMode && this._data?.section?.id) {
         await this._sectionsService.renameSection(this._data.section.id, name);
+        this._snackBar.open(
+          this._translateService.instant('section.renamed'),
+          this._translateService.instant('common.close'),
+          { duration: 3000 },
+        );
         const updatedSection = this._sectionsService
           .sections()
           .find((s) => s.id === this._data?.section?.id);
         this._dialogRef.close(updatedSection ?? null);
       } else {
         const sectionCreated = await this._sectionsService.createSection(name);
+        this._snackBar.open(
+          this._translateService.instant('section.created'),
+          this._translateService.instant('common.close'),
+          { duration: 3000 },
+        );
         this._dialogRef.close(sectionCreated);
       }
+    } catch {
+      this._snackBar.open(
+        this._translateService.instant(
+          this.editMode ? 'section.renameError' : 'section.createError',
+        ),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
     } finally {
       this.isSaving.set(false);
     }

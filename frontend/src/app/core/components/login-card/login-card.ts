@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -29,6 +30,7 @@ import { AuthService } from '../../services/auth.service';
 export class LoginCard {
   private readonly _authService = inject(AuthService);
   private readonly _translateService = inject(TranslateService);
+  private readonly _snackBar = inject(MatSnackBar);
 
   protected readonly loading = signal(false);
   protected readonly errorText = signal('');
@@ -49,6 +51,11 @@ export class LoginCard {
     this.errorText.set('');
     try {
       await this._authService.signIn(this.signInEmail.trim(), this.signInPassword);
+      this._snackBar.open(
+        this._translateService.instant('login.signInSuccess'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
     } catch (err: unknown) {
       const body =
         err && typeof err === 'object' && 'error' in err
@@ -72,6 +79,11 @@ export class LoginCard {
         this.signUpPassword,
         this.signUpName.trim(),
       );
+      this._snackBar.open(
+        this._translateService.instant('login.signUpSuccess'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
     } catch (err: unknown) {
       const body =
         err && typeof err === 'object' && 'error' in err
@@ -92,6 +104,11 @@ export class LoginCard {
     this.errorText.set('');
     try {
       await this._authService.signInGuest(name, this.guestEmail.trim() || undefined);
+      this._snackBar.open(
+        this._translateService.instant('login.guestSuccess'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
     } catch (err: unknown) {
       const body =
         err && typeof err === 'object' && 'error' in err

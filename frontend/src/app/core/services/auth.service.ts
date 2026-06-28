@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Service, computed, inject, signal } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import type { AuthResponse, UserResponse } from '@notes-app/shared';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -25,6 +27,8 @@ export class AuthService {
   private readonly _notesService = inject(NotesService);
   private readonly _sectionsService = inject(SectionsService);
   private readonly _userService = inject(UserService);
+  private readonly _snackBar = inject(MatSnackBar);
+  private readonly _translateService = inject(TranslateService);
 
   public readonly loading = signal(true);
   public readonly isAuthenticated = computed(() => !!this._userService.user());
@@ -91,7 +95,11 @@ export class AuthService {
         );
       }
     } catch {
-      // ignore logout errors
+      this._snackBar.open(
+        this._translateService.instant('profile.signOutError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
     }
     this._clearAppData();
     clearAllTokens();
@@ -104,7 +112,11 @@ export class AuthService {
     try {
       await firstValueFrom(this._http.post(`${environment.apiUrl}/auth/logout-all`, {}));
     } catch {
-      // ignore
+      this._snackBar.open(
+        this._translateService.instant('profile.signOutError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
     }
     this._clearAppData();
     clearAllTokens();

@@ -4,7 +4,8 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { TranslatePipe } from '@ngx-translate/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { buildNewNote, buildUpdatedNote } from '../../../core/mappers/note.mapper';
 import type { Note, NoteType } from '../../../core/models/note.model';
 import { FilesService } from '../../../core/services/files.service';
@@ -41,6 +42,8 @@ export class NoteUpsertModal {
   private readonly _notesService = inject(NotesService);
   private readonly _userService = inject(UserService);
   private readonly _filesService = inject(FilesService);
+  private readonly _translateService = inject(TranslateService);
+  private readonly _snackBar = inject(MatSnackBar);
   private readonly _dialogRef = inject(MatDialogRef<NoteUpsertModal, NoteCreateEditResult>);
   private readonly _attachmentSection = viewChild.required(AttachmentSection);
 
@@ -70,6 +73,11 @@ export class NoteUpsertModal {
           color: this.selectedColor(),
         });
         await this._notesService.updateNote(this.data.note.id, updatedNote);
+        this._snackBar.open(
+          this._translateService.instant('note.updated'),
+          this._translateService.instant('common.close'),
+          { duration: 3000 },
+        );
         this._dialogRef.close({ noteId: this.data.note.id });
       } else {
         const userId = this._userService.user()?.uid ?? '';
@@ -88,8 +96,19 @@ export class NoteUpsertModal {
         if (pending.length) {
           await this._attachmentSection().uploadPendingTo(newNote.id!);
         }
+        this._snackBar.open(
+          this._translateService.instant('note.created'),
+          this._translateService.instant('common.close'),
+          { duration: 3000 },
+        );
         this._dialogRef.close({ noteId: newNote.id! });
       }
+    } catch {
+      this._snackBar.open(
+        this._translateService.instant(this.isEditing ? 'note.updateError' : 'note.createError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
     } finally {
       this.saving.set(false);
     }

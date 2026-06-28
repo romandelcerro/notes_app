@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Service, inject, signal } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { decryptNote, encryptNote } from '../mappers/note.mapper';
@@ -11,6 +13,8 @@ import { CryptoService } from './crypto.service';
 export class NotesService {
   private readonly _http = inject(HttpClient);
   private readonly _cryptoService = inject(CryptoService);
+  private readonly _snackBar = inject(MatSnackBar);
+  private readonly _translateService = inject(TranslateService);
 
   public readonly notes = signal<Note[]>([]);
   public readonly filter = signal<NoteFilter>({ query: '' });
@@ -85,8 +89,21 @@ export class NotesService {
   }
 
   public async deleteNote(id: number) {
-    await firstValueFrom(this._http.delete(`${environment.apiUrl}/notes/${id}`));
-    this.notes.update((current) => current.filter((n) => n.id !== id));
+    try {
+      await firstValueFrom(this._http.delete(`${environment.apiUrl}/notes/${id}`));
+      this.notes.update((current) => current.filter((n) => n.id !== id));
+      this._snackBar.open(
+        this._translateService.instant('note.deleted'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
+    } catch {
+      this._snackBar.open(
+        this._translateService.instant('note.deleteError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
+    }
   }
 
   public clearNotes() {
@@ -136,8 +153,16 @@ export class NotesService {
       const updated = { ...m, [groupKey]: ids };
       return updated;
     });
-    await firstValueFrom(
-      this._http.post(`${environment.apiUrl}/notes/reorder`, { groupKey, noteIds: ids }),
-    ).catch(() => {});
+    try {
+      await firstValueFrom(
+        this._http.post(`${environment.apiUrl}/notes/reorder`, { groupKey, noteIds: ids }),
+      );
+    } catch {
+      this._snackBar.open(
+        this._translateService.instant('note.reorderError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
+    }
   }
 }

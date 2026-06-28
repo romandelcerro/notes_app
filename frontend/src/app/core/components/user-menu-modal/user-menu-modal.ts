@@ -71,6 +71,17 @@ export class UserMenuModal {
     this.saving.set(true);
     try {
       await this.userService.updateUsername(name);
+      this._snackBar.open(
+        this._translateService.instant('profile.saved'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
+    } catch {
+      this._snackBar.open(
+        this._translateService.instant('profile.saveError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
     } finally {
       this.saving.set(false);
     }
@@ -82,6 +93,18 @@ export class UserMenuModal {
     if (!file) return;
     const dataURL = await this._resizeImage(file, 256);
     await this.userService.updateLocalAvatar(dataURL);
+  }
+
+  protected async removeAvatar() {
+    try {
+      await this.userService.removeLocalAvatar();
+    } catch {
+      this._snackBar.open(
+        this._translateService.instant('profile.photoRemoveError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
+    }
   }
 
   protected async signOut() {
@@ -134,8 +157,17 @@ export class UserMenuModal {
     try {
       await this._notesService.clearAllData();
       await this._sectionsService.clearAllData();
-    } catch (err) {
-      console.error('clearAllData error', err);
+      this._snackBar.open(
+        this._translateService.instant('profile.dataCleared'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
+    } catch {
+      this._snackBar.open(
+        this._translateService.instant('profile.dataClearError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
     } finally {
       this.clearing.set(false);
       window.location.reload();

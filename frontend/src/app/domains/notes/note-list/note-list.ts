@@ -4,7 +4,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslatePipe } from '@ngx-translate/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import type { Attachment } from '../../../core/models/attachment.model';
 import type { Note } from '../../../core/models/note.model';
 import { AttachmentService } from '../../../core/services/attachment.service';
@@ -29,6 +30,8 @@ export class NoteListComponent {
   protected readonly notesService = inject(NotesService);
   protected readonly sectionsService = inject(SectionsService);
   private readonly _attachmentService = inject(AttachmentService);
+  private readonly _translateService = inject(TranslateService);
+  private readonly _snackBar = inject(MatSnackBar);
 
   private readonly _dialog = inject(MatDialog);
   private readonly _destroyRef = inject(DestroyRef);
@@ -84,10 +87,18 @@ export class NoteListComponent {
     return this.notesService.notesForSection(section.id);
   });
 
-  protected onNoteDrop(event: CdkDragDrop<Note[]>, key: string) {
+  protected async onNoteDrop(event: CdkDragDrop<Note[]>, key: string) {
     const ids = event.container.data.map((n) => n.id!);
     moveItemInArray(ids, event.previousIndex, event.currentIndex);
-    this.notesService.saveOrder(key, ids);
+    try {
+      await this.notesService.saveOrder(key, ids);
+    } catch {
+      this._snackBar.open(
+        this._translateService.instant('note.reorderError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
+    }
   }
 
   protected openUpsertNoteModal(data?: NoteEditModalData) {

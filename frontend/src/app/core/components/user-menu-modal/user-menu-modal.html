@@ -29,7 +29,7 @@
       @if (userService.user()?.photoURL) {
         <button
           mat-icon-button
-          (click)="userService.removeLocalAvatar()"
+          (click)="removeAvatar()"
           [matTooltip]="'profile.removePhotoTooltip' | translate"
           [attr.aria-label]="'profile.removePhotoAriaLabel' | translate"
         >

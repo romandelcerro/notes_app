@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -22,6 +23,7 @@ import { SectionUpsertModal } from '../section-upsert-modal/section-upsert-modal
 export class SectionList {
   private readonly _notesService = inject(NotesService);
   private readonly _translateService = inject(TranslateService);
+  private readonly _snackBar = inject(MatSnackBar);
   private readonly _router = inject(Router);
   private readonly _destroyRef = inject(DestroyRef);
   protected readonly dialog = inject(MatDialog);
@@ -58,7 +60,20 @@ export class SectionList {
     );
     if (!confirmDelete) return;
     this._notesService.notes.update((notes) => notes.filter((n) => n.sectionId !== section.id));
-    await this.sectionsService.deleteSection(section.id!);
+    try {
+      await this.sectionsService.deleteSection(section.id!);
+      this._snackBar.open(
+        this._translateService.instant('section.deleted'),
+        this._translateService.instant('common.close'),
+        { duration: 3000 },
+      );
+    } catch {
+      this._snackBar.open(
+        this._translateService.instant('section.deleteError'),
+        this._translateService.instant('common.close'),
+        { duration: 5000 },
+      );
+    }
     const hasData = this._notesService.notes().length || this.sectionsService.sections().length;
     this._router.navigate([hasData ? '/list' : '/']);
   }

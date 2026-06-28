@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
 import { NoteEntity } from '../entities/note.entity.js';
@@ -98,11 +98,15 @@ export class NotesService {
   }
 
   async reorder(userId: string, groupKey: string, noteIds: number[]) {
+    const sectionId = groupKey === '__default' ? null : Number(groupKey.replace(/^sec-/, ''));
+    if (groupKey !== '__default' && Number.isNaN(sectionId)) {
+      throw new BadRequestException(`Invalid groupKey: ${groupKey}`);
+    }
     const notes = await this.noteRepo.find({
       where:
-        groupKey === '__default'
+        sectionId === null
           ? { userId, sectionId: IsNull(), deletedAt: IsNull() }
-          : { userId, sectionId: Number(groupKey), deletedAt: IsNull() },
+          : { userId, sectionId, deletedAt: IsNull() },
     });
     const noteMap = new Map(notes.map((n) => [n.id, n]));
     const ordered = noteIds.filter((id) => noteMap.has(id));
