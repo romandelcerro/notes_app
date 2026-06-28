@@ -16,7 +16,7 @@ export class UsersController {
   @Patch('me')
   updateProfile(
     @CurrentUser() user: { uid: string },
-    @Body() body: { displayName?: string; photoURL?: string },
+    @Body() body: { displayName?: string; photoURL?: string; username?: string },
   ) {
     return this.usersService.update(user.uid, body);
   }

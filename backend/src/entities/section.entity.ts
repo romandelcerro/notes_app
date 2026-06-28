@@ -30,6 +30,9 @@ export class SectionEntity {
   @CreateDateColumn()
   createdAt: Date;
 
+  @Column({ type: 'datetime', nullable: true })
+  deletedAt: Date | null;
+
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: UserEntity;

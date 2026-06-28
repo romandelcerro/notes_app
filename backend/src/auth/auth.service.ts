@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UserEntity } from '../entities/user.entity.js';
 import { CacheService, CACHE_TTL } from '../common/cache.service.js';
+import { SessionsService } from '../sessions/sessions.service.js';
 import { SignUpDto } from './dto/sign-up.dto.js';
 import { SignInDto } from './dto/sign-in.dto.js';
 import { GuestDto } from './dto/guest.dto.js';
@@ -29,6 +30,7 @@ export class AuthService {
     private readonly userRepo: Repository<UserEntity>,
     private readonly jwtService: JwtService,
     private readonly cache: CacheService,
+    private readonly sessionsService: SessionsService,
   ) {}
 
   async signup(dto: SignUpDto) {
@@ -125,6 +127,37 @@ export class AuthService {
     return response;
   }
 
+  async refresh(refreshToken: string, _deviceInfo?: string, _ipAddress?: string) {
+    const session = await this.sessionsService.findByRefreshToken(refreshToken);
+    if (!session) throw new UnauthorizedException('exception.auth.invalidRefreshToken');
+
+    const user = await this.userRepo.findOne({ where: { uid: session.userId } });
+    if (!user) throw new UnauthorizedException('exception.auth.userNotFound');
+
+    const { rawToken: newRaw } = await this.sessionsService.rotate(session);
+
+    const payload = { sub: user.uid, email: user.email };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+
+    return {
+      accessToken,
+      refreshToken: newRaw,
+    };
+  }
+
+  async logout(uid: string, refreshToken: string) {
+    const ses = await this.sessionsService.findByRefreshToken(refreshToken);
+    if (ses) {
+      await this.sessionsService.revoke(ses.id);
+    }
+    await this.cache.delByPrefix(`auth:profile:${uid}`);
+  }
+
+  async logoutAll(uid: string) {
+    await this.sessionsService.revokeAllForUser(uid);
+    await this.cache.delByPrefix(`auth:profile:${uid}`);
+  }
+
   private async _cleanupExpiredGuests() {
     const result = await this.userRepo.delete({
       isGuest: true,
@@ -135,11 +168,13 @@ export class AuthService {
     }
   }
 
-  private _buildResponse(user: UserEntity, isGuest = false) {
+  private async _buildResponse(user: UserEntity, isGuest = false) {
+    const { rawToken } = await this.sessionsService.create(user.uid, 'Auth login');
     const expiresIn = isGuest ? '24h' : '7d';
     const payload = { sub: user.uid, email: user.email };
     return {
       accessToken: this.jwtService.sign(payload, { expiresIn }),
+      refreshToken: rawToken,
       user: this._toUserResponse(user),
     };
   }
@@ -150,7 +185,11 @@ export class AuthService {
       email: user.email,
       displayName: user.displayName,
       photoURL: user.photoURL,
+      username: user.username,
       isGuest: user.isGuest,
+      isVerified: user.isVerified,
+      plan: (user.plan as 'basic' | 'pro') ?? 'basic',
+      storageUsedBytes: Number(user.storageUsedBytes),
       guestExpiresAt: user.guestExpiresAt?.toISOString() ?? null,
       createdAt: user.createdAt.toISOString(),
     };

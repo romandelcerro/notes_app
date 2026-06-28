@@ -57,7 +57,11 @@ export class AttachmentsService {
       where: { id: dto.noteId, userId },
     });
     if (!note) throw new NotFoundException('exception.note.notFound');
-    const attachment = this.attachmentRepo.create(dto);
+    const attachment = this.attachmentRepo.create({
+      ...dto,
+      status: 'active',
+      uploadedAt: new Date(),
+    });
     const saved = await this.attachmentRepo.save(attachment);
     if (!note.hasAttachments) {
       note.hasAttachments = true;

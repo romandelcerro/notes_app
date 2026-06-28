@@ -22,7 +22,10 @@ export class NotesService {
     const cached = await this.cache.get<NoteEntity[]>(cacheKey);
     if (cached) return cached;
 
-    const qb = this.noteRepo.createQueryBuilder('note').where('note.userId = :userId', { userId });
+    const qb = this.noteRepo
+      .createQueryBuilder('note')
+      .where('note.userId = :userId', { userId })
+      .andWhere('note.deletedAt IS NULL');
 
     if (query?.sectionId) {
       qb.andWhere('note.sectionId = :sectionId', {
@@ -60,7 +63,9 @@ export class NotesService {
     const cached = await this.cache.get<NoteEntity>(cacheKey);
     if (cached) return cached;
 
-    const note = await this.noteRepo.findOne({ where: { id, userId } });
+    const note = await this.noteRepo.findOne({
+      where: { id, userId, deletedAt: IsNull() },
+    });
     if (!note) throw new NotFoundException('exception.note.notFound');
     await this.cache.set(cacheKey, note);
     return note;
@@ -96,8 +101,8 @@ export class NotesService {
     const notes = await this.noteRepo.find({
       where:
         groupKey === '__default'
-          ? { userId, sectionId: IsNull() }
-          : { userId, sectionId: Number(groupKey) },
+          ? { userId, sectionId: IsNull(), deletedAt: IsNull() }
+          : { userId, sectionId: Number(groupKey), deletedAt: IsNull() },
     });
     const noteMap = new Map(notes.map((n) => [n.id, n]));
     const ordered = noteIds.filter((id) => noteMap.has(id));

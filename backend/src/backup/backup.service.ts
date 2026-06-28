@@ -11,6 +11,7 @@ interface BackupNote {
   type: string;
   color: string;
   pinned: boolean;
+  hasAttachments: boolean;
   userId: string;
   sectionId?: number;
   createdAt: string;
@@ -22,6 +23,7 @@ interface BackupSection {
   name: string;
   userId: string;
   order: number;
+  isDefault: boolean;
   createdAt: string;
   __newId?: number;
 }
@@ -32,6 +34,8 @@ interface BackupAttachment {
   mimeType: string;
   encryptedData: string;
   size: number;
+  status: string;
+  uploadedAt: string | null;
   createdAt: string;
 }
 
@@ -71,16 +75,35 @@ export class BackupService {
       version: 1 as const,
       userId,
       notes: notes.map((n) => ({
-        ...n,
+        id: n.id,
+        title: n.title,
+        content: n.content,
+        type: n.type,
+        color: n.color,
+        pinned: n.pinned,
+        hasAttachments: n.hasAttachments,
+        userId: n.userId,
+        sectionId: n.sectionId ?? undefined,
         createdAt: n.createdAt.toISOString(),
         updatedAt: n.updatedAt.toISOString(),
       })),
       sections: sections.map((s) => ({
-        ...s,
+        id: s.id,
+        name: s.name,
+        userId: s.userId,
+        order: s.order,
+        isDefault: s.isDefault,
         createdAt: s.createdAt.toISOString(),
       })),
       attachments: attachments.map((a) => ({
-        ...a,
+        id: a.id,
+        noteId: a.noteId,
+        name: a.name,
+        mimeType: a.mimeType,
+        encryptedData: a.encryptedData,
+        size: a.size,
+        status: a.status,
+        uploadedAt: a.uploadedAt?.toISOString() ?? null,
         createdAt: a.createdAt.toISOString(),
       })),
     };
@@ -106,6 +129,7 @@ export class BackupService {
         name: s.name,
         userId: s.userId,
         order: s.order,
+        isDefault: s.isDefault ?? false,
         createdAt: new Date(s.createdAt),
       });
       await this.sectionRepo.save(section);
@@ -118,6 +142,7 @@ export class BackupService {
         type: n.type,
         color: n.color,
         pinned: n.pinned,
+        hasAttachments: n.hasAttachments ?? false,
         userId: n.userId,
         sectionId: n.sectionId ?? null,
         createdAt: new Date(n.createdAt),
@@ -133,6 +158,8 @@ export class BackupService {
         mimeType: a.mimeType,
         encryptedData: a.encryptedData,
         size: a.size,
+        status: a.status ?? 'active',
+        uploadedAt: a.uploadedAt ? new Date(a.uploadedAt) : null,
         createdAt: new Date(a.createdAt),
       });
       await this.attachmentRepo.save(attachment);

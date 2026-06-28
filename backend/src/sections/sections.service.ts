@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { SectionEntity } from '../entities/section.entity.js';
 import { CreateSectionDto } from './dto/create-section.dto.js';
 import { UpdateSectionDto } from './dto/update-section.dto.js';
@@ -22,7 +22,7 @@ export class SectionsService {
     if (cached) return cached;
 
     const result = await this.sectionRepo.find({
-      where: { userId },
+      where: { userId, deletedAt: IsNull() },
       order: { order: 'ASC' },
     });
     await this.cache.set(cacheKey, result, CACHE_TTL.LIST);
@@ -34,7 +34,9 @@ export class SectionsService {
     const cached = await this.cache.get<SectionEntity>(cacheKey);
     if (cached) return cached;
 
-    const section = await this.sectionRepo.findOne({ where: { id, userId } });
+    const section = await this.sectionRepo.findOne({
+      where: { id, userId, deletedAt: IsNull() },
+    });
     if (!section) throw new NotFoundException('exception.section.notFound');
     await this.cache.set(cacheKey, section);
     return section;

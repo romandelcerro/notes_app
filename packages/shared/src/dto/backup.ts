@@ -13,6 +13,7 @@ export interface BackupNote {
   type: string;
   color: string;
   pinned: boolean;
+  hasAttachments: boolean;
   userId: string;
   sectionId?: number;
   createdAt: string;
@@ -24,6 +25,7 @@ export interface BackupSection {
   name: string;
   userId: string;
   order: number;
+  isDefault: boolean;
   createdAt: string;
 }
 
@@ -34,5 +36,7 @@ export interface BackupAttachment {
   mimeType: string;
   encryptedData: string;
   size: number;
+  status: string;
+  uploadedAt: string | null;
   createdAt: string;
 }

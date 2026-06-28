@@ -28,6 +28,12 @@ export class AttachmentEntity {
   @Column()
   size: number;
 
+  @Column({ type: 'varchar', default: 'active' })
+  status: string;
+
+  @Column({ type: 'datetime', nullable: true })
+  uploadedAt: Date | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

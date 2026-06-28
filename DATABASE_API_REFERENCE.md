@@ -6,7 +6,7 @@
 
 ## Database Model
 
-SQLite via TypeORM (sql.js driver). 4 tables, auto-synced (`synchronize: true`).
+SQLite via TypeORM (sql.js driver). 5 tables, auto-synced (`synchronize: true`).
 
 ### Table: `users`
 
@@ -17,11 +17,30 @@ SQLite via TypeORM (sql.js driver). 4 tables, auto-synced (`synchronize: true`).
 | `passwordHash` | VARCHAR | NOT NULL |
 | `displayName` | VARCHAR | NULL |
 | `photoURL` | TEXT | NULL |
+| `username` | VARCHAR | NULL |
 | `isGuest` | BOOLEAN | Default `false` |
+| `isVerified` | BOOLEAN | Default `false` |
+| `plan` | VARCHAR | Default `'basic'` (`basic` \| `pro`) |
+| `storageUsedBytes` | BIGINT | Default `0` |
 | `guestExpiresAt` | DATETIME | NULL |
 | `createdAt` | DATETIME | Auto-set |
+| `deletedAt` | DATETIME | NULL (soft delete) |
 
-Relations: `1:N → notes`, `1:N → sections`
+Relations: `1:N → notes`, `1:N → sections`, `1:N → sessions`
+
+### Table: `sessions`
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | UUID (PK) | Auto-generated |
+| `userId` | UUID | FK → users.uid, CASCADE |
+| `refreshTokenHash` | VARCHAR | UNIQUE, NOT NULL |
+| `deviceInfo` | VARCHAR | NULL |
+| `ipAddress` | VARCHAR | NULL |
+| `expiresAt` | DATETIME | NOT NULL |
+| `lastUsedAt` | DATETIME | NULL |
+| `createdAt` | DATETIME | Auto-set |
+| `revokedAt` | DATETIME | NULL |
 
 ### Table: `notes`
 
@@ -38,6 +57,7 @@ Relations: `1:N → notes`, `1:N → sections`
 | `sectionId` | INTEGER | FK → sections.id, SET NULL |
 | `createdAt` | DATETIME | Auto-set |
 | `updatedAt` | DATETIME | Auto-update |
+| `deletedAt` | DATETIME | NULL (soft delete) |
 
 Indexes: `userId`, `sectionId`, `type`, `pinned`, `createdAt`, `updatedAt`
 
@@ -49,7 +69,9 @@ Indexes: `userId`, `sectionId`, `type`, `pinned`, `createdAt`, `updatedAt`
 | `name` | VARCHAR | NOT NULL |
 | `userId` | UUID | FK → users.uid, CASCADE |
 | `order` | INTEGER | Default 0 |
+| `isDefault` | BOOLEAN | Default false |
 | `createdAt` | DATETIME | Auto-set |
+| `deletedAt` | DATETIME | NULL (soft delete) |
 
 Relations: `1:N → notes`
 
@@ -63,6 +85,8 @@ Relations: `1:N → notes`
 | `mimeType` | VARCHAR | e.g. `image/png` |
 | `encryptedData` | TEXT | AES-GCM encrypted base64 |
 | `size` | INTEGER | Bytes |
+| `status` | VARCHAR | `'active'` (default) or `'pending'` |
+| `uploadedAt` | DATETIME | NULL |
 | `createdAt` | DATETIME | Auto-set |
 
 Indexes: `noteId`, `mimeType`, `createdAt`
@@ -70,7 +94,8 @@ Indexes: `noteId`, `mimeType`, `createdAt`
 ### Entity Relationships (ER)
 
 ```
-users ──┬── notes (CASCADE)
+users ──┬── sessions (CASCADE)
+        ├── notes (CASCADE)
         └── sections (CASCADE)
 
 notes ──┬── attachments (CASCADE)
@@ -83,26 +108,29 @@ notes ──┬── attachments (CASCADE)
 
 Base URL: `http://localhost:3000`
 
-Auth: Bearer JWT token (7d expiry for registered users, 24h for guests; secret via `JWT_SECRET` env or `dev-secret-change-in-prod`)
+Auth: Bearer JWT token (15min expiry). Refresh token rotation via sessions table.
 
 All POST/PATCH/PATCH bodies accept JSON (`Content-Type: application/json`).
 
-### Auth (no JWT required)
+### Auth (no JWT required except where noted)
 
 | Method | Path | Body | Response |
 |--------|------|------|----------|
-| `POST` | `/auth/signup` | `{ email, password, displayName }` | `{ accessToken, user }` |
-| `POST` | `/auth/signin` | `{ email, password }` | `{ accessToken, user }` |
-| `POST` | `/auth/guest` | `{ displayName, email? }` | `{ accessToken, user }` — guest token expires in 24h |
-| `POST` | `/auth/convert-guest` | `{ email, password }` | `{ accessToken, user }` — JWT required, converts guest to registered user |
-| `GET` | `/auth/me` | — | `{ uid, email, displayName, photoURL, isGuest, guestExpiresAt, createdAt }` — JWT required |
+| `POST` | `/auth/signup` | `{ email, password, displayName, username? }` | `{ accessToken, refreshToken, user }` |
+| `POST` | `/auth/signin` | `{ email, password }` | `{ accessToken, refreshToken, user }` |
+| `POST` | `/auth/guest` | `{ displayName, email? }` | `{ accessToken, refreshToken, user }` — guest token expires in 24h |
+| `POST` | `/auth/convert-guest` | `{ email, password }` | `{ accessToken, refreshToken, user }` — JWT required, converts guest to registered user |
+| `POST` | `/auth/refresh` | `{ refreshToken }` | `{ accessToken, refreshToken }` — rotate refresh token |
+| `POST` | `/auth/logout` | `{ refreshToken }` | `void` — JWT required |
+| `POST` | `/auth/logout-all` | — | `void` — JWT required, revokes all sessions |
+| `GET` | `/auth/me` | — | `UserResponse` — JWT required |
 
 ### Users (JWT required)
 
 | Method | Path | Body | Response |
 |--------|------|------|----------|
-| `GET` | `/users/me` | — | `{ uid, email, displayName, photoURL, isGuest, guestExpiresAt, createdAt }` |
-| `PATCH` | `/users/me` | `{ displayName?, photoURL? }` | `{ uid, email, displayName, photoURL, isGuest, guestExpiresAt, createdAt }` |
+| `GET` | `/users/me` | — | `UserResponse` |
+| `PATCH` | `/users/me` | `{ displayName?, photoURL?, username? }` | `UserResponse` |
 
 ### Notes (JWT required)
 
@@ -115,18 +143,18 @@ All POST/PATCH/PATCH bodies accept JSON (`Content-Type: application/json`).
 | `DELETE` | `/notes/:id` | — | — | `void` |
 | `POST` | `/notes/reorder` | — | `{ groupKey, noteIds }` | `void` |
 
-Note fields (request/response): `id`, `title`, `content`, `type`, `color`, `pinned`, `userId`, `sectionId`, `createdAt`, `updatedAt`
+Note fields (request/response): `id`, `title`, `content`, `type`, `color`, `pinned`, `hasAttachments`, `userId`, `sectionId`, `createdAt`, `updatedAt`
 
 ### Sections (JWT required)
 
 | Method | Path | Body | Response |
 |--------|------|------|----------|
 | `GET` | `/sections` | — | `Section[]` |
-| `POST` | `/sections` | `{ name }` | `Section` |
-| `PATCH` | `/sections/:id` | `{ name?, order? }` | `Section` |
+| `POST` | `/sections` | `{ name, isDefault? }` | `Section` |
+| `PATCH` | `/sections/:id` | `{ name?, order?, isDefault? }` | `Section` |
 | `DELETE` | `/sections/:id` | — | `void` |
 
-Section fields: `id`, `name`, `userId`, `order`, `createdAt`
+Section fields: `id`, `name`, `userId`, `order`, `isDefault`, `createdAt`
 
 ### Attachments (JWT required)
 
@@ -138,8 +166,16 @@ Section fields: `id`, `name`, `userId`, `order`, `createdAt`
 | `GET` | `/attachments/:id` | — | `Attachment` |
 | `DELETE` | `/attachments/:id` | — | `void` |
 
-Attachment fields: `id`, `noteId`, `name`, `mimeType`, `size`, `createdAt`  
-Note: `encryptedData` is returned only in `GET /attachments/:id` and `GET /attachments/batch`
+Attachment fields: `id`, `noteId`, `name`, `mimeType`, `encryptedData`, `size`, `status`, `uploadedAt`, `createdAt`
+
+### Sessions (JWT required)
+
+| Method | Path | Response |
+|--------|------|----------|
+| `GET` | `/sessions` | `Session[]` — active sessions |
+| `DELETE` | `/sessions/:id` | `void` — revoke session |
+
+Session fields: `id`, `deviceInfo`, `ipAddress`, `expiresAt`, `lastUsedAt`, `createdAt`
 
 ### Backup (JWT required)
 
@@ -162,9 +198,9 @@ Note: `encryptedData` is returned only in `GET /attachments/:id` and `GET /attac
 
 ### Current State: Full Backend API
 
-Frontend (Angular 21) communicates with backend via HTTP for all data operations. IndexedDB (Dexie.js) removed.
+Frontend (Angular 22) communicates with backend via HTTP for all data operations.
 
-**Auth flow:** JWT token stored in `localStorage` (`notes_access_token`). Attached via `authInterceptor` to all requests (`Authorization: Bearer <token>`). 401 responses trigger redirect to `/login`.
+**Auth flow:** JWT token + refresh token. Access token (15min) attached via `authInterceptor`. 401 → attempt `/auth/refresh` → if fail, redirect to `/login`.
 
 **Client-side encryption:** Titles and content are AES-GCM encrypted (via `CryptoService`, PBKDF2 key derived from userId) before sending to backend. Backend stores encrypted blobs. Decrypted on read.
 
@@ -172,13 +208,15 @@ Frontend (Angular 21) communicates with backend via HTTP for all data operations
 
 | Frontend Service | Backend API |
 |-----------------|-------------|
-| `AuthService` | `POST /auth/signup`, `POST /auth/signin`, `POST /auth/guest`, `POST /auth/convert-guest`, `GET /auth/me` |
+| `AuthService` | `POST /auth/signup`, `POST /auth/signin`, `POST /auth/guest`, `POST /auth/convert-guest`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me` |
 | `NotesService` | `GET /notes`, `POST /notes`, `PATCH /notes/:id`, `DELETE /notes/:id` |
 | `SectionsService` | `GET /sections`, `POST /sections`, `PATCH /sections/:id`, `DELETE /sections/:id` |
 | `AttachmentService` | `GET /attachments/note/:noteId`, `GET /attachments/batch?noteIds=`, `POST /attachments`, `DELETE /attachments/:id` |
 | `UserService` | `GET /users/me`, `PATCH /users/me` |
 | `BackupService` | `GET /backup/export`, `POST /backup/import` |
 | `CryptoService` | Client-side only (Web Crypto API, no server key) |
+
+_Note: Session management endpoints (`GET /sessions`, `DELETE /sessions/:id`) are backend-only for now; frontend does not consume them directly._
 
 ---
 

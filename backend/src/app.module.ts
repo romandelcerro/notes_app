@@ -6,12 +6,14 @@ import { UserEntity } from './entities/user.entity.js';
 import { NoteEntity } from './entities/note.entity.js';
 import { SectionEntity } from './entities/section.entity.js';
 import { AttachmentEntity } from './entities/attachment.entity.js';
+import { SessionEntity } from './entities/session.entity.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { NotesModule } from './notes/notes.module.js';
 import { SectionsModule } from './sections/sections.module.js';
 import { AttachmentsModule } from './attachments/attachments.module.js';
 import { BackupModule } from './backup/backup.module.js';
+import { SessionsModule } from './sessions/sessions.module.js';
 
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -28,7 +30,7 @@ import { CommonModule } from './common/common.module.js';
         type: 'sqljs',
         location: config.get('DB_PATH', './data/notes.db'),
         autoSave: true,
-        entities: [UserEntity, NoteEntity, SectionEntity, AttachmentEntity],
+        entities: [UserEntity, NoteEntity, SectionEntity, AttachmentEntity, SessionEntity],
         synchronize: true,
       }),
     }),
@@ -39,6 +41,7 @@ import { CommonModule } from './common/common.module.js';
     SectionsModule,
     AttachmentsModule,
     BackupModule,
+    SessionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, I18nService],
