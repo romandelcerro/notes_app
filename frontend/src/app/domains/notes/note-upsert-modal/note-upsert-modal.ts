@@ -24,7 +24,7 @@ export interface NoteCreateEditResult {
 const NOTE_COLORS = ['', '#F28B82', '#FBBC04', '#FFF475', '#CCFF90', '#A8D5F7', '#D7AEFB'];
 
 @Component({
-  selector: 'app-note-create-edit-modal',
+  selector: 'app-note-upsert-modal',
   imports: [
     MatDialogModule,
     MatButtonModule,
@@ -34,14 +34,14 @@ const NOTE_COLORS = ['', '#F28B82', '#FBBC04', '#FFF475', '#CCFF90', '#A8D5F7', 
     TranslatePipe,
     AttachmentSection,
   ],
-  templateUrl: './note-create-edit-modal.html',
-  styleUrl: './note-create-edit-modal.scss',
+  templateUrl: './note-upsert-modal.html',
+  styleUrl: './note-upsert-modal.scss',
 })
-export class NoteCreateEditModal {
+export class NoteUpsertModal {
   private readonly _notesService = inject(NotesService);
   private readonly _userService = inject(UserService);
   private readonly _filesService = inject(FilesService);
-  private readonly _dialogRef = inject(MatDialogRef<NoteCreateEditModal, NoteCreateEditResult>);
+  private readonly _dialogRef = inject(MatDialogRef<NoteUpsertModal, NoteCreateEditResult>);
   private readonly _attachmentSection = viewChild.required(AttachmentSection);
 
   protected readonly _data: NoteEditModalData = inject(MAT_DIALOG_DATA);
@@ -53,9 +53,9 @@ export class NoteCreateEditModal {
   protected readonly saving = signal(false);
 
   protected readonly colors = NOTE_COLORS;
-  protected readonly isEditing = !!this._data.note;
+  protected readonly isEditing = Boolean(this._data.note);
 
-  protected async save(): Promise<void> {
+  protected async save() {
     const title = this.title().trim();
     const content = this.content().trim();
     if (!content && !title) return;
@@ -95,17 +95,13 @@ export class NoteCreateEditModal {
     }
   }
 
-  protected async onFileDrop(event: DragEvent): Promise<void> {
+  protected async onFileDrop(event: DragEvent) {
     event.preventDefault();
     const files = event.dataTransfer?.files;
     if (files) await this._attachmentSection().addFiles(files);
   }
 
-  protected onDragOver(event: DragEvent): void {
-    event.preventDefault();
-  }
-
-  protected async onPaste(event: ClipboardEvent): Promise<void> {
+  protected async onPaste(event: ClipboardEvent) {
     const items = event.clipboardData?.items;
     if (!items) return;
     const imageFile = await this._filesService.resolveImageFromClipboard(items);

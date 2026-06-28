@@ -1,31 +1,33 @@
 <main class="notes-main">
   @if (selectedSection()) {
     <section>
-      <h2 class="section-label" [title]="getDisplayName(selectedSection()!)">
-        {{ getDisplayName(selectedSection()!) }}
+      <h2 class="section-label" [title]="selectedSection()!.displayName!">
+        {{ selectedSection()!.displayName! }}
       </h2>
       <div
         class="notes-grid"
         cdkDropList
         cdkDropListOrientation="mixed"
-        [cdkDropListData]="ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id)"
+        [cdkDropListData]="
+          notesService.ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id)
+        "
         (cdkDropListDropped)="onNoteDrop($event, 'sec-' + selectedSection()!.id)"
       >
         @for (
-          note of ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id);
+          note of notesService.ordered(selectedSectionNotes(), 'sec-' + selectedSection()!.id);
           track note.id
         ) {
           <app-note-card
             cdkDrag
             [note]="note"
             [attachments]="attachmentsForNote(note.id)"
-            (previewRequest)="openPreviewNote($event)"
-            (editRequest)="openEditNoteModal($event)"
+            (previewRequest)="openPreviewNoteModal($event)"
+            (editRequest)="openUpsertNoteModal({ note: $event })"
           />
         }
         <button
           class="add-note-card"
-          (click)="openNewNoteModal()"
+          (click)="openUpsertNoteModal({ sectionId: selectedSection()!.id })"
           [attr.aria-label]="'home.addNote' | translate"
         >
           <mat-icon>add</mat-icon>
@@ -34,55 +36,41 @@
       </div>
     </section>
   } @else {
-    @for (sec of sections(); track sec.id) {
+    @for (section of sectionsService.sections(); track section.id) {
       <section>
-        <h3 class="section-label" [title]="getDisplayName(sec)">{{ getDisplayName(sec) }}</h3>
+        <h3 class="section-label" [title]="section.displayName!">{{ section.displayName! }}</h3>
         <div
           class="notes-grid"
           cdkDropList
           cdkDropListOrientation="mixed"
-          [cdkDropListData]="ordered(notesForSection(sec), 'sec-' + sec.id)"
-          (cdkDropListDropped)="onNoteDrop($event, 'sec-' + sec.id)"
+          [cdkDropListData]="
+            notesService.ordered(notesService.notesForSection(section.id!), 'sec-' + section.id)
+          "
+          (cdkDropListDropped)="onNoteDrop($event, 'sec-' + section.id)"
         >
-          @for (note of ordered(notesForSection(sec), 'sec-' + sec.id); track note.id) {
+          @for (
+            note of notesService.ordered(
+              notesService.notesForSection(section.id!),
+              'sec-' + section.id
+            );
+            track note.id
+          ) {
             <app-note-card
               cdkDrag
               [note]="note"
               [attachments]="attachmentsForNote(note.id)"
-              (previewRequest)="openPreviewNote($event)"
-              (editRequest)="openEditNoteModal($event)"
+              (previewRequest)="openPreviewNoteModal($event)"
+              (editRequest)="openUpsertNoteModal({ note: $event })"
             />
           }
           <button
             class="add-note-card"
-            (click)="openNewNoteModal(sec.id)"
+            (click)="openUpsertNoteModal({ sectionId: section.id })"
             [attr.aria-label]="'home.addNote' | translate"
           >
             <mat-icon>add</mat-icon>
             <span>{{ 'home.addNote' | translate }}</span>
           </button>
-        </div>
-      </section>
-    }
-
-    @if (unsectionedNotes().length) {
-      <section>
-        <div
-          class="notes-grid"
-          cdkDropList
-          cdkDropListOrientation="mixed"
-          [cdkDropListData]="ordered(unsectionedNotes(), 'unsectioned')"
-          (cdkDropListDropped)="onNoteDrop($event, 'unsectioned')"
-        >
-          @for (note of ordered(unsectionedNotes(), 'unsectioned'); track note.id) {
-            <app-note-card
-              cdkDrag
-              [note]="note"
-              [attachments]="attachmentsForNote(note.id)"
-              (previewRequest)="openPreviewNote($event)"
-              (editRequest)="openEditNoteModal($event)"
-            />
-          }
         </div>
       </section>
     }

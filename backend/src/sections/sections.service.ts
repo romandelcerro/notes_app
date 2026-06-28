@@ -17,7 +17,7 @@ export class SectionsService {
   ) {}
 
   async findAll(userId: string) {
-    const cacheKey = `sections:${userId}:findAll`;
+    const cacheKey = `sections:${userId}:findAll:`;
     const cached = await this.cache.get<SectionEntity[]>(cacheKey);
     if (cached) return cached;
 

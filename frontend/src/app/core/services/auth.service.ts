@@ -1,15 +1,15 @@
-import { Service, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Service, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import type { AuthResponse, UserResponse } from '@notes-app/shared';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { clearToken, getToken, setToken } from '../interceptors/auth.interceptor';
+import type { User } from '../models/user.model';
 import { CryptoService } from './crypto.service';
 import { NotesService } from './notes.service';
 import { SectionsService } from './sections.service';
 import { UserService } from './user.service';
-import { getToken, setToken, clearToken } from '../interceptors/auth.interceptor';
-import type { AuthResponse, UserResponse } from '@notes-app/shared';
-import type { User } from '../models/user.model';
 
 @Service()
 export class AuthService {
@@ -121,6 +121,6 @@ export class AuthService {
   private _clearAppData() {
     this._cryptoService.key.set(null);
     this._notesService.clearNotes();
-    this._sectionsService.clearSections();
+    this._sectionsService.sections.set([]);
   }
 }

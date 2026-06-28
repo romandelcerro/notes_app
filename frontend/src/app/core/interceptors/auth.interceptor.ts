@@ -5,15 +5,15 @@ import { catchError, throwError } from 'rxjs';
 
 const TOKEN_KEY = 'notes_access_token';
 
-export function getToken(): string | null {
+export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
 }
 
-export function setToken(token: string): void {
+export function setToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
 }
 
-export function clearToken(): void {
+export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
 

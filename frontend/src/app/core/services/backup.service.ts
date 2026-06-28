@@ -1,15 +1,13 @@
-import { Service, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Service, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CryptoService } from './crypto.service';
 import { NotesService } from './notes.service';
 import { SectionsService } from './sections.service';
 
 @Service()
 export class BackupService {
   private readonly _http = inject(HttpClient);
-  private readonly _cryptoService = inject(CryptoService);
   private readonly _notesService = inject(NotesService);
   private readonly _sectionsService = inject(SectionsService);
 

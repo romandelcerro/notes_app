@@ -16,7 +16,7 @@ import { FilesService } from '../../core/services/files.service';
 })
 export class AttachmentSection {
   private readonly _attachmentService = inject(AttachmentService);
-  private readonly _filesService = inject(FilesService);
+  protected readonly filesService = inject(FilesService);
   private readonly _translateService = inject(TranslateService);
 
   private readonly _snackBar = inject(MatSnackBar);
@@ -26,20 +26,27 @@ export class AttachmentSection {
   readonly maxFileSizeBytes = input(5 * 1024 * 1024);
 
   readonly attachments = signal<Attachment[]>([]);
-  readonly pendingFiles = signal<File[]>([]);
+  public readonly pendingFiles = signal<File[]>([]);
   private readonly _objectURLs = signal<string[]>([]);
 
-  private readonly _loadAttachments = effect(async () => {
+  private _loadAttachmentsVersion = 0;
+
+  private readonly _loadAttachments = effect(() => {
     const noteId = this.noteId();
-    if (noteId) {
-      const loaded = await this._attachmentService.getAttachments(noteId);
-      this.attachments.set(loaded);
-    }
+
+    if (!noteId) return;
+
+    const version = ++this._loadAttachmentsVersion;
+    this._attachmentService.getAttachments(noteId).then((loaded) => {
+      if (version === this._loadAttachmentsVersion) {
+        this.attachments.set(loaded);
+      }
+    });
   });
 
   constructor() {
     this._destroyRef.onDestroy(() => {
-      this._objectURLs().forEach((url) => this._filesService.revokeObjectURL(url));
+      this._objectURLs().forEach((url) => this.filesService.revokeObjectURL(url));
     });
   }
 
@@ -84,10 +91,6 @@ export class AttachmentSection {
     if (input.files) await this.addFiles(input.files);
   }
 
-  protected removePendingFile(file: File): void {
-    this.pendingFiles.update((files) => files.filter((f) => f !== file));
-  }
-
   protected async deleteAttachment(attachment: Attachment) {
     if (!attachment.id) return;
     await this._attachmentService.deleteAttachment(attachment.id);
@@ -96,15 +99,11 @@ export class AttachmentSection {
 
   protected async downloadAttachment(attachment: Attachment) {
     const buffer = await this._attachmentService.decryptAttachment(attachment);
-    const url = this._filesService.bufferToObjectURL(buffer, attachment.mimeType);
+    const url = this.filesService.bufferToObjectURL(buffer, attachment.mimeType);
     const a = document.createElement('a');
     a.href = url;
     a.download = attachment.name;
     a.click();
-    this._filesService.revokeObjectURL(url);
-  }
-
-  protected formatSize(bytes: number): string {
-    return this._filesService.formatBytes(bytes);
+    this.filesService.revokeObjectURL(url);
   }
 }

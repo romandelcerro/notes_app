@@ -1,5 +1,5 @@
-import { Service, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Service, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -19,29 +19,33 @@ export class SectionsService {
   private readonly _http = inject(HttpClient);
   private readonly _translateService = inject(TranslateService);
 
-  readonly sections = signal<Section[]>([]);
+  public readonly sections = signal<Section[]>([]);
+  public readonly currentSectionSelected = signal<Section | null>(null);
+
+  public displaySectionName(section: { name: string; isDefault: boolean }) {
+    return section.isDefault
+      ? this._translateService.instant('home.defaultSectionName')
+      : section.name;
+  }
+
+  private _toSection(r: SectionResponse): Section {
+    return { ...r, createdAt: new Date(r.createdAt), displayName: this.displaySectionName(r) };
+  }
 
   async loadSections() {
     const raw = await firstValueFrom(
       this._http.get<SectionResponse[]>(`${environment.apiUrl}/sections`),
     );
-    this.sections.set(raw.map((r) => ({ ...r, createdAt: new Date(r.createdAt) })));
+    this.sections.set(raw.map((r) => this._toSection(r)));
   }
 
-  async createSection(name: string, isDefault = false): Promise<Section> {
+  async createSection(name: string, isDefault = false) {
     const created = await firstValueFrom(
       this._http.post<SectionResponse>(`${environment.apiUrl}/sections`, { name, isDefault }),
     );
-    const newSection: Section = { ...created, createdAt: new Date(created.createdAt) };
+    const newSection = this._toSection(created);
     this.sections.update((s) => [...s, newSection]);
     return newSection;
-  }
-
-  getDisplayName(section: { name: string; isDefault: boolean }): string {
-    if (section.isDefault) {
-      return this._translateService.instant('home.defaultSectionName');
-    }
-    return section.name;
   }
 
   async renameSection(id: number, name: string) {
@@ -50,14 +54,10 @@ export class SectionsService {
     if (section?.isDefault) {
       payload['isDefault'] = false;
     }
-    await firstValueFrom(
+    const updated = await firstValueFrom(
       this._http.patch<SectionResponse>(`${environment.apiUrl}/sections/${id}`, payload),
     );
-    this.sections.update((s) =>
-      s.map((sec) =>
-        sec.id === id ? { ...sec, name, isDefault: sec.isDefault ? false : sec.isDefault } : sec,
-      ),
-    );
+    this.sections.update((s) => s.map((sec) => (sec.id === id ? this._toSection(updated) : sec)));
   }
 
   async deleteSection(id: number) {
@@ -65,16 +65,15 @@ export class SectionsService {
     this.sections.update((s) => s.filter((sec) => sec.id !== id));
   }
 
-  clearSections() {
-    this.sections.set([]);
-  }
-
   async clearAllData() {
-    const all = this.sections();
-    for (const section of all) {
-      if (section.id)
-        await firstValueFrom(this._http.delete(`${environment.apiUrl}/sections/${section.id}`));
-    }
+    const sections = this.sections();
+    const results = await Promise.allSettled(
+      sections
+        .filter((s) => s.id)
+        .map((s) => firstValueFrom(this._http.delete(`${environment.apiUrl}/sections/${s.id}`))),
+    );
+    for (const r of results)
+      if (r.status === 'rejected') console.error('Failed to delete section', r.reason);
     this.sections.set([]);
   }
 }

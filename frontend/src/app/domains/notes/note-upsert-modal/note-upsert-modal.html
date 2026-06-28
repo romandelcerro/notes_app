@@ -2,7 +2,7 @@
 
 <mat-dialog-content
   (paste)="onPaste($event)"
-  (dragover)="onDragOver($event)"
+  (dragover)="$event.preventDefault()"
   (drop)="onFileDrop($event)"
 >
   <mat-form-field appearance="outline" class="full-width">

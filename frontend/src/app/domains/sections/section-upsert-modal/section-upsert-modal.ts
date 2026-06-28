@@ -8,36 +8,40 @@ import type { Section } from '../../../core/models/section.model';
 import { SectionsService } from '../../../core/services/sections.service';
 
 @Component({
-  selector: 'app-section-create-edit-modal',
+  selector: 'app-section-upsert-modal',
   imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, TranslatePipe],
-  templateUrl: './section-create-edit-modal.html',
-  styleUrl: './section-create-edit-modal.scss',
+  templateUrl: './section-upsert-modal.html',
+  styleUrl: './section-upsert-modal.scss',
 })
-export class SectionCreateEditModal {
+export class SectionUpsertModal {
   private readonly _sectionsService = inject(SectionsService);
 
-  private readonly _dialogRef = inject(MatDialogRef<SectionCreateEditModal>);
+  private readonly _dialogRef = inject(MatDialogRef<SectionUpsertModal>);
   private readonly _data = inject<{ section?: Section } | null>(MAT_DIALOG_DATA, {
     optional: true,
   });
 
-  protected readonly editMode = !!this._data?.section;
-  protected readonly name = signal(this._data?.section?.name ?? '');
-  protected readonly saving = signal(false);
+  protected readonly editMode = Boolean(this._data?.section);
+  protected readonly sectionName = signal(this._data?.section?.name ?? '');
+  protected readonly isSaving = signal(false);
 
   protected async save() {
-    const name = this.name().trim();
+    const name = this.sectionName().trim();
     if (!name) return;
-    this.saving.set(true);
+    this.isSaving.set(true);
     try {
-      if (this.editMode && this._data?.section?.id != null) {
+      if (this.editMode && this._data?.section?.id) {
         await this._sectionsService.renameSection(this._data.section.id, name);
+        const updatedSection = this._sectionsService
+          .sections()
+          .find((s) => s.id === this._data?.section?.id);
+        this._dialogRef.close(updatedSection ?? null);
       } else {
-        await this._sectionsService.createSection(name);
+        const sectionCreated = await this._sectionsService.createSection(name);
+        this._dialogRef.close(sectionCreated);
       }
-      this._dialogRef.close(true);
     } finally {
-      this.saving.set(false);
+      this.isSaving.set(false);
     }
   }
 }

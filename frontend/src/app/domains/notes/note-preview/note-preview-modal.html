@@ -9,7 +9,7 @@
   } @else {
     <p class="preview-content" [innerHTML]="contentHtml()"></p>
   }
-  @if (imageUrls().length > 0) {
+  @if (imageUrls().length) {
     <div class="preview-images">
       @for (img of imageUrls(); track img.url) {
         <div class="preview-img-wrap">
@@ -26,7 +26,7 @@
       }
     </div>
   }
-  @if (attachments().length > 0) {
+  @if (attachments().length) {
     <ul class="preview-files">
       @for (file of attachments(); track file.name) {
         <li>

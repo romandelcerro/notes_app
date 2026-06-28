@@ -5,4 +5,5 @@ export interface Section {
   order: number;
   isDefault: boolean;
   createdAt: Date;
+  displayName?: string;
 }

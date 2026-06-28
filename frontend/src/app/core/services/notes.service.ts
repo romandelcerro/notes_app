@@ -50,7 +50,7 @@ export class NotesService {
     this.notes.set(decryptedNotes);
   }
 
-  async createNote(note: Note): Promise<Note> {
+  async createNote(note: Note) {
     const encrypted = await encryptNote(note, this._cryptoService);
     const created = await firstValueFrom(
       this._http.post<NoteResponse>(`${environment.apiUrl}/notes`, {
@@ -100,21 +100,20 @@ export class NotesService {
     this._orderMap.set({});
   }
 
-  removeNotesForSection(sectionId: number) {
-    this.notes.update((notes) => notes.filter((n) => n.sectionId !== sectionId));
-  }
-
   async clearAllData() {
-    const all = this.notes();
-    for (const note of all) {
-      if (note.id)
-        await firstValueFrom(this._http.delete(`${environment.apiUrl}/notes/${note.id}`));
-    }
+    const notes = this.notes();
+    const results = await Promise.allSettled(
+      notes
+        .filter((n) => n.id)
+        .map((n) => firstValueFrom(this._http.delete(`${environment.apiUrl}/notes/${n.id}`))),
+    );
+    for (const r of results)
+      if (r.status === 'rejected') console.error('Failed to delete note', r.reason);
     this.notes.set([]);
     this._orderMap.set({});
   }
 
-  ordered(notes: Note[], key: string): Note[] {
+  ordered(notes: Note[], key: string) {
     const order = this._orderMap()[key];
     if (!order) return notes;
     const byId = new Map(notes.map((n) => [n.id!, n]));
@@ -122,6 +121,20 @@ export class NotesService {
       ...order.filter((id) => byId.has(id)).map((id) => byId.get(id)!),
       ...notes.filter((n) => !order.includes(n.id!)),
     ];
+  }
+
+  notesForSection(sectionId: number) {
+    if (!sectionId) return [];
+    const { query } = this.filter();
+    const notes = this.notes();
+    const filtered = query
+      ? notes.filter(
+          (n) =>
+            n.title.toLowerCase().includes(query.toLowerCase()) ||
+            n.content.toLowerCase().includes(query.toLowerCase()),
+        )
+      : notes;
+    return filtered.filter((n) => n.sectionId === sectionId);
   }
 
   saveOrder(groupKey: string, ids: number[]) {

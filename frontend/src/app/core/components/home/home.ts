@@ -5,8 +5,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { NoteCreateEditModal } from '../../../domains/notes/note-create-edit-modal/note-create-edit-modal';
-import { SectionCreateEditModal } from '../../../domains/sections/section-create-edit-modal/section-create-edit-modal';
+import { firstValueFrom } from 'rxjs';
+import { NoteUpsertModal } from '../../../domains/notes/note-upsert-modal/note-upsert-modal';
+import { SectionUpsertModal } from '../../../domains/sections/section-upsert-modal/section-upsert-modal';
+import { Section } from '../../models/section.model';
 import { NotesService } from '../../services/notes.service';
 import { SectionsService } from '../../services/sections.service';
 
@@ -26,37 +28,35 @@ export class Home {
 
   protected createSection() {
     this._dialog
-      .open(SectionCreateEditModal, { width: '400px', maxWidth: '95vw' })
+      .open(SectionUpsertModal, { width: '400px', maxWidth: '95vw' })
       .afterClosed()
       .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe((created) => {
-        if (!created) return;
-        const sections = this._sectionsService.sections();
-        const newSection = sections[sections.length - 1];
-        if (newSection?.id != null) {
-          this._router.navigate(['/list', newSection.name]);
-        }
+      .subscribe((created: Section | boolean) => {
+        if (typeof created === 'boolean') return;
+        if (!created?.id) return;
+        this._router.navigate(['/list', created.name]);
+        this._sectionsService.currentSectionSelected.set(created);
       });
   }
 
   protected async createNote() {
     const defaultName = this._translateService.instant('home.defaultSectionName');
     const section = await this._sectionsService.createSection(defaultName, true);
-    this._dialog
-      .open(NoteCreateEditModal, {
-        data: { sectionId: section.id },
-        width: '600px',
-        maxWidth: '95vw',
-        maxHeight: '90dvh',
-      })
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe(async () => {
-        if (this._notesService.notes().length > 0) {
-          this._router.navigate(['/list', section.name]);
-        } else {
-          await this._sectionsService.deleteSection(section.id!);
-        }
-      });
+    const createdNoteId = await firstValueFrom<number | null>(
+      this._dialog
+        .open(NoteUpsertModal, {
+          data: { sectionId: section.id },
+          width: '600px',
+          maxWidth: '95vw',
+          maxHeight: '90dvh',
+        })
+        .afterClosed(),
+    );
+    if (createdNoteId) {
+      this._router.navigate(['/list', section.name]);
+      this._sectionsService.currentSectionSelected.set(section);
+    } else {
+      await this._sectionsService.deleteSection(section.id!);
+    }
   }
 }

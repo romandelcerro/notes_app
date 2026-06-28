@@ -136,9 +136,11 @@ export class UserMenuModal {
     try {
       await this._notesService.clearAllData();
       await this._sectionsService.clearAllData();
-      window.location.reload();
+    } catch (err) {
+      console.error('clearAllData error', err);
     } finally {
       this.clearing.set(false);
+      window.location.reload();
     }
   }
 

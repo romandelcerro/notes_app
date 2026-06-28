@@ -9,7 +9,7 @@ function createDataGuard(requireData: boolean, redirectTo: string): CanActivateF
     const sections = inject(SectionsService);
     const router = inject(Router);
 
-    const hasData = !!notes.notes().length || !!sections.sections().length;
+    const hasData = Boolean(notes.notes().length) || Boolean(sections.sections().length);
     return requireData === hasData ? true : router.createUrlTree([redirectTo]);
   };
 }

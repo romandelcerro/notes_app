@@ -10,7 +10,7 @@
 </div>
 
 @if (noteId()) {
-  @if (attachments().length > 0) {
+  @if (attachments().length) {
     <ul class="att-list">
       @for (att of attachments(); track att.id) {
         <li>
@@ -19,7 +19,7 @@
           }}</mat-icon>
           <span class="att-name">{{ att.name }}</span>
           <span class="att-meta"
-            >{{ formatSize(att.size) }} · {{ att.createdAt | date: 'd MMM' }}</span
+            >{{ filesService.formatBytes(att.size) }} · {{ att.createdAt | date: 'd MMM' }}</span
           >
           <button
             mat-icon-button
@@ -42,16 +42,16 @@
     <p class="no-attachments">{{ 'note.noAttachments' | translate }}</p>
   }
 } @else {
-  @if (pendingFiles().length > 0) {
+  @if (pendingFiles().length) {
     <ul class="att-list">
       @for (file of pendingFiles(); track file.name) {
         <li>
           <mat-icon>{{ file.type.startsWith('image/') ? 'image' : 'insert_drive_file' }}</mat-icon>
           <span class="att-name">{{ file.name }}</span>
-          <span class="att-meta">{{ formatSize(file.size) }}</span>
+          <span class="att-meta">{{ filesService.formatBytes(file.size) }}</span>
           <button
             mat-icon-button
-            (click)="removePendingFile(file)"
+            (click)="pendingFiles.update((files) => files.filter((f) => f !== file))"
             [attr.aria-label]="'note.deleteAttachment' | translate"
           >
             <mat-icon class="danger-icon">delete</mat-icon>

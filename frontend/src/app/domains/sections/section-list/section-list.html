@@ -2,25 +2,25 @@
   <app-section-card
     icon="notes"
     [label]="'sidenav.allNotes' | translate"
-    [active]="selectedSectionId() === null"
+    [active]="!sectionsService.currentSectionSelected()?.id"
     (selectClick)="selectSection(null)"
   />
 
-  @for (sec of sections(); track sec.id) {
+  @for (section of sectionsService.sections(); track section.id) {
     <app-section-card
       icon="folder_open"
-      [label]="getDisplayName(sec)"
-      [section]="sec"
-      [active]="selectedSectionId() === sec.id"
-      (selectClick)="selectSection(sec.id!)"
-      (editClick)="editSection($event)"
+      [label]="sectionsService.displaySectionName(section)"
+      [section]="section"
+      [active]="section.id === sectionsService.currentSectionSelected()?.id"
+      (selectClick)="selectSection(section.id!)"
+      (editClick)="openUpsertSectionModal($event)"
       (deleteClick)="deleteSection($event)"
     />
   }
 
   <button
     class="new-section-btn"
-    (click)="openNewSection()"
+    (click)="openUpsertSectionModal()"
     [attr.aria-label]="'sidenav.newSection' | translate"
   >
     <mat-icon>add</mat-icon>

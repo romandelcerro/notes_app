@@ -1,0 +1,33 @@
+@let upsertModalTitle = editMode ? 'section.dialogTitleEdit' : 'section.dialogTitleNew';
+@let saveButtonLabel =
+  isSaving()
+    ? editMode
+      ? 'section.saving'
+      : 'section.creating'
+    : editMode
+      ? 'section.save'
+      : 'section.create';
+
+<h2 mat-dialog-title>
+  {{ upsertModalTitle | translate }}
+</h2>
+
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'section.nameLabel' | translate }}</mat-label>
+    <input
+      matInput
+      [value]="sectionName()"
+      (input)="sectionName.set($event.target.value)"
+      (keyup.enter)="save()"
+      [placeholder]="'section.namePlaceholder' | translate"
+    />
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'note.cancel' | translate }}</button>
+  <button mat-flat-button (click)="save()" [disabled]="isSaving() || !sectionName().trim()">
+    {{ saveButtonLabel | translate }}
+  </button>
+</mat-dialog-actions>

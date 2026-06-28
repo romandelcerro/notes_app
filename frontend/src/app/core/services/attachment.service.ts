@@ -1,5 +1,5 @@
-import { Service, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Service, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { mapFileToAttachment } from '../mappers/attachment.mapper';
@@ -40,7 +40,7 @@ export class AttachmentService {
   }
 
   async getAttachmentsByNoteIds(noteIds: number[]): Promise<Map<number, Attachment[]>> {
-    if (noteIds.length === 0) return new Map();
+    if (!noteIds.length) return new Map();
     const key = [...noteIds].sort().join(',');
     const cached = this._batchCache.get(key);
     if (cached) return cached;
@@ -61,7 +61,7 @@ export class AttachmentService {
     return map;
   }
 
-  async getAttachments(noteId: number): Promise<Attachment[]> {
+  async getAttachments(noteId: number) {
     const map = await this.getAttachmentsByNoteIds([noteId]);
     return map.get(noteId) ?? [];
   }

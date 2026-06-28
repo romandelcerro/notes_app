@@ -20,7 +20,7 @@ export class SectionCard {
   readonly active = input(false);
   readonly primary = input(false);
 
-  readonly selectClick = output<void>();
+  readonly selectClick = output();
   readonly editClick = output<Section>();
   readonly deleteClick = output<Section>();
 }

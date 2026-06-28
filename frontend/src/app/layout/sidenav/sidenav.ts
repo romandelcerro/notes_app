@@ -7,5 +7,4 @@ import { SectionList } from '../../domains/sections/section-list/section-list';
   templateUrl: './sidenav.html',
   styleUrl: './sidenav.scss',
 })
-export class Sidenav {
-}
+export class Sidenav {}
